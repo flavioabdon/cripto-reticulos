@@ -10,7 +10,7 @@
 
 | Fase | Descripción | Estado |
 |------|-------------|--------|
-| F1 | Diseño formal del protocolo | ⬜ Pendiente |
+| F1 | Diseño formal del protocolo | ✅ Completado |
 | F2 | Modelo formal en Tamarin Prover | ⬜ Pendiente |
 | F3a | Adaptación de PQClean + validación KAT | ⬜ Pendiente |
 | F3b | Capa de protocolo post-cuántico (Python) | ⬜ Pendiente |
@@ -28,24 +28,24 @@
 
 > **Objetivo:** Definir roles, fases, mensajes y propiedades de seguridad antes de codificar.
 
-- [ ] **1.1** Definir los 4 roles del protocolo:
+- [x] **1.1** Definir los 4 roles del protocolo:
   - Votante
   - Autoridad de Registro (AR)
   - Servidor de Votación (SV)
   - Autoridad de Conteo / Tally (AC)
-- [ ] **1.2** Especificar las 6 fases del flujo:
+- [x] **1.2** Especificar las 6 fases del flujo:
   - (a) Configuración: generación de claves ML-KEM/ML-DSA de las autoridades
   - (b) Registro y autenticación del votante (AR)
   - (c) Cifrado del voto (encapsulamiento ML-KEM) + firma de boleta (ML-DSA)
   - (d) Envío al servidor y verificación de firma (SV)
   - (e) Registro del voto cifrado en el servidor
   - (f) Desencapsulamiento y conteo final (AC)
-- [ ] **1.3** Documentar el flujo de mensajes en notación Alice-Bob
-- [ ] **1.4** Verificar que el diseño cubre las 3 propiedades exigidas:
+- [x] **1.3** Documentar el flujo de mensajes en notación Alice-Bob
+- [x] **1.4** Verificar que el diseño cubre las 3 propiedades exigidas:
   - Confidencialidad del voto
   - Integridad (correspondencia voto emitido / voto contabilizado)
   - Autenticidad votante–autoridad
-- [ ] **1.5** Crear diagrama de flujo preliminar (Mermaid / visual)
+- [x] **1.5** Crear diagrama de flujo preliminar (Mermaid / visual)
 
 **Entregable:** Documento de diseño formal (`docs/arquitectura.md` + `docs/diagrama_flujo.*`)
 
