@@ -1,0 +1,10 @@
+maude tool: 'maude'
+ checking version: 3.5.1. OK.
+ checking installation: OK.
+[Theory ProtocoloVotacionPQC] Theory loaded
+[Theory ProtocoloVotacionPQC] Theory translated
+[Theory ProtocoloVotacionPQC] Derivation checks started
+[Theory ProtocoloVotacionPQC] Derivation checks ended
+[Theory ProtocoloVotacionPQC] Theory closed
+[Saturating Sources] Step 1 (Max 5)
+[Saturating Sources] Done

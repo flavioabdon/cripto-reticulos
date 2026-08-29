@@ -1,0 +1,134 @@
+theory TestClean
+begin
+
+builtins: dest-signing, symmetric-encryption
+
+functions: encaps/2, decaps/2, ek_from_dk/1, h/1
+equations: decaps(dk, encaps(ek_from_dk(dk), r)) = r
+
+restriction Unicidad_Voto:
+    "All id #i #j. VotoUnico(id) @i & VotoUnico(id) @j ==> #i = #j"
+
+restriction Eq:
+    "All x y #i. Eq(x, y) @i ==> x = y"
+
+rule Setup_AR:
+    [ Fr(~sk_AR) ]
+  --[ SetupAR(pk(~sk_AR)) ]->
+    [ !SecretKey('AR', ~sk_AR)
+    , !PublicKey('AR', pk(~sk_AR))
+    , Out(pk(~sk_AR))
+    ]
+
+rule Setup_SV:
+    [ Fr(~dk_SV), Fr(~sk_SV) ]
+  --[ SetupSV(ek_from_dk(~dk_SV), pk(~sk_SV)) ]->
+    [ !DecapsKey('AC', ~dk_SV)
+    , !PublicKeyKEM('SV', ek_from_dk(~dk_SV))
+    , !PublicKey('SV', pk(~sk_SV))
+    , Out(ek_from_dk(~dk_SV))
+    , Out(pk(~sk_SV))
+    ]
+
+rule Register_Voter:
+    let
+        pk_V   = pk(~sk_V)
+        cred_V = <~idV, pk_V, ~ts_reg>
+        sig_AR = sign(cred_V, ~sk_AR)
+    in
+    [ Fr(~sk_V)
+    , Fr(~ts_reg)
+    , Fr(~idV)
+    , !SecretKey('AR', ~sk_AR)
+    ]
+  --[ RegistroVotante(~idV, pk_V) ]->
+    [ !VoterKey(~idV, ~sk_V, cred_V, sig_AR)
+    , !Padron(~idV, pk_V)
+    ]
+
+rule Cast_Vote:
+    let
+        ct    = encaps(ek_SV, ~k)
+        vc    = senc(~m, ~k)
+        blt   = <ct, vc, cred_V, ~ts_v>
+        sig_V = sign(blt, ~sk_V)
+    in
+    [ Fr(~k)
+    , Fr(~m)
+    , Fr(~ts_v)
+    , !VoterKey(~idV, ~sk_V, cred_V, sig_AR)
+    , !PublicKeyKEM('SV', ek_SV)
+    ]
+  --[ VotoEmitido(~idV, ~m)
+    , VotoEnviado(~idV, blt, sig_V)
+    , SecretoVoto(~m)
+    ]->
+    [ Out(<blt, sig_V, sig_AR>) ]
+
+rule Receive_And_Register:
+    let
+        cred_V = <idV, pk_V, ts_reg>
+        blt    = <ct, vc, cred_V, ts_v>
+    in
+    [ In(<blt, sig_V, sig_AR>)
+    , !PublicKey('AR', pk_AR)
+    , !Padron(idV, pk_V)
+    , Fr(~ts_rcp)
+    ]
+  --[ Eq(verify(sig_AR, cred_V, pk_AR), true)
+    , Eq(verify(sig_V, blt, pk_V), true)
+    , VotoUnico(idV)
+    , VotoAceptado(idV, blt, sig_V)
+    , VotoRegistrado(idV, ct, vc)
+    ]->
+    [ Urna(idV, ct, vc, pk_V, cred_V, sig_V, ts_v)
+    , Out(h(<blt, ~ts_rcp>))
+    ]
+
+rule Tally_Vote:
+    let
+        cred_V = <idV, pk_V, ts_reg>
+        blt    = <ct, vc, cred_V, ts_v>
+        k      = decaps(~dk_SV, ct)
+        m      = sdec(vc, k)
+    in
+    [ Urna(idV, ct, vc, pk_V, cred_V, sig_V, ts_v)
+    , !DecapsKey('AC', ~dk_SV)
+    ]
+  --[ VotoContado(idV, m) ]->
+    [ Out(<idV, m>) ]
+
+lemma executability:
+    exists-trace
+    "Ex idV m blt sig #t1 #t2 #t3.
+        VotoEmitido(idV, m)         @#t1
+      & VotoAceptado(idV, blt, sig)  @#t2
+      & VotoContado(idV, m)          @#t3
+      & #t1 < #t2
+      & #t2 < #t3"
+
+lemma secreto_voto:
+    all-traces
+    "All m #t.
+        SecretoVoto(m) @#t ==> not(Ex #t2. K(m) @#t2)"
+
+lemma integridad_voto:
+    all-traces
+    "All idV m #tc.
+        VotoContado(idV, m) @#tc
+        ==>
+        Ex #te. VotoEmitido(idV, m) @#te & #te < #tc"
+
+lemma autenticidad_votante:
+    all-traces
+    "All idV blt sig #ta.
+        VotoAceptado(idV, blt, sig) @#ta
+        ==>
+        ( Ex #ts.
+            VotoEnviado(idV, blt, sig) @#ts
+          & #ts < #ta
+          & not( Ex #ta2.
+                VotoAceptado(idV, blt, sig) @#ta2
+              & not(#ta = #ta2) ) )"
+
+end

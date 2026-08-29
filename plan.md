@@ -11,7 +11,7 @@
 | Fase | Descripción | Estado |
 |------|-------------|--------|
 | F1 | Diseño formal del protocolo | ✅ Completado |
-| F2 | Modelo formal en Tamarin Prover | ⬜ Pendiente |
+| F2 | Modelo formal en Tamarin Prover | 🔄 En progreso |
 | F3a | Adaptación de PQClean + validación KAT | ⬜ Pendiente |
 | F3b | Capa de protocolo post-cuántico (Python) | ⬜ Pendiente |
 | F4 | Protocolo clásico RSA/ECDSA | ⬜ Pendiente |
@@ -55,18 +55,18 @@
 
 > **Objetivo:** Verificar formalmente las propiedades de seguridad bajo el modelo de atacante Dolev-Yao.
 
-- [ ] **2.1** Instalar/verificar Tamarin Prover en el entorno de desarrollo
-- [ ] **2.2** Crear el archivo `tamarin/protocolo.spthy`
-- [ ] **2.3** Modelar reglas para cada fase del protocolo (F1)
-- [ ] **2.4** Abstraer ML-KEM y ML-DSA simbólicamente:
-  - Funciones: `kemencap`, `kemdecap`, `sign`, `verify`
-  - **No** modelar la estructura matemática de retículos
-- [ ] **2.5** Implementar lemmas obligatorios:
-  - `secreto_voto` — secrecy del contenido del voto
-  - `integridad_voto` — correspondence entre voto emitido y contabilizado
-  - `autenticidad_votante` — injective agreement votante–autoridad
+- [x] **2.1** Instalar/verificar Tamarin Prover en el entorno de desarrollo
+- [x] **2.2** Crear el archivo `tamarin/protocolo.spthy`
+- [x] **2.3** Modelar reglas para cada fase del protocolo (F1)
+- [x] **2.4** Abstraer ML-KEM y ML-DSA simbolicamente:
+  - Funciones: `encaps`, `decaps`, `sign`, `verify`, `aenc`, `adec`
+  - **No** modelar la estructura matematica de reticulos
+- [x] **2.5** Implementar lemmas obligatorios:
+  - `secreto_voto` -- secrecy del contenido del voto
+  - `integridad_voto` -- correspondence entre voto emitido y contabilizado
+  - `autenticidad_votante` -- injective agreement votante-autoridad
   - Lemma de *executability* (sanity check / traza completa ejecutable)
-- [ ] **2.6** Configurar el modelo de atacante Dolev-Yao
+- [x] **2.6** Configurar el modelo de atacante Dolev-Yao
 - [ ] **2.7** Ejecutar `tamarin-prover` y documentar resultados:
   - Lemmas `verified` ✓
   - Lemmas que fallan + contraejemplo (si aplica)
