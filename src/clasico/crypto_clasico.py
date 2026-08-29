@@ -7,7 +7,7 @@ Capa Criptográfica Clásica:
 """
 
 import os
-from typing import Tuple
+from typing import Tuple, Union
 
 from cryptography.hazmat.primitives.asymmetric import rsa, ec, padding
 from cryptography.hazmat.primitives import hashes, serialization
@@ -41,9 +41,12 @@ class RSACipher:
         return pk_bytes, sk_bytes
 
     @staticmethod
-    def encrypt(pk_bytes: bytes, plaintext: bytes) -> bytes:
+    def encrypt(pk_or_bytes: Union[bytes, rsa.RSAPublicKey], plaintext: bytes) -> bytes:
         """Cifra el mensaje con RSA-OAEP (MGF1-SHA256, SHA256)."""
-        public_key = serialization.load_der_public_key(pk_bytes)
+        if isinstance(pk_or_bytes, bytes):
+            public_key = serialization.load_der_public_key(pk_or_bytes)
+        else:
+            public_key = pk_or_bytes
         return public_key.encrypt(
             plaintext,
             padding.OAEP(
@@ -54,9 +57,12 @@ class RSACipher:
         )
 
     @staticmethod
-    def decrypt(sk_bytes: bytes, ciphertext: bytes) -> bytes:
+    def decrypt(sk_or_bytes: Union[bytes, rsa.RSAPrivateKey], ciphertext: bytes) -> bytes:
         """Descifra el ciphertext con RSA-OAEP."""
-        private_key = serialization.load_der_private_key(sk_bytes, password=None)
+        if isinstance(sk_or_bytes, bytes):
+            private_key = serialization.load_der_private_key(sk_or_bytes, password=None)
+        else:
+            private_key = sk_or_bytes
         return private_key.decrypt(
             ciphertext,
             padding.OAEP(
@@ -88,16 +94,22 @@ class ECDSASigner:
         return pk_bytes, sk_bytes
 
     @staticmethod
-    def sign(m: bytes, sk_bytes: bytes) -> bytes:
+    def sign(m: bytes, sk_or_bytes: Union[bytes, ec.EllipticCurvePrivateKey]) -> bytes:
         """Firma el mensaje m con la clave privada ECDSA (P-256 + SHA-256)."""
-        private_key = serialization.load_der_private_key(sk_bytes, password=None)
+        if isinstance(sk_or_bytes, bytes):
+            private_key = serialization.load_der_private_key(sk_or_bytes, password=None)
+        else:
+            private_key = sk_or_bytes
         return private_key.sign(m, ec.ECDSA(hashes.SHA256()))
 
     @staticmethod
-    def verify(m: bytes, sig: bytes, pk_bytes: bytes) -> bool:
+    def verify(m: bytes, sig: bytes, pk_or_bytes: Union[bytes, ec.EllipticCurvePublicKey]) -> bool:
         """Verifica la firma ECDSA sobre el mensaje m."""
         try:
-            public_key = serialization.load_der_public_key(pk_bytes)
+            if isinstance(pk_or_bytes, bytes):
+                public_key = serialization.load_der_public_key(pk_or_bytes)
+            else:
+                public_key = pk_or_bytes
             public_key.verify(sig, m, ec.ECDSA(hashes.SHA256()))
             return True
         except Exception:

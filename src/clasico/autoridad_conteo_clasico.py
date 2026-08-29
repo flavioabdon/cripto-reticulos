@@ -1,15 +1,10 @@
 """
 Módulo de la Autoridad de Conteo (AC / Tally) — Protocolo Clásico (RSA + ECDSA).
-Responsable de:
-  - Custodia de la clave privada RSA-OAEP (sk_sv_rsa)
-  - Apertura de la urna tras el cierre de la jornada electoral
-  - Descifrado de la clave simétrica y del voto
-  - Re-verificación de integridad y correspondencia de firmas ECDSA
-  - Escrutinio final y publicación de resultados auditables
 """
 
 from collections import Counter
 from typing import Dict, List, Optional
+from cryptography.hazmat.primitives import serialization
 
 from src.clasico.crypto_clasico import RSACipher, ECDSASigner, aes_gcm_decrypt
 from src.clasico.votante_clasico import PaqueteVotoClasico
@@ -49,6 +44,9 @@ class AutoridadConteoClasico:
     def __init__(self, sk_servidor_rsa: bytes, pk_ar_ecdsa: bytes):
         self._sk_servidor_rsa = sk_servidor_rsa
         self.pk_ar = pk_ar_ecdsa
+        # Precargar objeto de clave privada RSA para alto rendimiento en escrutinio masivo
+        self._rsa_key_obj = serialization.load_der_private_key(sk_servidor_rsa, password=None)
+        self._pk_ar_obj = serialization.load_der_public_key(pk_ar_ecdsa)
 
     def realizar_escrutinio(self, urna: List[PaqueteVotoClasico]) -> ResultadoEscrutinioClasico:
         """
@@ -72,7 +70,7 @@ class AutoridadConteoClasico:
 
             # 1. Re-verificar firma ECDSA de la AR
             payload_cred = cred.payload_bytes()
-            if not ECDSASigner.verify(payload_cred, cred.firma_ar, self.pk_ar):
+            if not ECDSASigner.verify(payload_cred, cred.firma_ar, self._pk_ar_obj):
                 votos_invalidos += 1
                 hashes_auditoria.append({
                     "posicion": idx,
@@ -95,7 +93,7 @@ class AutoridadConteoClasico:
 
             # 3. Descifrado RSA-OAEP
             try:
-                k_efimera = RSACipher.decrypt(self._sk_servidor_rsa, boleta.clave_cifrada_rsa)
+                k_efimera = RSACipher.decrypt(self._rsa_key_obj, boleta.clave_cifrada_rsa)
             except Exception as e:
                 votos_invalidos += 1
                 hashes_auditoria.append({

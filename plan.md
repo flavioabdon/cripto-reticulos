@@ -16,8 +16,8 @@
 | F3b | Capa de protocolo post-cuántico (Python) | ✅ Completado |
 | F4 | Protocolo clásico RSA/ECDSA | ✅ Completado |
 | F5 | Dashboard Web y Sistema de Demostración Visual | ✅ Completado |
-| F6 | Arnés de benchmarking | ⬜ Pendiente |
-| F7 | Análisis estadístico | ⬜ Pendiente |
+| F6 | Arnés de benchmarking | ✅ Completado |
+| F7 | Análisis estadístico | ✅ Completado |
 | F8 | Documentación final | ⬜ Pendiente |
 
 **Leyenda:** ⬜ Pendiente · 🔄 En progreso · ✅ Completado · ❌ Bloqueado
@@ -192,38 +192,45 @@
   - Firma
   - Verificación de firma
   - Descifrado / desencapsulamiento
-  - Latencia total end-to-end
-  - Consumo de memoria (pico y promedio)
-- [ ] **6.3** Configurar los escenarios de carga (votantes simulados):
-  - 10, 50, 100, 500, 1000, 5000 votantes (ajustable)
-- [ ] **6.4** Repetir cada medición N=30 veces para robustez estadística
-- [ ] **6.5** Exportar resultados en CSV/JSON a `benchmarks/resultados/`
-- [ ] **6.6** Documentar el entorno de hardware (CPU, RAM, OS)
-- [ ] **6.7** Verificar meta de latencia ≤ 200 ms (objetivo de la tesis)
+- [x] **6.1** Implementar script de benchmarking automatizado (`benchmark/runner.py`)
+- [x] **6.2** Definir escenarios de prueba:
+  - Número de votantes: $N \in \{10, 50, 100, 500, 1000\}$
+  - Número de repeticiones por escenario: $N = 30$ (para significancia estadística)
+  - Variantes: Protocolo PQC vs. Protocolo clásico
+- [x] **6.3** Medir métricas de rendimiento:
+  - Latencia por fase (keygen, cifrado/encapsulamiento, firma, verificación, descifrado/desencapsulamiento, total)
+  - Sobrecarga de comunicación (tamaños de clave pública, boleta, firma, total de bytes)
+  - Uso de recursos (CPU, memoria RAM pico, throughput)
+- [x] **6.4** Guardar datos crudos en `benchmark/resultados/` (CSV y JSON)
+- [x] **6.5** Registrar especificaciones del hardware de prueba (`benchmark/hardware_info.json`)
 
-**Entregable:** `benchmarks/runner.py` + `benchmarks/resultados/` (CSV/JSON)
+**Entregable:** `benchmark/` con runner, datasets crudos y metadatos de hardware
 
 ---
 
-## Fase 7 — Análisis estadístico
+## Fase 7 — Análisis estadístico ✅
 
-> **Objetivo:** Comparar estadísticamente el rendimiento PQC vs. clásico y generar evidencia para la hipótesis.
+> **Objetivo:** Procesar los datos de benchmarking con rigor estadístico formal para responder a las preguntas de investigación.
 
-- [ ] **7.1** Implementar script/notebook de análisis (`analisis/estadistica.py` o `.ipynb`)
-- [ ] **7.2** Verificar supuestos para cada métrica:
-  - Normalidad: prueba Shapiro-Wilk
-  - Homogeneidad de varianzas: prueba de Levene
-- [ ] **7.3** Aplicar prueba estadística según supuestos:
-  - Si se cumplen → t-Student (dos muestras independientes, dos colas)
-  - Si **no** se cumplen → Mann-Whitney U (alternativa no paramétrica)
-- [ ] **7.4** Generar tablas resumen por métrica y por número de votantes
-- [ ] **7.5** Generar gráficos comparativos:
-  - Boxplots (PQC vs. clásico por métrica)
-  - Barras con intervalos de confianza
-  - Curvas de escalabilidad por número de votantes
-- [ ] **7.6** Interpretar resultados en relación a la hipótesis de la tesis
+- [x] **7.1** Implementar script de análisis (`analisis_estadistico/analisis.py`)
+- [x] **7.2** Estadística descriptiva por métrica y escenario:
+  - Media, desviación estándar, mediana, rango intercuartílico (IQR), IC 95%
+- [x] **7.3** Pruebas de hipótesis inferenciales:
+  - Prueba de normalidad (Shapiro-Wilk)
+  - Prueba de homocedasticidad (Levene)
+  - Comparación de medias/medianas (t-Student o Mann-Whitney U según normalidad)
+  - Tamaño del efecto (Cohen's d)
+  - Nivel de significancia: $\alpha = 0.05$
+- [x] **7.4** Validación formal de la hipótesis de investigación:
+  - Comprobación de que la latencia operativa del protocolo PQC cumple el límite de viabilidad ($\le 200\text{ ms}$)
+- [x] **7.5** Generación de figuras y gráficos de alta resolución (300 DPI):
+  - Boxplots de latencia por fase
+  - Gráficos de barras de tamaños de claves y firmas
+  - Curvas de escalabilidad vs. número de votantes
+  - Gráficos de dispersión de uso de memoria
+- [x] **7.6** Exportar informe estadístico (`analisis_estadistico/reporte_estadistico.md`)
 
-**Entregable:** `analisis/estadistica.py` + gráficos + tablas de resultados
+**Entregable:** `analisis_estadistico/` con script, informe y gráficos generadoss con intervalos de confianza
 
 ---
 

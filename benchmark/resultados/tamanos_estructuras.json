@@ -1,0 +1,30 @@
+{
+  "pqc": {
+    "pk_ar_bytes": 1952,
+    "ek_sv_bytes": 1184,
+    "pk_votante_bytes": 1952,
+    "credencial_payload_bytes": 3976,
+    "firma_credencial_bytes": 3309,
+    "ciphertext_kem_bytes": 1088,
+    "voto_cifrado_bytes": 27,
+    "nonce_bytes": 12,
+    "boleta_payload_bytes": 12984,
+    "firma_boleta_bytes": 3309,
+    "paquete_voto_total_bytes": 16293,
+    "recibo_bytes": 3433
+  },
+  "clasico": {
+    "pk_ar_bytes": 91,
+    "ek_sv_bytes": 294,
+    "pk_votante_bytes": 91,
+    "credencial_payload_bytes": 254,
+    "firma_credencial_bytes": 71,
+    "ciphertext_kem_bytes": 256,
+    "voto_cifrado_bytes": 27,
+    "nonce_bytes": 12,
+    "boleta_payload_bytes": 1125,
+    "firma_boleta_bytes": 71,
+    "paquete_voto_total_bytes": 1196,
+    "recibo_bytes": 196
+  }
+}
