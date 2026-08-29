@@ -12,8 +12,8 @@
 |------|-------------|--------|
 | F1 | Diseño formal del protocolo | ✅ Completado |
 | F2 | Modelo formal en Tamarin Prover | 🔄 En progreso |
-| F3a | Adaptación de PQClean + validación KAT | ⬜ Pendiente |
-| F3b | Capa de protocolo post-cuántico (Python) | ⬜ Pendiente |
+| F3a | Adaptación de PQClean + validación KAT | ✅ Completado |
+| F3b | Capa de protocolo post-cuántico (Python) | ✅ Completado |
 | F4 | Protocolo clásico RSA/ECDSA | ⬜ Pendiente |
 | F5 | Dashboard Web y Sistema de Demostración Visual | ⬜ Pendiente |
 | F6 | Arnés de benchmarking | ⬜ Pendiente |
@@ -79,22 +79,22 @@
 
 > **Objetivo:** Adaptar el núcleo criptográfico en C de PQClean y validarlo contra vectores oficiales NIST antes de integrar.
 
-- [ ] **3a.1** Clonar el repositorio PQClean y registrar el commit exacto
-- [ ] **3a.2** Seleccionar e identificar los módulos de interés:
+- [x] **3a.1** Clonar el repositorio PQClean y registrar el commit exacto
+- [x] **3a.2** Seleccionar e identificar los módulos de interés:
   - `ml-kem-768` (FIPS 203 / ML-KEM, nivel ~AES-192)
   - `ml-dsa-65` (FIPS 204 / ML-DSA, nivel ~AES-192)
-- [ ] **3a.3** Adaptar el código C sin modificar los algoritmos:
+- [x] **3a.3** Adaptar el código C sin modificar los algoritmos:
   - Ajustar la API de encapsulamiento/desencapsulamiento para el protocolo
   - Ajustar la API de firma/verificación para el protocolo
-- [ ] **3a.4** Compilar el núcleo C adaptado (Makefile)
-- [ ] **3a.5** Descargar los vectores de prueba KAT oficiales del NIST (ACVP):
+- [x] **3a.4** Compilar el núcleo C adaptado (Makefile)
+- [x] **3a.5** Descargar los vectores de prueba KAT oficiales del NIST (ACVP):
   - ML-KEM-768 KAT vectors
   - ML-DSA-65 KAT vectors
-- [ ] **3a.6** Ejecutar los KAT tests sobre la adaptación y documentar:
-  - Número de vectores probados
+- [x] **3a.6** Ejecutar los KAT tests sobre la adaptación y documentar:
+  - Número de vectores probados (100 KEM + 100 DSA)
   - Resultado (pass/fail)
   - Evidencia de corrección antes de usar en benchmarks
-- [ ] **3a.7** Guardar resultados en `validacion/kat/`
+- [x] **3a.7** Guardar resultados en `validacion/kat/`
 
 **Entregable:** `src/pqc/pqclean/` + `validacion/kat/` + registro de commit PQClean
 
@@ -104,25 +104,25 @@
 
 > **Objetivo:** Orquestar el flujo completo del protocolo PQC sobre el núcleo PQClean adaptado.
 
-- [ ] **3b.1** Crear wrapper Python (ctypes/cffi) para ML-KEM y ML-DSA
-- [ ] **3b.2** Implementar módulo `protocolo_pqc.py` (flujo principal)
-- [ ] **3b.3** Implementar módulo `votante.py`
+- [x] **3b.1** Crear wrapper Python (ctypes/cffi) para ML-KEM y ML-DSA
+- [x] **3b.2** Implementar módulo `protocolo_pqc.py` (flujo principal)
+- [x] **3b.3** Implementar módulo `votante.py`
   - Generación de voto
   - Encapsulamiento ML-KEM + firma ML-DSA de la boleta
   - Envío al servidor
-- [ ] **3b.4** Implementar módulo `autoridad_registro.py`
+- [x] **3b.4** Implementar módulo `autoridad_registro.py`
   - Generación de claves de autoridad
   - Registro y autenticación del votante
-- [ ] **3b.5** Implementar módulo `servidor_votacion.py`
+- [x] **3b.5** Implementar módulo `servidor_votacion.py`
   - Recepción del voto
   - Verificación de firma (ML-DSA)
   - Registro del voto cifrado
-- [ ] **3b.6** Implementar módulo `autoridad_conteo.py`
+- [x] **3b.6** Implementar módulo `autoridad_conteo.py`
   - Desencapsulamiento ML-KEM
   - Conteo final de votos
-- [ ] **3b.7** Implementar simulación de red (en proceso o sockets locales)
-- [ ] **3b.8** Escribir pruebas unitarias básicas por módulo
-- [ ] **3b.9** Validar flujo completo end-to-end
+- [x] **3b.7** Implementar simulación de red (en proceso o sockets locales)
+- [x] **3b.8** Escribir pruebas unitarias básicas por módulo
+- [x] **3b.9** Validar flujo completo end-to-end
 
 **Entregable:** `src/pqc/` con todos los módulos + tests unitarios
 
