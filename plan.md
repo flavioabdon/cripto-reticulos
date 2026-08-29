@@ -14,7 +14,7 @@
 | F2 | Modelo formal en Tamarin Prover | 🔄 En progreso |
 | F3a | Adaptación de PQClean + validación KAT | ✅ Completado |
 | F3b | Capa de protocolo post-cuántico (Python) | ✅ Completado |
-| F4 | Protocolo clásico RSA/ECDSA | ⬜ Pendiente |
+| F4 | Protocolo clásico RSA/ECDSA | ✅ Completado |
 | F5 | Dashboard Web y Sistema de Demostración Visual | ⬜ Pendiente |
 | F6 | Arnés de benchmarking | ⬜ Pendiente |
 | F7 | Análisis estadístico | ⬜ Pendiente |
@@ -132,18 +132,18 @@
 
 > **Objetivo:** Implementar el protocolo equivalente clásico con la misma estructura, para comparación homogénea.
 
-- [ ] **4.1** Replicar la misma arquitectura de módulos de la Fase 3b:
+- [x] **4.1** Replicar la misma arquitectura de módulos de la Fase 3b:
   - `votante_clasico.py`
   - `autoridad_registro_clasico.py`
   - `servidor_votacion_clasico.py`
   - `autoridad_conteo_clasico.py`
   - `protocolo_clasico.py`
-- [ ] **4.2** Implementar capa criptográfica clásica (biblioteca `cryptography` de Python):
+- [x] **4.2** Implementar capa criptográfica clásica (biblioteca `cryptography` de Python):
   - RSA-OAEP (2048 o 3072 bits) para cifrado del voto
   - ECDSA (P-256) para firma de la boleta
-- [ ] **4.3** Verificar que la secuencia de pasos es idéntica al protocolo PQC
-- [ ] **4.4** Escribir pruebas unitarias básicas por módulo
-- [ ] **4.5** Validar flujo completo end-to-end
+- [x] **4.3** Verificar que la secuencia de pasos es idéntica al protocolo PQC
+- [x] **4.4** Escribir pruebas unitarias básicas por módulo
+- [x] **4.5** Validar flujo completo end-to-end
 
 **Entregable:** `src/clasico/` con todos los módulos + tests unitarios
 
