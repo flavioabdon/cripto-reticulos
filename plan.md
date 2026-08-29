@@ -15,7 +15,7 @@
 | F3a | Adaptación de PQClean + validación KAT | ✅ Completado |
 | F3b | Capa de protocolo post-cuántico (Python) | ✅ Completado |
 | F4 | Protocolo clásico RSA/ECDSA | ✅ Completado |
-| F5 | Dashboard Web y Sistema de Demostración Visual | ⬜ Pendiente |
+| F5 | Dashboard Web y Sistema de Demostración Visual | ✅ Completado |
 | F6 | Arnés de benchmarking | ⬜ Pendiente |
 | F7 | Análisis estadístico | ⬜ Pendiente |
 | F8 | Documentación final | ⬜ Pendiente |
@@ -153,31 +153,31 @@
 
 > **Objetivo:** Proveer una aplicación web interactiva para demostrar el funcionamiento práctico del protocolo en la defensa de tesis (registro de candidatos, ciudadanos, emisión de voto y visualización de resultados en tiempo real).
 
-- [ ] **5.1** Backend API (FastAPI / Flask) integrando los módulos criptográficos:
+- [x] **5.1** Backend API (FastAPI / Flask) integrando los módulos criptográficos:
   - Endpoints para gestión de elección y candidatos
   - Endpoints de la Autoridad de Registro (creación/registro de ciudadanos y emisión de credenciales/claves)
   - Endpoints del Servidor de Votación (recepción de boleta cifrada y verificación de firma)
   - Endpoints de la Autoridad de Conteo (apertura de urna, desencapsulamiento y escrutinio)
   - Selector de motor criptográfico: **Post-Cuántica (ML-KEM / ML-DSA)** vs. **Clásica (RSA / ECDSA)**
-- [ ] **5.2** Módulo de Administración y Candidatos:
+- [x] **5.2** Módulo de Administración y Candidatos:
   - Formulario de alta/baja de candidatos con fotografía/icono, partido y propuestas
   - Configuración de la jornada electoral (estado: Configuración, Votación Abierta, Escrutinio Finalizado)
-- [ ] **5.3** Módulo de Registro de Ciudadanos / Padrón:
+- [x] **5.3** Módulo de Registro de Ciudadanos / Padrón:
   - Registro de votantes con generación de par de claves (ML-DSA / ECDSA) y credenciales
   - Estado del votante (Registrado / Habilitado / Ya votó)
-- [ ] **5.4** Módulo de Cabina de Votación (Interfaz del Votante):
+- [x] **5.4** Módulo de Cabina de Votación (Interfaz del Votante):
   - Autenticación con credencial de votante
   - Boleta de sufragio interactiva para seleccionar candidato
   - **Panel pedagógico/criptográfico:** Visualización interactiva del proceso (generación de secreto efímero, encapsulamiento ML-KEM del voto, firma digital ML-DSA del paquete, payload transmitido)
   - Confirmación de voto emitido con recibo/comprobante criptográfico (hash de verificación)
-- [ ] **5.5** Dashboard de Resultados y Escrutinio en Tiempo Real:
+- [x] **5.5** Dashboard de Resultados y Escrutinio en Tiempo Real:
   - Urna digital: visualización de votos cifrados recibidos
   - Proceso de apertura de urna y desencapsulamiento seguro por la Autoridad de Conteo
   - Gráficos interactivos de votación por candidato (barras, torta, porcentajes, participación)
   - Auditoría de integridad: verificación de que los votos contabilizados corresponden a votos legítimos firmados
-- [ ] **5.6** Diseño UI moderno y responsivo con estética premium (dark mode/light mode, métricas en vivo)
+- [x] **5.6** Diseño UI moderno y responsivo con estética premium (dark mode, métricas en vivo, glassmorphism, tipografía moderna, animaciones suaves).
 
-**Entregable:** `src/web/` (Backend API + Frontend Dashboard)
+**Entregable:** `src/web/` con backend Flask/FastAPI, templates HTML5, assets estáticos (CSS/JS) y servidor ejecutable localmente.
 
 ---
 
