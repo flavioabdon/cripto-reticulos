@@ -11,14 +11,14 @@
 | Fase | Descripción | Estado |
 |------|-------------|--------|
 | F1 | Diseño formal del protocolo | ✅ Completado |
-| F2 | Modelo formal en Tamarin Prover | 🔄 En progreso |
+| F2 | Modelo formal en Tamarin Prover | ✅ Completado |
 | F3a | Adaptación de PQClean + validación KAT | ✅ Completado |
 | F3b | Capa de protocolo post-cuántico (Python) | ✅ Completado |
 | F4 | Protocolo clásico RSA/ECDSA | ✅ Completado |
 | F5 | Dashboard Web y Sistema de Demostración Visual | ✅ Completado |
 | F6 | Arnés de benchmarking | ✅ Completado |
 | F7 | Análisis estadístico | ✅ Completado |
-| F8 | Documentación final | ⬜ Pendiente |
+| F8 | Documentación final | ✅ Completado |
 
 **Leyenda:** ⬜ Pendiente · 🔄 En progreso · ✅ Completado · ❌ Bloqueado
 
@@ -234,34 +234,31 @@
 
 ---
 
-## Fase 8 — Documentación final
+## Fase 8 — Documentación final ✅
 
 > **Objetivo:** Producir documentación técnica reproducible para la tesis.
 
-- [ ] **8.1** Redactar `README.md` con:
+- [x] **8.1** Redactar `README.md` con:
   - Instrucciones de instalación de dependencias
-  - Instrucciones para compilar el núcleo PQClean adaptado
-  - Cómo correr la validación KAT
-  - Cómo ejecutar el modelo Tamarin
-  - Cómo iniciar el Dashboard Web de demostración
-  - Cómo correr los benchmarks
-  - Cómo reproducir el análisis estadístico
-- [ ] **8.2** Completar `docs/arquitectura.md` (diagrama de arquitectura del sistema)
-- [ ] **8.3** Completar `docs/diagrama_flujo.*` (flujo del protocolo)
-- [ ] **8.4** Documentar explícitamente:
-  - Versión/commit exacto de PQClean utilizado
-  - Parámetros usados: ML-KEM-768 / ML-DSA-65
-  - Resultado de validación KAT del NIST
-  - Entorno de hardware para benchmarks
-- [ ] **8.5** Crear/verificar `Makefile` con targets:
-  - `make build` — compilar núcleo PQClean
-  - `make kat` — correr validación KAT
-  - `make tamarin` — correr Tamarin Prover
-  - `make app` — levantar el Dashboard Web
-  - `make benchmark` — correr arnés de benchmarks
-  - `make analisis` — correr análisis estadístico
+  - Instrucciones para compilar el núcleo PQClean adaptado (`make -C src/pqc`)
+  - Cómo correr la validación KAT (`python3 validacion/kat/runner_kat.py`)
+  - Cómo ejecutar el modelo Tamarin (`tamarin-prover analisis tamarin/protocolo.spthy`)
+  - Cómo iniciar el Dashboard Web de demostración (`python3 src/web/app.py`)
+  - Cómo correr los benchmarks (`python3 benchmark/runner.py`)
+  - Cómo reproducir el análisis estadístico (`python3 analisis_estadistico/analisis.py`)
+- [x] **8.2** Completar `docs/arquitectura.md` (diagrama de arquitectura del sistema) ✅ previo
+- [x] **8.3** Completar `docs/diagrama_flujo.md` (flujo del protocolo) ✅ previo
+- [x] **8.4** Documentar explícitamente:
+  - Versión/commit exacto de PQClean utilizado (fuentes en `src/pqc/pqclean/`)
+  - Parámetros usados: ML-KEM-768 (FIPS 203) / ML-DSA-65 (FIPS 204)
+  - Resultado de validación KAT del NIST: 200/200 PASS
+  - Entorno de hardware: macOS 26.5.2, Apple Silicon ARM64, Clang 21.0.0 (`benchmark/hardware_info.json`)
+- [x] **8.5** Actualizar `Makefile` con targets completos
+- [x] **8.6** Crear `docs/estructura_proyecto.md` — Manual completo de estructura de carpetas
+- [x] **8.7** Crear `docs/reporte_tesis.md` — Reporte consolidado de resultados para la tesis
+- [x] **8.8** Commit final del proyecto completo con tag de versión
 
-**Entregable:** `README.md` + `docs/` + `Makefile`
+**Entregable:** `README.md` + `docs/estructura_proyecto.md` + `docs/reporte_tesis.md` + `Makefile`
 
 ---
 
