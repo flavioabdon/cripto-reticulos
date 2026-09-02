@@ -33,7 +33,7 @@ El protocolo fue evaluado empíricamente bajo **300 experimentos independientes*
 
 ---
 
-## 🏗️ Arquitectura del Protocolo
+## Arquitectura del Protocolo
 
 ### Entidades Formales
 
@@ -245,7 +245,7 @@ Distinguir $(\mathbf{A}, \mathbf{b})$ de uniforme es intractable incluso para co
 ---
 
 ##  Referencias
-    
+
 1. NIST. *FIPS 203 — Module-Lattice-Based Key-Encapsulation Mechanism Standard*. 2024.
 2. NIST. *FIPS 204 — Module-Lattice-Based Digital Signature Standard*. 2024.
 3. Bernstein, D.J.; Lange, T. *Post-quantum cryptography*. Nature, 2017.
