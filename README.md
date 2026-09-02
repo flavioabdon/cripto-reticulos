@@ -1,4 +1,4 @@
-# 🔐 Protocolo de Votación Electrónica Basado en Criptografía Post-Cuántica de Retículos
+# Protocolo de Votación Electrónica Basado en Criptografía Post-Cuántica de Retículos
 
 > **Proyecto de Grado — Universidad Mayor de San Andrés (UMSA)**
 > Carrera de Informática — Facultad de Ciencias Puras y Naturales
@@ -7,7 +7,7 @@
 
 ---
 
-## 📋 Resumen Ejecutivo
+## Resumen Ejecutivo
 
 Este repositorio contiene el artefacto computacional completo de la tesis de grado, cuyo objetivo central es **diseñar, implementar y evaluar empíricamente un protocolo de votación electrónica resistente a la amenaza cuántica**, utilizando los estándares post-cuánticos del NIST:
 
@@ -18,7 +18,7 @@ El protocolo fue evaluado empíricamente bajo **300 experimentos independientes*
 
 ---
 
-## 🎯 Hipótesis de Investigación y Resultado
+##  Hipótesis de Investigación y Resultado
 
 > *"El protocolo de votación electrónica post-cuántico basado en retículos puede operar dentro de los límites de viabilidad operativa (latencia por voto ≤ 200 ms) en condiciones de carga electoral realistas."*
 
@@ -29,7 +29,7 @@ El protocolo fue evaluado empíricamente bajo **300 experimentos independientes*
 | **p-value (Mann-Whitney U)** | **< 0.0001** | — | α = 0.05 |
 | **Cohen's d** | **> 3.5** | — | — |
 
-**✅ Hipótesis CONFIRMADA** — La latencia PQC es ~150 veces menor al umbral de 200 ms.
+**Hipótesis CONFIRMADA** — La latencia PQC es ~150 veces menor al umbral de 200 ms.
 
 ---
 
@@ -58,11 +58,11 @@ F4: Cierre         → F5: Escrutinio → F6: Publicación
 5. **Escrutinio** — `AC` desencapsula `K` de cada boleta y recupera votos.
 6. **Publicación** — Resultado firmado y tablón de auditoría publicados.
 
-> 📄 Documentación técnica completa: [`docs/arquitectura.md`](docs/arquitectura.md) y [`docs/diagrama_flujo.md`](docs/diagrama_flujo.md)
+>   Documentación técnica completa: [`docs/arquitectura.md`](docs/arquitectura.md) y [`docs/diagrama_flujo.md`](docs/diagrama_flujo.md)
 
 ---
 
-## ⚙️ Requisitos del Sistema
+##  Requisitos del Sistema
 
 | Componente | Versión Mínima | Verificación |
 |---|---|---|
@@ -74,7 +74,7 @@ F4: Cierre         → F5: Escrutinio → F6: Publicación
 
 ---
 
-## 🚀 Instalación
+##  Instalación
 
 ### 1. Clonar el repositorio
 
@@ -107,7 +107,7 @@ make -C src/pqc
 
 ---
 
-## ✅ Verificación y Pruebas
+##  Verificación y Pruebas
 
 ### Validación KAT (Known Answer Tests — NIST FIPS 203/204)
 
@@ -118,8 +118,8 @@ python3 validacion/kat/runner_kat.py
 
 **Resultado esperado:**
 ```
-[ML-KEM-768] KAT: ✅ PASS (100/100 vectores)
-[ML-DSA-65]  KAT: ✅ PASS (100/100 vectores)
+[ML-KEM-768] KAT:  PASS (100/100 vectores)
+[ML-DSA-65]  KAT:  PASS (100/100 vectores)
 ```
 
 ### Suite completa de tests (20/20)
@@ -130,7 +130,7 @@ python3 -m pytest tests/ -v
 
 ---
 
-## 🌐 Dashboard Web de Demostración
+##  Dashboard Web de Demostración
 
 ```bash
 source venv/bin/activate
@@ -140,15 +140,15 @@ python3 src/web/app.py
 
 | Pestaña | Descripción |
 |---|---|
-| 🗳️ Cabina de Votación | Flujo completo con inspector criptográfico |
-| 🔒 Urna Digital | Boletas cifradas en tiempo real |
-| 📊 Escrutinio | Apertura de urna con gráfico Chart.js |
-| 📋 Padrón Electoral | Registro de votantes habilitados |
-| ⚙️ Administración | Modo PQC / Clásico configurable |
+|  Cabina de Votación | Flujo completo con inspector criptográfico |
+|  Urna Digital | Boletas cifradas en tiempo real |
+|  Escrutinio | Apertura de urna con gráfico Chart.js |
+|  Padrón Electoral | Registro de votantes habilitados |
+|  Administración | Modo PQC / Clásico configurable |
 
 ---
 
-## 📊 Reproducir los Benchmarks
+##  Reproducir los Benchmarks
 
 ```bash
 # Ejecutar el arnés completo (~15-30 min)
@@ -165,7 +165,7 @@ python3 analisis_estadistico/analisis.py
 
 ---
 
-## 🔬 Verificación Formal — Tamarin Prover
+##  Verificación Formal — Tamarin Prover
 
 ```bash
 tamarin-prover analisis tamarin/protocolo.spthy
@@ -179,7 +179,7 @@ tamarin-prover analisis tamarin/protocolo.spthy
 
 ---
 
-## 📁 Estructura del Proyecto
+##  Estructura del Proyecto
 
 > Manual completo: [`docs/estructura_proyecto.md`](docs/estructura_proyecto.md)
 
@@ -198,7 +198,7 @@ CRIPTOGRAFIA RETICULOS/
 
 ---
 
-## 📈 Resultados Principales
+##  Resultados Principales
 
 ### Latencia por voto
 
@@ -225,7 +225,7 @@ CRIPTOGRAFIA RETICULOS/
 
 ---
 
-## 🧮 Fundamentos Teóricos
+##  Fundamentos Teóricos
 
 ### Module-LWE (base de seguridad)
 
@@ -244,8 +244,8 @@ Distinguir $(\mathbf{A}, \mathbf{b})$ de uniforme es intractable incluso para co
 
 ---
 
-## 📚 Referencias
-
+##  Referencias
+    
 1. NIST. *FIPS 203 — Module-Lattice-Based Key-Encapsulation Mechanism Standard*. 2024.
 2. NIST. *FIPS 204 — Module-Lattice-Based Digital Signature Standard*. 2024.
 3. Bernstein, D.J.; Lange, T. *Post-quantum cryptography*. Nature, 2017.
