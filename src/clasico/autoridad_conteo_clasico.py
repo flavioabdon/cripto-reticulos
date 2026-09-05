@@ -50,7 +50,7 @@ class AutoridadConteoClasico:
 
     def realizar_escrutinio(self, urna: List[PaqueteVotoClasico]) -> ResultadoEscrutinioClasico:
         """
-        Ejecuta el escrutinio sobre la urna clásica:
+        Ejecuta el escrutinio sobre el ánfora clásica:
           1. Re-verifica firma ECDSA de AR sobre la credencial.
           2. Re-verifica firma ECDSA del votante sobre la boleta.
           3. Descifra la clave simétrica con RSA-OAEP: K = RSADecrypt(sk_sv_rsa, clave_cifrada_rsa).

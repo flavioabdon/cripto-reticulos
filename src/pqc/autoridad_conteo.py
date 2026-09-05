@@ -2,7 +2,7 @@
 Módulo de la Autoridad de Conteo (AC / Tally) — Protocolo Post-Cuántico PQC.
 Responsable de:
   - Custodia de la clave privada de desencapsulamiento ML-KEM-768 (dk_SV)
-  - Apertura de la urna tras el cierre de la jornada electoral
+  - Apertura de el ánfora tras el cierre de la jornada electoral
   - Desencapsulamiento y descifrado seguro de cada voto
   - Re-verificación de integridad y correspondencia de firmas
   - Escrutinio final y publicación de resultados auditables
@@ -52,8 +52,8 @@ class AutoridadConteo:
 
     def realizar_escrutinio(self, urna: List[PaqueteVoto]) -> ResultadoEscrutinio:
         """
-        Ejecuta el escrutinio sobre la lista de paquetes en la urna digital:
-          1. Para cada boleta en la urna:
+        Ejecuta el escrutinio sobre la lista de paquetes en la ánfora digital:
+          1. Para cada boleta en el ánfora:
              a. Re-verifica la firma de la AR sobre la credencial.
              b. Re-verifica la firma del votante sobre la boleta (integridad).
              c. Desencapsula la clave simétrica con ML-KEM-768: K = decaps(dk_sv, ct_kem).

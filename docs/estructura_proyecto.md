@@ -71,7 +71,7 @@ CRIPTOGRAFIA RETICULOS/               ← Raíz del proyecto
 │   ├── reporte_estadistico.json      ← Datos estructurados del informe (para automatización)
 │   └── graficos/                     ← Figuras de publicación (300 DPI, PNG)
 │       ├── latencia_voto_boxplot.png           ← Boxplot PQC vs Clásico por escenario
-│       ├── tally_desencapsulamiento_comparacion.png  ← Comparación apertura de urna (log-scale)
+│       ├── tally_desencapsulamiento_comparacion.png  ← Comparación apertura de ánfora (log-scale)
 │       └── tamanos_estructuras_barplot.png     ← Tamaños de estructuras en bytes
 │
 ├── tests/                            ← 🧪 Suite de pruebas (20/20 aprobados)
@@ -286,7 +286,7 @@ src/clasico/{protocolo_clasico.py, ...} ←── benchmark/runner.py ──→ 
 
 - El backend Flask (`src/web/app.py`) puede desplegarse detrás de Gunicorn/uWSGI.
 - Las operaciones criptográficas son thread-safe (sin estado global compartido).
-- Se recomienda usar una base de datos (PostgreSQL/SQLite) en lugar de estructuras en memoria para la urna y el padrón.
+- Se recomienda usar una base de datos (PostgreSQL/SQLite) en lugar de estructuras en memoria para la ánfora y el padrón electoral.
 
 ---
 

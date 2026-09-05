@@ -24,7 +24,7 @@ El protocolo define cuatro entidades (roles) con responsabilidades claramente de
 | ID  | Rol | Descripción |
 |-----|-----|-------------|
 | **V** | **Votante** | Ciudadano habilitado para emitir un voto. Posee un par de claves ML-DSA `(sk_V, pk_V)` generado durante el registro. Cifra su voto con la clave pública del Servidor de Votación y firma la boleta con su clave privada. |
-| **AR** | **Autoridad de Registro** | Entidad de confianza responsable de verificar la identidad del Votante, emitir sus credenciales/claves y registrarlo en el padrón. Posee un par de claves ML-DSA `(sk_AR, pk_AR)` para firmar credenciales. |
+| **AR** | **Autoridad de Registro** | Entidad de confianza responsable de verificar la identidad del Votante, emitir sus credenciales/claves y registrarlo en el padrón electoral. Posee un par de claves ML-DSA `(sk_AR, pk_AR)` para firmar credenciales. |
 | **SV** | **Servidor de Votación** | Entidad receptora de las boletas cifradas. Posee un par de claves ML-KEM `(ek_SV, dk_SV)` para la recepción de votos. Verifica la firma ML-DSA de cada boleta recibida, y registra los votos cifrados. |
 | **AC** | **Autoridad de Conteo (Tally)** | Entidad responsable del escrutinio final. Custodia la clave de desencapsulamiento `dk_SV`. Desencapsula cada voto y realiza el conteo. |
 
@@ -84,7 +84,7 @@ El protocolo se divide en **seis fases** secuenciales:
      `cred_V = (ID_V || pk_V || ts)`  
      `σ_AR = ML-DSA.Sign(sk_AR, cred_V)`  
      `Credencial = (cred_V, σ_AR)`
-   - Registra `(ID_V, pk_V, estado="Registrado")` en el padrón.
+   - Registra `(ID_V, pk_V, estado="Registrado")` en el padrón electoral.
    - Entrega `(sk_V, Credencial)` al votante.
 
 **Post-condición:** V posee `(sk_V, Credencial)` válida; AR registra `pk_V` asociada a `ID_V`.
@@ -134,7 +134,7 @@ El protocolo se divide en **seis fases** secuenciales:
 **Actores:** SV  
 **Pre-condición:** Fase (d) exitosa.  
 
-1. SV registra `(ID_V, boleta)` en la urna digital; marca votante como "Ya votó".
+1. SV registra `(ID_V, boleta)` en la ánfora digital; marca votante como "Ya votó".
 2. SV **no desencapsula** el voto (no accede a `K` ni al contenido `m`).
 3. SV emite recibo al votante:  
    `recibo = SHA3-256(boleta || ts_recibo)`  
@@ -165,7 +165,7 @@ El protocolo se divide en **seis fases** secuenciales:
 
 ### 5.1 Confidencialidad del voto
 
-**Definición:** Un adversario polinomial no puede determinar el contenido del voto a partir del paquete transmitido y del registro de la urna.
+**Definición:** Un adversario polinomial no puede determinar el contenido del voto a partir del paquete transmitido y del registro de la ánfora.
 
 **Mecanismo:** La seguridad IND-CCA2 de ML-KEM garantiza que `K` es computacionalmente indistinguible de un valor aleatorio sin `dk_SV`. `dk_SV` es custodiado exclusivamente por AC.
 

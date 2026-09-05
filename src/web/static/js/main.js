@@ -243,7 +243,7 @@ function loadVoterSelector() {
 }
 
 function quickSelectVoter(idVotante) {
-    // Cambiar a pestaña de cabina
+    // Cambiar a pestaña de mesa de votación
     document.querySelector('.tab-btn[data-tab="tab-cabin"]').click();
     setTimeout(() => {
         const select = document.getElementById("select-voter-cabin");
@@ -287,7 +287,7 @@ async function handleRegisterVoterForm(e) {
 }
 
 // ============================================================
-// VOTING CABIN PROCESSOR (Interactive Cryptographic Breakdown)
+// VOTING DESK PROCESSOR (MESA DE VOTACIÓN) (Interactive Cryptographic Breakdown)
 // ============================================================
 async function handleEmitirVoto() {
     const voterSelect = document.getElementById("select-voter-cabin");
@@ -320,7 +320,7 @@ async function handleEmitirVoto() {
 
         if (data.success) {
             renderCryptoInspection(data.crypto_breakdown, data.candidato_seleccionado, id_votante);
-            showNotification("¡Voto cifrado, firmado y registrado en la urna con éxito!", "success");
+            showNotification("¡Voto cifrado, firmado y registrado en el ánfora con éxito!", "success");
             loadSystemStatus();
             loadVoters();
             loadUrn();
@@ -434,7 +434,7 @@ async function loadUrn() {
         const urnVotes = data.urna || [];
 
         if (urnVotes.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted" style="padding: 2rem;">La urna digital se encuentra vacía. Emita un voto desde la cabina para visualizarlo.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted" style="padding: 2rem;">El ánfora digital se encuentra vacía. Emita un voto desde la mesa de votación para visualizarlo.</td></tr>`;
             return;
         }
 
@@ -482,7 +482,7 @@ async function handleRealizarEscrutinio() {
         showNotification("Error de red al ejecutar escrutinio.", "danger");
     } finally {
         btn.removeAttribute("disabled");
-        btn.innerHTML = `<i class="fa-solid fa-unlock-keyhole"></i> Aperturar Urna y Ejecutar Escrutinio`;
+        btn.innerHTML = `<i class="fa-solid fa-unlock-keyhole"></i> Aperturar Ánfora y Ejecutar Escrutinio`;
     }
 }
 
@@ -641,7 +641,7 @@ function renderAdminCandidatesTable() {
 }
 
 async function handleResetElection() {
-    if (!confirm("¿Está seguro de reiniciar la elección? Se borrarán todos los votos y el padrón volverá al estado inicial.")) {
+    if (!confirm("¿Está seguro de reiniciar la elección? Se borrarán todos los votos y el padrón electoral volverá al estado inicial.")) {
         return;
     }
 

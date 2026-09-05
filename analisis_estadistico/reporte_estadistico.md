@@ -42,5 +42,5 @@
 ### 4. Conclusiones y Validación Científica
 
 1. **Validación de la Hipótesis Principal**: La latencia promedio del protocolo post-cuántico por voto se ubicó consistentemente entre **1.0 ms y 2.0 ms**, situándose dos órdenes de magnitud por debajo del umbral de viabilidad operativa de **200 ms** fijado en el marco metodológico ($p < 0.001$, efecto estadístico concluyente).
-2. **Superioridad en Apertura de Urna (Tally)**: ML-KEM-768 desencapsula el secreto simétrico significativamente más rápido que el descifrado RSA-2048 con clave privada, agilizando el escrutinio de millones de votos.
+2. **Superioridad en Apertura de Ánfora (Tally)**: ML-KEM-768 desencapsula el secreto simétrico significativamente más rápido que el descifrado RSA-2048 con clave privada, agilizando el escrutinio de millones de votos.
 3. **Sobrecarga de Comunicación Aceptable**: El paquete total de voto post-cuántico tiene un tamaño de ~4.5 KB (frente a ~0.6 KB clásico), lo cual es perfectamente transmitible en redes móviles modernas (4G/5G/Wi-Fi) en milisegundos sin congestión de canal.

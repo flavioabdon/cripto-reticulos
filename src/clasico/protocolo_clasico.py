@@ -5,7 +5,7 @@ Ejecuta el flujo idéntico de 6 fases para comparación homogénea con el protoc
   (b) Registro y emisión de credenciales (AR -> Votantes)
   (c) Cifrado RSA-OAEP y firma ECDSA (Votantes)
   (d) Envío y verificación de firmas ECDSA (Votantes -> SV)
-  (e) Registro en la urna digital y emisión de recibos ECDSA (SV)
+  (e) Registro en la ánfora digital y emisión de recibos ECDSA (SV)
   (f) Descifrado RSA-OAEP y escrutinio final (AC)
 """
 
@@ -115,7 +115,7 @@ def demo_simulacion_clasica():
 
     for id_v, nom, _ in votantes_datos:
         proto.fase_registro(id_v, nom)
-    print(f"    ✓ {len(votantes_datos)} votantes registrados en el padrón.")
+    print(f"    ✓ {len(votantes_datos)} votantes registrados en el padrón electoral.")
 
     # 3. Emisión y recepción de votos
     print("\n[3] Fases (c, d, e): Emisión de votos cifrados con RSA-OAEP + ECDSA...")

@@ -52,7 +52,7 @@ class CredencialVotante:
 
 
 class AutoridadRegistro:
-    """Autoridad de Registro (AR) encargada del padrón y emisión de credenciales."""
+    """Autoridad de Registro (AR) encargada del padrón electoral y emisión de credenciales."""
 
     def __init__(self, nombre: str = "Tribunal Electoral - AR"):
         self.nombre = nombre
@@ -70,7 +70,7 @@ class AutoridadRegistro:
           (sk_votante, credencial_firmada)
         """
         if id_votante in self.padron:
-            raise ValueError(f"El votante '{id_votante}' ya se encuentra registrado en el padrón.")
+            raise ValueError(f"El votante '{id_votante}' ya se encuentra registrado en el padrón electoral.")
 
         # 1. Generar par de claves ML-DSA-65 para el votante
         pk_v, sk_v = MLDSA65.keypair()
@@ -90,7 +90,7 @@ class AutoridadRegistro:
             firma_ar=firma_ar,
         )
 
-        # 4. Registrar en el padrón
+        # 4. Registrar en el padrón electoral
         self.padron[id_votante] = {
             "id_votante": id_votante,
             "nombre": nombre_completo,
@@ -111,7 +111,7 @@ class AutoridadRegistro:
         return id_votante in self.padron and self.padron[id_votante]["estado"] == "HABILITADO"
 
     def marcar_como_votado(self, id_votante: str):
-        """Actualiza el estado del votante en el padrón a 'YA_VOTO'."""
+        """Actualiza el estado del votante en el padrón electoral a 'YA_VOTO'."""
         if id_votante not in self.padron:
             raise ValueError(f"Votante {id_votante} no encontrado.")
         self.padron[id_votante]["estado"] = "YA_VOTO"

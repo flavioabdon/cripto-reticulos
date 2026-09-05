@@ -4,7 +4,7 @@ Responsable de:
   - Generación de claves RSA para cifrado y claves ECDSA para firma de recibos
   - Recepción de paquetes de voto y verificación de firmas (AR y Votante)
   - Control de unicidad (anti-duplicados)
-  - Almacenamiento seguro en la urna digital
+  - Almacenamiento seguro en la ánfora digital
   - Emisión de recibos firmados con ECDSA
 """
 
@@ -92,7 +92,7 @@ class ServidorVotacionClasico:
         if not ECDSASigner.verify(payload_boleta, paquete.firma_votante, cred.pk_votante):
             return False, "Voto rechazado: firma digital del votante INVÁLIDA.", None
 
-        # 4. Registrar en la urna
+        # 4. Registrar en el ánfora
         self.urna.append(paquete)
         self.votantes_registrados.add(id_v)
 
@@ -111,7 +111,7 @@ class ServidorVotacionClasico:
             firma_servidor=firma_sv,
         )
 
-        return True, "Voto aceptado y registrado exitosamente en la urna digital.", recibo
+        return True, "Voto aceptado y registrado exitosamente en la ánfora digital.", recibo
 
     def cerrar_jornada(self) -> List[PaqueteVotoClasico]:
         self.jornada_abierta = False

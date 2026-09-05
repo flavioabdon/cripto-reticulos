@@ -62,10 +62,10 @@
       <!-- Center Nav Tabs -->
       <div class="nav-tabs-wrapper">
         <button class="tab-btn active" data-tab="tab-cabin">
-          <i class="fa-solid fa-person-booth"></i> Cabina de Votación
+          <i class="fa-solid fa-person-booth"></i> Mesa de Votación
         </button>
         <button class="tab-btn" data-tab="tab-urn">
-          <i class="fa-solid fa-box-archive"></i> Urna Digital
+          <i class="fa-solid fa-box-archive"></i> Ánfora Digital
         </button>
         <button class="tab-btn" data-tab="tab-results">
           <i class="fa-solid fa-chart-pie"></i> Escrutinio & Resultados
@@ -97,7 +97,7 @@
     <div class="metrics-banner">
       <div class="metric-card">
         <div class="metric-header">
-          <span class="metric-label">Padrón Habilitado</span>
+          <span class="metric-label">Padrón Electoral Habilitado</span>
           <i class="fa-solid fa-users metric-icon"></i>
         </div>
         <div class="metric-value" id="metric-padron-count">0</div>
@@ -106,7 +106,7 @@
 
       <div class="metric-card">
         <div class="metric-header">
-          <span class="metric-label">Votos en Urna</span>
+          <span class="metric-label">Votos en Ánfora</span>
           <i class="fa-solid fa-box-archive metric-icon" style="color: var(--pqc-primary);"></i>
         </div>
         <div class="metric-value" id="metric-urn-count">0</div>
@@ -132,7 +132,7 @@
       </div>
     </div>
 
-    <!-- TAB 1: CABINA DE VOTACIÓN -->
+    <!-- TAB 1: MESA DE VOTACIÓN -->
     <section id="tab-cabin" class="tab-panel active">
       <div class="cabin-grid">
         
@@ -197,20 +197,20 @@
       </div>
     </section>
 
-    <!-- TAB 2: URNA DIGITAL -->
+    <!-- TAB 2: ÁNFORA DIGITAL -->
     <section id="tab-urn" class="tab-panel">
       <div class="glass-card">
         <div class="card-title-row">
           <div>
             <div class="card-title">
-              <i class="fa-solid fa-box-archive text-cyan"></i> Urna Digital de Votos Cifrados
+              <i class="fa-solid fa-box-archive text-cyan"></i> Ánfora Digital de Votos Cifrados
             </div>
             <div class="card-subtitle">
               Registro inmutable de boletas protegidas por ML-KEM-768 (o RSA-2048) en custodia del Servidor de Votación
             </div>
           </div>
           <button class="btn btn-secondary" onclick="loadUrn()">
-            <i class="fa-solid fa-arrows-rotate"></i> Actualizar Urna
+            <i class="fa-solid fa-arrows-rotate"></i> Actualizar Ánfora
           </button>
         </div>
 
@@ -244,7 +244,7 @@
           La Autoridad de Conteo utiliza su clave privada <code style="color: var(--accent-cyan);">dk_sv</code> para desencapsular los secretos compartidos, descifrar los votos simétricos y verificar la integridad de las firmas de todos los votantes.
         </p>
         <button id="btn-ejecutar-escrutinio" class="btn btn-primary" style="font-size: 1.05rem; padding: 0.85rem 2.5rem;" onclick="handleRealizarEscrutinio()">
-          <i class="fa-solid fa-unlock-keyhole"></i> Aperturar Urna y Ejecutar Escrutinio
+          <i class="fa-solid fa-unlock-keyhole"></i> Aperturar Ánfora y Ejecutar Escrutinio
         </button>
       </div>
 
@@ -254,8 +254,8 @@
         <!-- Summary Badges -->
         <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
           <div class="metric-card" style="flex: 1;">
-            <div class="metric-label">Votos en Urna</div>
-            <div class="metric-value" id="res-total-urna">0</div>
+            <div class="metric-label">Votos en Ánfora</div>
+            <div class="metric-value" id="res-total-ánfora">0</div>
           </div>
           <div class="metric-card" style="flex: 1;">
             <div class="metric-label">Votos Válidos</div>
@@ -317,7 +317,7 @@
         <!-- Audit Trail -->
         <div class="glass-card">
           <div class="card-title-row">
-            <div class="card-title"><i class="fa-solid fa-receipt text-cyan"></i> Padrón de Auditoría Criptográfica</div>
+            <div class="card-title"><i class="fa-solid fa-receipt text-cyan"></i> Registro de Auditoría Criptográfica</div>
             <span class="badge badge-success"><i class="fa-solid fa-shield"></i> Verificabilidad Universal</span>
           </div>
           <div class="data-table-wrapper">
@@ -340,7 +340,7 @@
       </div>
     </section>
 
-    <!-- TAB 4: PADRÓN & REGISTRO DE CIUDADANOS -->
+    <!-- TAB 4: PADRÓN ELECTORAL & REGISTRO DE CIUDADANOS -->
     <section id="tab-padron" class="tab-panel">
       <div style="display: grid; grid-template-columns: 1.2fr 2fr; gap: 1.5rem;">
         
@@ -453,7 +453,7 @@
             <div style="background: rgba(239, 68, 68, 0.08); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid rgba(239, 68, 68, 0.3);">
               <strong style="color: var(--accent-red); display: block; margin-bottom: 0.3rem;">Zona de Peligro:</strong>
               <p class="text-sub text-xs" style="margin-bottom: 0.85rem;">
-                Reinicia la urna digital, padrón y contadores a su estado predeterminado de demostración.
+                Reinicia la ánfora digital, padrón y contadores a su estado predeterminado de demostración.
               </p>
               <button class="btn btn-danger text-xs" onclick="handleResetElection()">
                 <i class="fa-solid fa-rotate-left"></i> Reiniciar Elección Completa

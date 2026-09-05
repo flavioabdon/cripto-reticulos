@@ -25,7 +25,7 @@ El protocolo fue evaluado empíricamente bajo **300 experimentos independientes*
 | Métrica | PQC (ML-KEM-768 + ML-DSA-65) | Clásico (RSA-2048 + ECDSA) | Límite |
 |---|---|---|---|
 | **Latencia media por voto** | **1.34 ms ± 0.05 ms** | 0.46 ms ± 0.01 ms | ≤ 200 ms |
-| **Apertura de urna (1 voto)** | **0.042 ms** | 92.137 ms | — |
+| **Apertura de ánfora (1 voto)** | **0.042 ms** | 92.137 ms | — |
 | **p-value (Mann-Whitney U)** | **< 0.0001** | — | α = 0.05 |
 | **Cohen's d** | **> 3.5** | — | — |
 
@@ -40,7 +40,7 @@ El protocolo fue evaluado empíricamente bajo **300 experimentos independientes*
 | Entidad | Código | Rol |
 |---|---|---|
 | Autoridad de Registro | `AR` | Emite credenciales de votante y firma el padrón electoral |
-| Autoridad de Conteo | `AC` | Genera par de claves de elección y descifra la urna al cierre |
+| Autoridad de Conteo | `AC` | Genera par de claves de elección y descifra la ánfora al cierre |
 | Servidor de Votación | `SV` | Recibe, valida y almacena boletas cifradas |
 | Votante | `V` | Genera, cifra y firma su voto con anonimato garantizado |
 
@@ -54,7 +54,7 @@ F4: Cierre         → F5: Escrutinio → F6: Publicación
 1. **Inicialización** — `AC` genera `(pk_eleccion, sk_eleccion)` ML-KEM-768; `AR` genera `(pk_AR, sk_AR)` ML-DSA-65.
 2. **Registro** — `AR` emite token `τ = Sign(sk_AR, ID_V)`.
 3. **Votación** — Votante encapsula `(ct, K) = KEM.Enc(pk_eleccion)`, cifra `c = AES-256-GCM(KDF(K), voto)`, construye boleta `B = (ct, c, pk_V, τ, Sig_V)`.
-4. **Cierre** — `SV` sella la urna.
+4. **Cierre** — `SV` sella la ánfora.
 5. **Escrutinio** — `AC` desencapsula `K` de cada boleta y recupera votos.
 6. **Publicación** — Resultado firmado y tablón de auditoría publicados.
 
@@ -140,10 +140,10 @@ python3 src/web/app.py
 
 | Pestaña | Descripción |
 |---|---|
-|  Cabina de Votación | Flujo completo con inspector criptográfico |
-|  Urna Digital | Boletas cifradas en tiempo real |
-|  Escrutinio | Apertura de urna con gráfico Chart.js |
-|  Padrón Electoral | Registro de votantes habilitados |
+|  Mesa de Votación | Flujo completo con inspector criptográfico |
+|  Ánfora Digital | Boletas cifradas en tiempo real |
+|  Escrutinio | Apertura de ánfora con gráfico Chart.js |
+|  padrón electoral | Registro de votantes habilitados |
 |  Administración | Modo PQC / Clásico configurable |
 
 ---
@@ -208,7 +208,7 @@ CRIPTOGRAFIA RETICULOS/
 | 100 | 1.35 ms | 0.46 ms |
 | 1000 | 1.34 ms | 0.46 ms |
 
-### Apertura de urna (escrutinio)
+### Apertura de ánfora (escrutinio)
 
 | Algoritmo | Tiempo |
 |---|---|

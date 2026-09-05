@@ -4,7 +4,7 @@ Responsable de:
   - Generación de claves de encapsulamiento ML-KEM-768 (ek_SV) y firma ML-DSA-65 (sk_SV)
   - Recepción de paquetes de voto y verificación de firmas (AR y Votante)
   - Control de unicidad (prevención de votos duplicados)
-  - Almacenamiento seguro en la urna digital (sin descifrar)
+  - Almacenamiento seguro en la ánfora digital (sin descifrar)
   - Emisión de recibos firmados para los votantes
 """
 
@@ -62,7 +62,7 @@ class ServidorVotacion:
         # Generar par de claves ML-DSA-65 del Servidor para emitir recibos
         self.pk_sv, self._sk_sv = MLDSA65.keypair()
 
-        # Urna Digital: lista de boletas válidas registradas
+        # Ánfora Digital: lista de boletas válidas registradas
         self.urna: List[PaqueteVoto] = []
         # Registro de IDs que ya emitieron voto (control anti-duplicados)
         self.votantes_registrados: set = set()
@@ -83,7 +83,7 @@ class ServidorVotacion:
           2. Verifica la firma de la AR sobre la credencial del votante (ML-DSA-65).
           3. Verifica la firma del votante sobre la boleta (ML-DSA-65).
           4. Verifica que el votante no haya emitido sufragio previamente (unicidad).
-          5. Almacena el paquete en la urna digital.
+          5. Almacena el paquete en la ánfora digital.
           6. Emite un recibo firmado criptográficamente.
 
         Retorna:
@@ -110,7 +110,7 @@ class ServidorVotacion:
         if not MLDSA65.verify(payload_boleta, paquete.firma_votante, cred.pk_votante):
             return False, "Voto rechazado: firma digital del votante INVÁLIDA.", None
 
-        # 4. Registrar en la urna y marcar como votado
+        # 4. Registrar en el ánfora y marcar como votado
         self.urna.append(paquete)
         self.votantes_registrados.add(id_v)
 
@@ -129,9 +129,9 @@ class ServidorVotacion:
             firma_servidor=firma_sv,
         )
 
-        return True, "Voto aceptado y registrado exitosamente en la urna digital.", recibo
+        return True, "Voto aceptado y registrado exitosamente en la ánfora digital.", recibo
 
     def cerrar_jornada(self) -> List[PaqueteVoto]:
-        """Cierra la recepción de votos y entrega la urna para el escrutinio."""
+        """Cierra la recepción de votos y entrega el ánfora para el escrutinio."""
         self.jornada_abierta = False
         return list(self.urna)

@@ -5,7 +5,7 @@ Ejecuta el flujo completo de las 6 fases:
   (b) Registro y emisión de credenciales (AR -> Votantes)
   (c) Cifrado ML-KEM y firma ML-DSA (Votantes)
   (d) Envío y verificación de firmas (Votantes -> SV)
-  (e) Registro en la urna digital y emisión de recibos (SV)
+  (e) Registro en la ánfora digital y emisión de recibos (SV)
   (f) Desencapsulamiento y escrutinio final (AC)
 """
 
@@ -76,7 +76,7 @@ class ProtocoloVotacionPQC:
         return exito, msg, recibo
 
     def fase_conteo(self) -> ResultadoEscrutinio:
-        """Fase (f): Cierre de jornada, apertura de urna, desencapsulamiento y escrutinio."""
+        """Fase (f): Cierre de jornada, apertura de ánfora, desencapsulamiento y escrutinio."""
         if not self.sv or not self.ac:
             raise RuntimeError("Autoridades no inicializadas.")
 
@@ -118,7 +118,7 @@ def demo_simulacion():
 
     for id_v, nom, _ in votantes_datos:
         proto.fase_registro(id_v, nom)
-    print(f"    ✓ {len(votantes_datos)} votantes registrados en el padrón.")
+    print(f"    ✓ {len(votantes_datos)} votantes registrados en el padrón electoral.")
 
     # 3. Emisión y recepción de votos
     print("\n[3] Fases (c, d, e): Emisión de votos cifrados, verificación y recepción...")

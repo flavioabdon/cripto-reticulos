@@ -62,14 +62,14 @@ La latencia PQC media (1.34 ms) es **~149 veces menor** al umbral de viabilidad 
 
 > **Interpretación:** El protocolo PQC es ~2.9× más lento que el clásico por voto, pero **ambos están muy por debajo del umbral de 200 ms**. El overhead relativo es irrelevante en términos de experiencia de usuario.
 
-### 4.2 Apertura de Urna — Escrutinio por Voto
+### 4.2 Apertura de Ánfora — Escrutinio por Voto
 
 | Operación | Tiempo (ms) | Diferencia Relativa |
 |---|---|---|
 | ML-KEM-768 Desencapsulamiento | **0.042 ms** | — |
 | RSA-OAEP-2048 Descifrado | 92.137 ms | **PQC es 2,175× MÁS RÁPIDO** |
 
-> **Interpretación:** En la fase de escrutinio masivo (apertura de urna), ML-KEM-768 ofrece una **ventaja operativa crítica** de más de tres órdenes de magnitud sobre RSA-2048. Para 10,000 votos: PQC tarda ~420 ms vs RSA ~921 segundos (15.4 minutos).
+> **Interpretación:** En la fase de escrutinio masivo (apertura de ánfora), ML-KEM-768 ofrece una **ventaja operativa crítica** de más de tres órdenes de magnitud sobre RSA-2048. Para 10,000 votos: PQC tarda ~420 ms vs RSA ~921 segundos (15.4 minutos).
 
 ### 4.3 Micro-benchmarks por Operación Atómica
 
@@ -184,7 +184,7 @@ La hipótesis de investigación es **formalmente confirmada con evidencia estad�
 
 ### 9.2 Ventajas del Protocolo PQC
 1. **Resistencia cuántica comprobada:** ML-KEM-768 y ML-DSA-65 están basados en el problema Module-LWE, considerado intractable para computadoras cuánticas de gran escala.
-2. **Escrutinio ultrarrápido:** El desencapsulamiento ML-KEM-768 es 2,175× más rápido que RSA-2048 en la apertura de urna, haciéndolo superior para conteos masivos.
+2. **Escrutinio ultrarrápido:** El desencapsulamiento ML-KEM-768 es 2,175× más rápido que RSA-2048 en la apertura de ánfora, haciéndolo superior para conteos masivos.
 3. **Estandarización oficial:** Ambos algoritmos son estándares NIST FIPS 203/204 (2024), asegurando interoperabilidad y soporte a largo plazo.
 4. **Seguridad formal verificada:** 4 lemas de seguridad demostrados con Tamarin Prover.
 

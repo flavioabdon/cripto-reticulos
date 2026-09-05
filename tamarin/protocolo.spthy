@@ -1,104 +1,209 @@
-theory TestClean
+theory ProtocoloVotacionPQC
 begin
+
+/*
+================================================================================
+  TESIS DE GRADO: PROTOCOLO DE VOTACIÓN ELECTRÓNICA BASADO EN CRIPTOGRAFÍA
+                  POST-CUÁNTICA DE RETÍCULOS (ML-KEM-768 + ML-DSA-65)
+  Universidad Mayor de San Andrés (UMSA) — Carrera de Informática — 2026
+================================================================================
+
+  DESCRIPCIÓN DEL MODELO:
+  Este archivo modela formalmente la seguridad del protocolo de votación bajo
+  el modelo de atacante Dolev-Yao (control total de la red).
+
+  ENTIDADES (ROLES):
+    - AR : Autoridad de Registro (Emite credenciales firmadas en el Padrón)
+    - SV : Servidor de Votación (Recepciona, verifica y custodia las ánforas)
+    - AC : Autoridad de Conteo / Tally (Custodia dk_SV y realiza el escrutinio)
+    - V  : Votante / Ciudadano (Cifra voto con KEM y firma con ML-DSA)
+
+  PRIMITIVAS CRIPTOGRÁFICAS MODELADAS:
+    - ML-KEM-768 : encaps/2, decaps/2, ek_from_dk/1 (KEM asimétrico)
+    - ML-DSA-65  : sign/2, verify/3, pk/1 (Firma digital estructurada)
+    - AEAD        : senc/2, sdec/2 (Cifrado simétrico AES-256-GCM)
+    - SHA3-256   : h/1 (Función hash criptográfica para recibos)
+================================================================================
+*/
 
 builtins: dest-signing, symmetric-encryption
 
-functions: encaps/2, decaps/2, ek_from_dk/1, h/1
-equations: decaps(dk, encaps(ek_from_dk(dk), r)) = r
+// -----------------------------------------------------------------------------
+// 1. ABSTRACCIÓN SIMBÓLICA DE PRIMITIVAS CRIPTOGRÁFICAS
+// -----------------------------------------------------------------------------
+functions: 
+    encaps/2,          // encaps(pk_kem, secret_k) -> ciphertext_kem
+    decaps/2,          // decaps(sk_kem, ciphertext_kem) -> secret_k
+    ek_from_dk/1,      // deriva la clave pública de encapsulamiento desde la privada
+    h/1                // función hash criptográfica SHA3-256
 
+equations: 
+    // Corrección del KEM (FIPS 203): decapsular un ciphertext válido recupera el secreto k
+    decaps(dk, encaps(ek_from_dk(dk), r)) = r
+
+
+// -----------------------------------------------------------------------------
+// 2. RESTRICCIONES (AXIOMAS DE ESTADO)
+// -----------------------------------------------------------------------------
+
+// Restricción: Cada votante registrado solo puede emitir un único voto aceptado
 restriction Unicidad_Voto:
     "All id #i #j. VotoUnico(id) @i & VotoUnico(id) @j ==> #i = #j"
 
-restriction Eq:
+// Restricción: Igualdad booleana estricta para verificaciones de firmas
+restriction Verificacion_Exitosa:
     "All x y #i. Eq(x, y) @i ==> x = y"
 
-rule Setup_AR:
-    [ Fr(~sk_AR) ]
-  --[ SetupAR(pk(~sk_AR)) ]->
-    [ !SecretKey('AR', ~sk_AR)
-    , !PublicKey('AR', pk(~sk_AR))
-    , Out(pk(~sk_AR))
-    ]
 
-rule Setup_SV:
-    [ Fr(~dk_SV), Fr(~sk_SV) ]
-  --[ SetupSV(ek_from_dk(~dk_SV), pk(~sk_SV)) ]->
-    [ !DecapsKey('AC', ~dk_SV)
-    , !PublicKeyKEM('SV', ek_from_dk(~dk_SV))
-    , !PublicKey('SV', pk(~sk_SV))
-    , Out(ek_from_dk(~dk_SV))
-    , Out(pk(~sk_SV))
-    ]
+// -----------------------------------------------------------------------------
+// 3. REGLAS DEL PROTOCOLO (FASES DEL FLUJO)
+// -----------------------------------------------------------------------------
 
-rule Register_Voter:
+/*
+  FASE (a): Configuración de la Autoridad de Registro (AR)
+  Genera su par de claves de firma ML-DSA-65 (sk_AR, pk_AR).
+  Publica su clave pública en el canal público.
+*/
+rule Setup_Autoridad_Registro:
     let
-        pk_V   = pk(~sk_V)
-        cred_V = <~idV, pk_V, ~ts_reg>
-        sig_AR = sign(cred_V, ~sk_AR)
+        pk_AR = pk(~sk_AR)
+    in
+    [ Fr(~sk_AR) ]
+  --[ SetupAR(pk_AR) ]->
+    [ !ClavePrivadaAR('AR', ~sk_AR)
+    , !ClavePublicaAR('AR', pk_AR)
+    , Out(pk_AR)
+    ]
+
+/*
+  FASE (a): Configuración del Servidor de Votación (SV) y Autoridad de Conteo (AC)
+  - SV genera par ML-KEM-768 (ek_SV, dk_SV) y par ML-DSA-65 (sk_SV, pk_SV).
+  - La clave de desencapsulamiento dk_SV se entrega exclusivamente a la AC fuera de banda.
+  - Se publican ek_SV y pk_SV.
+*/
+rule Setup_Servidor_Votacion:
+    let
+        ek_SV = ek_from_dk(~dk_SV)
+        pk_SV = pk(~sk_SV)
+    in
+    [ Fr(~dk_SV)
+    , Fr(~sk_SV) 
+    ]
+  --[ SetupSV(ek_SV, pk_SV) ]->
+    [ !ClaveDesencapsulamientoAC('AC', ~dk_SV)   // Custodia exclusiva de la Autoridad de Conteo
+    , !ClavePublicaKEM_SV('SV', ek_SV)
+    , !ClavePublicaFirma_SV('SV', pk_SV)
+    , Out(ek_SV)
+    , Out(pk_SV)
+    ]
+
+/*
+  FASE (b): Registro del Ciudadano en el Padrón Electoral (AR)
+  - El votante presenta su ID_V ante la Autoridad de Registro.
+  - La AR genera las claves del votante (sk_V, pk_V) y firma la credencial.
+  - Se entrega (sk_V, Credencial) por canal auténtico y seguro al votante.
+*/
+rule Registro_Ciudadano_Padron:
+    let
+        pk_V       = pk(~sk_V)
+        credencial = <~idV, pk_V, ~ts_reg>
+        firma_AR   = sign(credencial, ~sk_AR)
     in
     [ Fr(~sk_V)
     , Fr(~ts_reg)
     , Fr(~idV)
-    , !SecretKey('AR', ~sk_AR)
+    , !ClavePrivadaAR('AR', ~sk_AR)
     ]
   --[ RegistroVotante(~idV, pk_V) ]->
-    [ !VoterKey(~idV, ~sk_V, cred_V, sig_AR)
-    , !Padron(~idV, pk_V)
+    [ !CredencialVotante(~idV, ~sk_V, credencial, firma_AR)
+    , !PadronElectoral(~idV, pk_V)
     ]
 
-rule Cast_Vote:
+/*
+  FASE (c): Emisión y Cifrado del Voto en la Mesa de Votación (Votante)
+  - Votante encapsula secreto efímero k con ek_SV: ct = encaps(ek_SV, k)
+  - Cifra simétricamente su voto m con k: vc = senc(m, k)
+  - Construye la boleta y la firma con su clave privada sk_V (ML-DSA-65).
+  - Envía el paquete al Servidor de Votación a través de la red.
+*/
+rule Emitir_Voto_Mesa:
     let
-        ct    = encaps(ek_SV, ~k)
-        vc    = senc(~m, ~k)
-        blt   = <ct, vc, cred_V, ~ts_v>
-        sig_V = sign(blt, ~sk_V)
+        ct_kem      = encaps(ek_SV, ~k_efimera)
+        voto_cifrado = senc(~m_voto, ~k_efimera)
+        boleta       = <ct_kem, voto_cifrado, credencial, ~ts_voto>
+        firma_V      = sign(boleta, ~sk_V)
     in
-    [ Fr(~k)
-    , Fr(~m)
-    , Fr(~ts_v)
-    , !VoterKey(~idV, ~sk_V, cred_V, sig_AR)
-    , !PublicKeyKEM('SV', ek_SV)
+    [ Fr(~k_efimera)
+    , Fr(~m_voto)
+    , Fr(~ts_voto)
+    , !CredencialVotante(~idV, ~sk_V, credencial, firma_AR)
+    , !ClavePublicaKEM_SV('SV', ek_SV)
     ]
-  --[ VotoEmitido(~idV, ~m)
-    , VotoEnviado(~idV, blt, sig_V)
-    , SecretoVoto(~m)
+  --[ VotoEmitido(~idV, ~m_voto)
+    , VotoEnviado(~idV, boleta, firma_V)
+    , SecretoVoto(~m_voto)
     ]->
-    [ Out(<blt, sig_V, sig_AR>) ]
+    [ Out(<boleta, firma_V, firma_AR>) ]
 
-rule Receive_And_Register:
+/*
+  FASE (d & e): Recepción, Verificación y Depósito en Ánfora Digital (SV)
+  - SV recibe el paquete de sufragio.
+  - Verifica la firma de la AR sobre la credencial del votante.
+  - Verifica la firma del votante sobre la boleta.
+  - Aplica control de no duplicidad (VotoUnico).
+  - Deposita en el Ánfora Digital y emite un recibo firmado SHA3-256.
+*/
+rule Recepcion_Y_Deposito_Anfora:
     let
-        cred_V = <idV, pk_V, ts_reg>
-        blt    = <ct, vc, cred_V, ts_v>
+        credencial   = <idV, pk_V, ts_reg>
+        boleta       = <ct_kem, voto_cifrado, credencial, ts_voto>
+        recibo_hash  = h(<boleta, ~ts_recibo>)
     in
-    [ In(<blt, sig_V, sig_AR>)
-    , !PublicKey('AR', pk_AR)
-    , !Padron(idV, pk_V)
-    , Fr(~ts_rcp)
+    [ In(<boleta, firma_V, firma_AR>)
+    , !ClavePublicaAR('AR', pk_AR)
+    , !PadronElectoral(idV, pk_V)
+    , Fr(~ts_recibo)
     ]
-  --[ Eq(verify(sig_AR, cred_V, pk_AR), true)
-    , Eq(verify(sig_V, blt, pk_V), true)
-    , VotoUnico(idV)
-    , VotoAceptado(idV, blt, sig_V)
-    , VotoRegistrado(idV, ct, vc)
+  --[ Eq(verify(firma_AR, credencial, pk_AR), true)  // Firma de la AR válida
+    , Eq(verify(firma_V, boleta, pk_V), true)        // Firma del Votante válida
+    , VotoUnico(idV)                                 // Prevención de doble voto
+    , VotoAceptado(idV, boleta, firma_V)
+    , VotoRegistrado(idV, ct_kem, voto_cifrado)
     ]->
-    [ Urna(idV, ct, vc, pk_V, cred_V, sig_V, ts_v)
-    , Out(h(<blt, ~ts_rcp>))
+    [ AnforaDigital(idV, ct_kem, voto_cifrado, pk_V, credencial, firma_V, ts_voto)
+    , Out(recibo_hash)
     ]
 
-rule Tally_Vote:
+/*
+  FASE (f): Apertura de Ánfora y Escrutinio Oficial (AC)
+  - Tras el cierre electoral, la Autoridad de Conteo utiliza dk_SV.
+  - Desencapsula el secreto compartido k de cada boleta.
+  - Descifra el voto m_voto y totaliza el resultado oficial de forma auditable.
+*/
+rule Apertura_Anfora_Y_Escrutinio:
     let
-        cred_V = <idV, pk_V, ts_reg>
-        blt    = <ct, vc, cred_V, ts_v>
-        k      = decaps(~dk_SV, ct)
-        m      = sdec(vc, k)
+        credencial   = <idV, pk_V, ts_reg>
+        boleta       = <ct_kem, voto_cifrado, credencial, ts_voto>
+        k_recuperada = decaps(~dk_SV, ct_kem)
+        voto_plano   = sdec(voto_cifrado, k_recuperada)
     in
-    [ Urna(idV, ct, vc, pk_V, cred_V, sig_V, ts_v)
-    , !DecapsKey('AC', ~dk_SV)
+    [ AnforaDigital(idV, ct_kem, voto_cifrado, pk_V, credencial, firma_V, ts_voto)
+    , !ClaveDesencapsulamientoAC('AC', ~dk_SV)
     ]
-  --[ VotoContado(idV, m) ]->
-    [ Out(<idV, m>) ]
+  --[ VotoContado(idV, voto_plano) ]->
+    [ Out(<idV, voto_plano>) ]
 
-lemma executability:
+
+// -----------------------------------------------------------------------------
+// 4. LEMAS DE SEGURIDAD FORMAL (PROPIEDADES MATEMÁTICAS A PROBAR)
+// -----------------------------------------------------------------------------
+
+/*
+  LEMA 1: Sanity Check (Ejecutabilidad)
+  Demuestra que existe al menos una traza válida completa donde el protocolo
+  inicia, emite, valida y contabiliza el voto en orden cronológico estricto.
+*/
+lemma ejecutabilidad:
     exists-trace
     "Ex idV m blt sig #t1 #t2 #t3.
         VotoEmitido(idV, m)         @#t1
@@ -107,11 +212,21 @@ lemma executability:
       & #t1 < #t2
       & #t2 < #t3"
 
+/*
+  LEMA 2: Confidencialidad y Secreto del Voto
+  Garantiza que un atacante Dolev-Yao en la red nunca puede descubrir el
+  contenido del voto secreto emitido por el ciudadano.
+*/
 lemma secreto_voto:
     all-traces
     "All m #t.
         SecretoVoto(m) @#t ==> not(Ex #t2. K(m) @#t2)"
 
+/*
+  LEMA 3: Integridad del Sufragio (Correspondencia Voto Emitido - Contabilizado)
+  Garantiza que todo voto contado por la Autoridad de Conteo corresponde
+  exactamente a un voto legítimamente emitido por dicho votante.
+*/
 lemma integridad_voto:
     all-traces
     "All idV m #tc.
@@ -119,6 +234,11 @@ lemma integridad_voto:
         ==>
         Ex #te. VotoEmitido(idV, m) @#te & #te < #tc"
 
+/*
+  LEMA 4: Autenticidad del Votante (Injective Agreement)
+  Garantiza que cada boleta aceptada por el servidor proviene de una acción
+  de sufragio única del votante habilitado, evitando ataques de repetición/replay.
+*/
 lemma autenticidad_votante:
     all-traces
     "All idV blt sig #ta.

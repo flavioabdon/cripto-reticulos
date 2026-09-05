@@ -49,7 +49,7 @@ AR:  (sk_V, pk_V) ← ML-DSA.KeyGen()
 AR:  cred_V       := (ID_V || pk_V || ts)
 AR:  σ_AR         := ML-DSA.Sign(sk_AR, cred_V)
 AR:  Credencial   := (cred_V, σ_AR)
-AR:  padron[ID_V] := (pk_V, "Registrado")
+AR:  padrón electoral[ID_V] := (pk_V, "Registrado")
 
 -- AR entrega credenciales al votante por canal seguro --
 AR →(seguro)→ V : (sk_V, Credencial)
@@ -94,7 +94,7 @@ SV:  assert ML-DSA.Verify(pk_AR, cred_V, σ_AR)   -- credencial válida
 SV:  pk_V := extraer_pk_V(cred_V)
 SV:  assert ML-DSA.Verify(pk_V, boleta, σ_V)      -- firma del votante válida
 SV:  ID_V := extraer_ID(cred_V)
-SV:  assert padron[ID_V].estado != "Ya votó"       -- anti-duplicado
+SV:  assert padrón electoral[ID_V].estado != "Ya votó"       -- anti-duplicado
 SV:  → (si todo ok) continuar a fase (e)
 SV:  → (si algún assert falla) rechazar paquete
 ```
@@ -104,9 +104,9 @@ SV:  → (si algún assert falla) rechazar paquete
 ### Fase (e) — Registro del voto cifrado
 
 ```
--- SV registra el voto y actualiza el padrón --
-SV:  urna[ID_V]         := boleta
-SV:  padron[ID_V].estado := "Ya votó"
+-- SV registra el voto y actualiza el padrón electoral --
+SV:  ánfora[ID_V]         := boleta
+SV:  padrón electoral[ID_V].estado := "Ya votó"
 
 -- SV emite recibo al votante --
 SV:  ts_recibo   := now()
@@ -123,11 +123,11 @@ SV → V : recibo
 ### Fase (f) — Desencapsulamiento y conteo final
 
 ```
--- (Jornada cerrada) SV entrega la urna a AC por canal seguro --
-SV →(seguro)→ AC : {urna}
+-- (Jornada cerrada) SV entrega la ánfora a AC por canal seguro --
+SV →(seguro)→ AC : {ánfora}
 
 -- AC procesa cada boleta --
-para cada boleta_i en urna:
+para cada boleta_i en ánfora:
     AC:  ct_i           := extraer_ct(boleta_i)
     AC:  K_i            ← ML-KEM.Decaps(dk_SV, ct_i)
     AC:  m_i            := AES-256-GCM.Decrypt(K_i, voto_cifrado_i, nonce_i)
@@ -143,7 +143,7 @@ para cada boleta_i en urna:
     AC:  conteo[m_i] += 1
 
 -- AC publica resultados y hashes para auditoría --
-AC → Público : (conteo, {SHA3-256(boleta_i) : i ∈ urna})
+AC → Público : (conteo, {SHA3-256(boleta_i) : i ∈ ánfora})
 ```
 
 ---
@@ -171,7 +171,7 @@ sequenceDiagram
     rect rgb(30, 70, 50)
         Note over V,AR: FASE (b) — Registro del Votante
         V->>AR: ID_V (identificación)
-        AR->>AR: Verifica identidad en padrón
+        AR->>AR: Verifica identidad en padrón electoral
         AR->>AR: (sk_V, pk_V) ← ML-DSA.KeyGen()
         AR->>AR: cred_V = (ID_V ∥ pk_V ∥ ts)
         AR->>AR: σ_AR = ML-DSA.Sign(sk_AR, cred_V)
@@ -200,16 +200,16 @@ sequenceDiagram
 
     rect rgb(50, 50, 30)
         Note over SV,V: FASE (e) — Registro del voto cifrado
-        SV->>SV: urna[ID_V] = boleta
-        SV->>SV: padron[ID_V].estado = "Ya votó"
+        SV->>SV: ánfora[ID_V] = boleta
+        SV->>SV: padrón electoral[ID_V].estado = "Ya votó"
         SV->>SV: recibo = (SHA3-256(boleta ∥ ts), σ_SV)
         SV-->>V: recibo (comprobante)
     end
 
     rect rgb(20, 60, 60)
         Note over AC,SV: FASE (f) — Desencapsulamiento y conteo (jornada cerrada)
-        SV-->>AC: {urna} [canal seguro]
-        loop Para cada boleta_i en urna
+        SV-->>AC: {ánfora} [canal seguro]
+        loop Para cada boleta_i en ánfora
             AC->>AC: K_i ← ML-KEM.Decaps(dk_SV, ct_i)
             AC->>AC: m_i = AES-256-GCM.Decrypt(K_i, voto_cifrado_i)
             AC->>AC: Re-verifica σ_V_i sobre boleta_i ✓
@@ -236,7 +236,7 @@ graph TD
     end
 
     subgraph "Fase b - Registro"
-        D1["V presenta ID_V"] --> D2["AR verifica padrón"]
+        D1["V presenta ID_V"] --> D2["AR verifica padrón electoral"]
         D2 --> D3["AR: ML-DSA.KeyGen() para V"]
         D3 --> D4["sk_V, pk_V"]
         D4 --> D5["Credencial = cred_V + σ_AR"]
@@ -256,7 +256,7 @@ graph TD
         F1["V → SV: paquete"] --> F2["SV verifica Credencial con pk_AR"]
         F2 --> F3["SV verifica σ_V con pk_V"]
         F3 --> F4["SV anti-duplicado"]
-        F4 --> F5["SV registra boleta en urna"]
+        F4 --> F5["SV registra boleta en ánfora"]
         F5 --> F6["SV emite recibo a V"]
     end
 

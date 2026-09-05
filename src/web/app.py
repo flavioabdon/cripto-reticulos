@@ -178,7 +178,7 @@ def get_status():
         "motor": eleccion.motor,
         "fase_electoral": eleccion.fase_electoral,
         "total_padron": votantes_total,
-        "votos_urna": votos_emitidos,
+        "votos_anfora": votos_emitidos,
         "participacion_pct": round((votos_emitidos / max(1, votantes_total)) * 100, 1),
         "total_candidatos": len(eleccion.candidatos),
         "info_cripto": {
@@ -286,7 +286,7 @@ def register_voter():
 @app.route("/api/vote/cast", methods=["POST"])
 def cast_vote():
     """
-    Ejecuta el flujo de votación desde la cabina con desglose criptográfico pedagógico.
+    Ejecuta el flujo de votación desde la mesa de votación con desglose criptográfico pedagógico.
     """
     data = request.get_json() or {}
     id_v = data.get("id_votante", "").strip()
@@ -451,7 +451,7 @@ def get_urn():
     return jsonify({
         "total": len(urna_data),
         "motor": eleccion.motor,
-        "urna": urna_data,
+        "anfora": urna_data, "urna": urna_data,
     })
 
 
@@ -459,7 +459,7 @@ def get_urn():
 def perform_tally():
     """
     Ejecuta el proceso de escrutinio oficial:
-      Apertura de urna, desencapsulamiento seguro y cómputo de resultados.
+      Apertura de ánfora, desencapsulamiento seguro y cómputo de resultados.
     """
     t0 = time.perf_counter()
 
@@ -496,7 +496,7 @@ def perform_tally():
         "success": True,
         "motor": eleccion.motor,
         "tiempo_escrutinio_ms": round(t_tally, 2),
-        "total_urna": resultado.total_votos,
+        "total_anfora": resultado.total_votos,
         "votos_validos": resultado.votos_validos,
         "votos_invalidos": resultado.votos_invalidos,
         "resultados": resultados_detallados,
