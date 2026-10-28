@@ -1,0 +1,27 @@
+\babel@toc {spanish}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Representaci\'on de un ret\'iculo en $\mathbb {R}^2$: la base azul $\{\mathbf {b}_1, \mathbf {b}_2\}$ es corta y casi ortogonal (base ``buena''), mientras que la base roja $\{\mathbf {b}_1', \mathbf {b}_2'\}$ est\'a formada por vectores largos y casi colineales (base ``mala''). Ambas generan exactamente el mismo conjunto de puntos.}}{6}{figure.caption.7}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Geometr\'ia del problema CVP y BDD: un mensaje se codifica en un punto del ret\'iculo $\mathbf {v}^*$, perturbado por un peque\~no vector de ruido $\mathbf {e}$ hasta llegar a $\mathbf {t} = \mathbf {v}^* + \mathbf {e}$. El descifrado consiste en resolver CVP para remover $\mathbf {e}$.}}{10}{figure.caption.8}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Forma acampanada discreta de la distribuci\'on $\mathrm {CBD}_2$: su media es exactamente cero y su varianza es $\sigma ^2 = \eta /2 = 1$. Se calcula en tiempo constante sumando bits generados por SHAKE-256.}}{15}{figure.caption.9}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Diagrama de flujo de la operaci\'on elemental Mariposa (Butterfly) de Cooley-Tukey empleada en la implementaci\'on C de \textsf {ML-KEM}{} en \texttt {src/pqc/pqclean/}.}}{24}{figure.caption.10}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {9.1}{\ignorespaces Mecanismo de Muestreo de Rechazo (\emph {Rejection Sampling}) en \textsf {ML-DSA}{}: si la respuesta $\mathbf {z}$ cae cerca de los bordes del dominio (regiones sombreadas), se aborta la operaci\'on y se repite el proceso con una nueva m\'ascara $\mathbf {y}$. Esto garantiza que las firmas v\'alidas publicadas tengan una distribuci\'on geom\'etrica perfectamente independiente del secreto $\mathbf {s}$.}}{32}{figure.caption.12}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {10.1}{\ignorespaces Diagrama de roles y flujos de comunicaci\'on del protocolo electoral post-cu\'antico.}}{37}{figure.caption.13}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {12.1}{\ignorespaces Pila tecnol\'ogica por capas del artefacto implementado.}}{45}{figure.caption.15}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }

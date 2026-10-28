@@ -1,0 +1,32 @@
+\babel@toc {spanish}{}\relax 
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {1.1}{\ignorespaces Complejidad de resoluci\'on frente a computadoras cl\'asicas y cu\'anticas}}{3}{table.caption.6}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {8.1}{\ignorespaces Especificaci\'on de par\'ametros de ML-KEM-768}}{27}{table.caption.11}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {10.1}{\ignorespaces Matriz de responsabilidades y claves del sistema}}{38}{table.caption.14}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {12.1}{\ignorespaces Resultado de la suite de validaci\'on KAT (\texttt {validacion/kat/})}}{47}{table.caption.16}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {13.1}{\ignorespaces Pruebas de hip\'otesis sobre la latencia por voto ($N=30$ corridas por celda)}}{49}{table.caption.17}%
+\contentsline {table}{\numberline {13.2}{\ignorespaces Tiempo unitario de desencapsulamiento/descifrado por boleta en escrutinio}}{50}{table.caption.18}%
+\contentsline {table}{\numberline {13.3}{\ignorespaces Proyecci\'on de tiempo de escrutinio para elecciones de gran escala}}{50}{table.caption.19}%
+\contentsline {table}{\numberline {13.4}{\ignorespaces Comparativa de sobrecarga de comunicaci\'on por voto}}{51}{table.caption.20}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {14.1}{\ignorespaces Resultados de la verificaci\'on formal con Tamarin Prover}}{54}{table.caption.21}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {A.1}{\ignorespaces Glosario de s\'imbolos matem\'aticos empleados en el libro}}{57}{table.caption.22}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {B.1}{\ignorespaces Ficha t\'ecnica comparativa de la familia ML-KEM (FIPS 203)}}{59}{table.caption.23}%
+\contentsline {table}{\numberline {B.2}{\ignorespaces Ficha t\'ecnica comparativa de la familia ML-DSA (FIPS 204)}}{59}{table.caption.24}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }

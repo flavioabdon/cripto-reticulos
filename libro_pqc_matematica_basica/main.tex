@@ -1,0 +1,231 @@
+%=============================================================
+% LIBRO: EL SECRETO DE LOS RETICULOS
+% Criptografia Post-Cuantica explicada para estudiantes
+% de primer semestre de matematicas basica
+%=============================================================
+\documentclass[11pt,a4paper,oneside]{book}
+
+% Lenguaje y codificacion
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noquoting,es-tabla]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% Matematicas
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+
+% Geometria de pagina
+\usepackage[
+  a4paper,
+  top=2.8cm, bottom=2.8cm,
+  left=2.8cm, right=2.8cm,
+  headheight=16pt
+]{geometry}
+
+% Encabezados elegantes
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{gray!80!black}\nouppercase{\leftmark}}
+\fancyfoot[C]{\small\sffamily\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Colores
+\usepackage[dvipsnames,svgnames]{xcolor}
+\definecolor{PQCMainBlue}{RGB}{24, 76, 120}
+\definecolor{PQCDark}{RGB}{15, 30, 50}
+\definecolor{PQCTeal}{RGB}{12, 133, 143}
+\definecolor{PQCGreen}{RGB}{34, 139, 84}
+\definecolor{PQCAmber}{RGB}{217, 119, 6}
+\definecolor{PQCPurple}{RGB}{109, 40, 217}
+\definecolor{PQCCrimson}{RGB}{185, 28, 28}
+\definecolor{BoxBgBlue}{RGB}{243, 248, 253}
+\definecolor{BoxBgGreen}{RGB}{240, 253, 244}
+\definecolor{BoxBgAmber}{RGB}{254, 252, 232}
+\definecolor{BoxBgPurple}{RGB}{248, 245, 255}
+\definecolor{BoxBgTeal}{RGB}{240, 253, 250}
+
+% TikZ
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc, shapes.geometric, patterns, decorations.pathreplacing, backgrounds}
+
+% Cajas didacticas (tcolorbox)
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable, skins, theorems}
+
+% 1. Caja de Intuicion (Purpura)
+\newtcolorbox{intuicion}[1][]{
+  colback=BoxBgPurple, colframe=PQCPurple,
+  fonttitle=\bfseries\sffamily\color{white},
+  coltitle=white, colbacktitle=PQCPurple,
+  title={$\blacktriangleright$ Intuici\'{o}n Clave: #1},
+  breakable, enhanced, arc=2.5mm, boxrule=0.9pt,
+  drop fuzzy shadow=black!12, top=3mm, bottom=3mm, left=3mm, right=3mm
+}
+
+% 2. Caja de Metafora Cotidiana (Verde)
+\newtcolorbox{metafora}[1][]{
+  colback=BoxBgGreen, colframe=PQCGreen,
+  fonttitle=\bfseries\sffamily\color{white},
+  coltitle=white, colbacktitle=PQCGreen,
+  title={$\bigstar$ Met\'{a}fora Cotidiana: #1},
+  breakable, enhanced, arc=2.5mm, boxrule=0.9pt,
+  drop fuzzy shadow=black!12, top=3mm, bottom=3mm, left=3mm, right=3mm
+}
+
+% 3. Caja de Ejemplo Paso a Paso (Azul / Teal)
+\newtcolorbox{ejemplonumerico}[1][]{
+  colback=BoxBgTeal, colframe=PQCTeal,
+  fonttitle=\bfseries\sffamily\color{white},
+  coltitle=white, colbacktitle=PQCTeal,
+  title={$\mathbb{Z}_q$ Paso a Paso: #1},
+  breakable, enhanced, arc=2.5mm, boxrule=0.9pt,
+  drop fuzzy shadow=black!12, top=3mm, bottom=3mm, left=3mm, right=3mm
+}
+
+% 4. Caja de Ojo / Alerta didactica (Ambar)
+\newtcolorbox{ojo}[1][]{
+  colback=BoxBgAmber, colframe=PQCAmber,
+  fonttitle=\bfseries\sffamily\color{black!90},
+  coltitle=black!90, colbacktitle=PQCAmber!60!white,
+  title={$\triangle$ ¡Atenci\'{o}n con esto!: #1},
+  breakable, enhanced, arc=2.5mm, boxrule=0.9pt,
+  drop fuzzy shadow=black!12, top=3mm, bottom=3mm, left=3mm, right=3mm
+}
+
+% 5. Caja de Resumen del Capitulo (Azul Marino)
+\newtcolorbox{resumencapitulo}[1][Ideas que debes llevarte en tu mochila]{
+  colback=BoxBgBlue, colframe=PQCMainBlue,
+  fonttitle=\bfseries\sffamily\color{white},
+  coltitle=white, colbacktitle=PQCMainBlue,
+  title={\checkmark\ #1},
+  breakable, enhanced, arc=2.5mm, boxrule=1pt,
+  drop fuzzy shadow=black!15, top=3.5mm, bottom=3.5mm, left=4mm, right=4mm
+}
+
+% Tablas
+\usepackage{booktabs}
+\usepackage{array}
+
+% Enlaces
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=PQCMainBlue,
+  citecolor=PQCTeal,
+  urlcolor=PQCPurple,
+  pdftitle={El Secreto de los Reticulos - Criptografia Post-Cuantica para Primer Semestre},
+  pdfauthor={Universidad Mayor de San Andres - UMSA}
+}
+
+% Formato de titulos de capitulo
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\sffamily\huge\bfseries\color{PQCMainBlue}}
+  {\filleft\small\scshape\color{gray}Cap\'itulo \thechapter}
+  {0.5ex}
+  {\vspace{0.5ex}\hrule height 1.2pt\vspace{1.5ex}}
+  [\vspace{1.5ex}\hrule height 0.5pt]
+
+\titleformat{\section}
+  {\normalfont\sffamily\Large\bfseries\color{PQCDark}}
+  {\thesection}{1em}{}
+
+\titleformat{\subsection}
+  {\normalfont\sffamily\large\bfseries\color{PQCTeal}}
+  {\thesubsection}{1em}{}
+
+% Comandos utiles
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Zq}{\mathbb{Z}_q}
+\newcommand{\Rq}{R_q}
+
+%=============================================================
+\begin{document}
+
+% Portada
+\begin{titlepage}
+\begin{tikzpicture}[remember picture, overlay]
+  % Fondo decorativo
+  \fill[BoxBgBlue] (current page.south west) rectangle (current page.north east);
+  
+  % Franja lateral de color
+  \fill[PQCMainBlue] (current page.north west) rectangle ($(current page.south west)+(2.0cm,0)$);
+  \fill[PQCTeal] ($(current page.north west)+(2.0cm,0)$) rectangle ($(current page.south west)+(2.2cm,0)$);
+  
+  % Reticulo sutil en el fondo de la portada
+  \begin{scope}[shift={($(current page.north east)+(-3,-5)$)}, opacity=0.15]
+    \foreach \x in {-5,...,4} {
+      \foreach \y in {-5,...,4} {
+        \fill[PQCMainBlue] ({\x*1.2 + \y*0.4}, {\y*1.0}) circle (2pt);
+      }
+    }
+  \end{scope}
+\end{tikzpicture}
+
+\vspace*{1.5cm}
+\begin{flushleft}
+  \hspace*{1.8cm}
+  \begin{minipage}{0.88\textwidth}
+    {\large\sffamily\bfseries\color{PQCTeal} UNIVERSIDAD MAYOR DE SAN ANDRÉS}\\[0.2cm]
+    {\small\sffamily\color{gray} Facultad de Ciencias Puras y Naturales --- Carrera de Informática}\\[2.5cm]
+    
+    {\fontsize{30}{36}\sffamily\bfseries\color{PQCMainBlue} EL SECRETO DE LOS RETÍCULOS}\\[0.6cm]
+    {\LARGE\sffamily\color{PQCPurple} Una Aventura Visual e Intuitiva por la Criptografía Post-Cuántica}\\[0.4cm]
+    {\large\sffamily\color{gray!90!black} Conceptos, ideas y geometría moderna explicados para estudiantes de primer semestre}\\[2.5cm]
+    
+    \begin{tcolorbox}[colback=white, colframe=PQCTeal, arc=2mm, width=0.95\textwidth]
+      \sffamily\small
+      \textbf{¿Qué aprenderás aquí?} \\
+      Aprenderás cómo los matemáticos protegen hoy la información del mundo utilizando cuadrículas geométricas multidimensionales (retículos), la aritmética de los relojes y un toque mágico de ``ruido'' matemático, sin enredos técnicos incomprensibles.
+    \end{tcolorbox}
+    
+    \vfill
+    \vspace*{2cm}
+    {\small\sffamily\color{gray}
+    \textbf{Edición Didáctica} --- La Paz, Bolivia --- 2026}
+  \end{minipage}
+\end{flushleft}
+\end{titlepage}
+
+% Pagina de creditos
+\thispagestyle{empty}
+\vspace*{\fill}
+\begin{center}
+\sffamily\small
+\textbf{El Secreto de los Retículos}\\
+\textit{Criptografía Post-Cuántica explicada para estudiantes de primer semestre}\\
+\vspace{0.4cm}
+Proyecto de Grado e Innovación Pedagógica\\
+Facultad de Ciencias Puras y Naturales\\
+Universidad Mayor de San Andrés (UMSA)\\
+La Paz, Bolivia, 2026\\
+\vspace{0.8cm}
+\begin{minipage}{0.8\textwidth}
+\centering\itshape\color{gray!80!black}
+``La matemática no se trata de hacer cosas difíciles de manera complicada, sino de encontrar ideas simples que expliquen cosas maravillosas.''
+\end{minipage}
+\end{center}
+\vspace*{\fill}
+\newpage
+
+% Tabla de contenidos
+\tableofcontents
+\newpage
+
+% Capitulos
+\include{capitulos/prologo}
+\include{capitulos/cap1_el_arte_del_secreto}
+\include{capitulos/cap2_reticulos_geometria}
+\include{capitulos/cap3_lwe_el_ruido_salvador}
+\include{capitulos/cap4_polinomios_y_modulos}
+\include{capitulos/cap5_mlkem_el_candado}
+\include{capitulos/cap6_mldsa_el_sello}
+\include{capitulos/cap7_rsa_y_shor}
+\include{capitulos/cap8_epilogo_y_glosario}
+
+\end{document}

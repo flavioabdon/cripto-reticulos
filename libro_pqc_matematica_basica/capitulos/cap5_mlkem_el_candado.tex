@@ -1,0 +1,259 @@
+\chapter{El Candado Post-Cuántico: ¿Cómo Funciona ML-KEM?}
+\label{cap:mlkem_candado}
+
+\section{¿Qué es un KEM y por qué lo usamos?}
+
+En las películas de espías, cuando alguien quiere enviar un mensaje secreto suele recurrir a una metáfora simple: cerrar una caja fuerte con un candado cuya llave solo tiene el destinatario.
+
+En la informática moderna, los algoritmos basados en retículos son increíblemente potentes, pero no se usan directamente para cifrar archivos gigantescos de gigabytes (como videos o bases de datos completas). En su lugar, se utilizan para lo que los matemáticos llaman un \textbf{KEM} (\textit{Key Encapsulation Mechanism}, o Mecanismo de Encapsulamiento de Claves).
+
+\begin{metafora}[La caja fuerte dentro del camión blindado]
+Imagina que quieres enviar un camión lleno de documentos confidenciales (por ejemplo, millones de votos ciudadanos). No necesitas construir un camión entero de retículos post-cuánticos.
+\begin{enumerate}
+  \item Creas una pequeña llave simétrica ultrarrápida (como una llave AES-256).
+  \item Guardas esa diminuta llave en una cajita fuerte blindada con retículos post-cuánticos (\textbf{ML-KEM}).
+  \item El destinatario abre la cajita con su clave privada, extrae la llave y descifra el camión en un pestañeo.
+\end{enumerate}
+\end{metafora}
+
+El estándar mundial definitivo, oficializado por el NIST en 2024 bajo el nombre \textbf{FIPS 203}, es \textbf{ML-KEM} (originalmente conocido como \textit{CRYSTALS-Kyber}). Sus parámetros de referencia son $n=256$, $q=3329$ y $k=3$, lo que da un nivel de seguridad equivalente a AES-192.
+
+\section{La danza de tres pasos: Generar, Encapsular y Desencapsular}
+
+El funcionamiento de ML-KEM consta de tres actos matemáticos ejecutados entre dos personas: \textbf{Roberto} (el receptor, quien crea la cerradura) y \textbf{Alicia} (la emisora, quien quiere mandar el secreto).
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.92]
+  % Roberto y Alicia
+  \node[draw=PQCMainBlue, fill=BoxBgBlue, rounded corners=2mm, line width=1pt, minimum width=3.2cm, minimum height=1.2cm, align=center] (R) at (0,4) {\textbf{Roberto}\\\small (Receptor / Autoridad)};
+  \node[draw=PQCPurple, fill=BoxBgPurple, rounded corners=2mm, line width=1pt, minimum width=3.2cm, minimum height=1.2cm, align=center] (A) at (8,4) {\textbf{Alicia}\\\small (Emisora / Votante)};
+  
+  % Paso 1: Clave publica
+  \draw[-{Stealth[length=3mm]}, line width=1.5pt, PQCMainBlue] (1.8,3.2) -- (6.2,3.2) node[midway, above, font=\small\sffamily] {1. Clave pública $(\mathbf{A}, \mathbf{b})$};
+  
+  % Paso 2: Texto cifrado
+  \draw[-{Stealth[length=3mm]}, line width=1.5pt, PQCPurple] (6.2,1.8) -- (1.8,1.8) node[midway, above, font=\small\sffamily] {2. Boleta cifrada $c = (\mathbf{u}, v)$};
+  
+  % Paso 3: Secreto compartido
+  \node[draw=PQCGreen, fill=BoxBgGreen, rounded corners=2mm, line width=1pt, align=center, font=\small\sffamily] at (0,0.4) {3. Desencapsula\\y recupera $K$};
+  \node[draw=PQCGreen, fill=BoxBgGreen, rounded corners=2mm, line width=1pt, align=center, font=\small\sffamily] at (8,0.4) {Usa la misma\\clave simétrica $K$};
+  
+\end{tikzpicture}
+\caption{Protocolo general de encapsulamiento con ML-KEM.}
+\label{fig:danza_kem}
+\end{figure}
+
+\subsection*{Paso 1: Roberto crea su cerradura (Generación de claves)}
+Roberto utiliza Module-LWE:
+\begin{enumerate}
+  \item Elige una matriz pública $\mathbf{A}$ de polinomios en $R_q^{k \times k}$.
+  \item Escoge en secreto dos vectores de polinomios con coeficientes diminutos: el secreto $\mathbf{s}$ y el error $\mathbf{e}$.
+  \item Calcula:
+  \[
+  \mathbf{b} = \mathbf{A} \cdot \mathbf{s} + \mathbf{e} \pmod q
+  \]
+  \item \textbf{Clave Pública (para todo el mundo):} $(\mathbf{A}, \mathbf{b})$.
+  \item \textbf{Clave Privada (bajo siete llaves):} $\mathbf{s}$.
+\end{enumerate}
+
+\begin{ojo}[¿Cuánto mide la clave pública real?]
+En ML-KEM-768, la clave pública completa ocupa apenas \textbf{1184 bytes} (aproximadamente 1 kilobyte). Para comparar, un archivo de música en baja calidad ocupa casi 1000 veces más. Esto la hace perfectamente transmisible por cualquier red de internet moderna, desde una conexión de banda ancha hasta un enlace 4G.
+\end{ojo}
+
+\subsection*{Paso 2: Alicia encapsula el secreto}
+Alicia quiere enviarle a Roberto una clave secreta representada por un mensaje de bits $m \in \{0, 1\}^{256}$.
+\begin{enumerate}
+  \item Alicia elige su propio vector secreto aleatorio $\mathbf{r}$ y dos pequeños ruidos $\mathbf{e}_1, e_2$.
+  \item Calcula dos paquetes matemáticos:
+  \[
+  \mathbf{u} = \mathbf{A}^T \mathbf{r} + \mathbf{e}_1 \pmod q
+  \]
+  \[
+  v = \mathbf{b}^T \mathbf{r} + e_2 + \text{Codificar}(m) \pmod q
+  \]
+  \item Envía el par $c = (\mathbf{u}, v)$ a través de internet.
+\end{enumerate}
+
+La \textbf{intuición geométrica} del encapsulado es fascinante: Alicia está construyendo su propio ``par de claves efímero'' usando la clave pública de Roberto como punto de referencia, y escondiendo el secreto $m$ entre el ruido generado por ese par temporal. Sin la clave privada $\mathbf{s}$ de Roberto, el texto cifrado $(\mathbf{u}, v)$ es indistinguible de números completamente aleatorios.
+
+\subsection*{Paso 3: Roberto abre el candado (La magia de la cancelación)}
+Cualquier espía que intercepte $(\mathbf{u}, v)$ ve un laberinto de números incomprensibles. Pero Roberto tiene su llave mágica $\mathbf{s}$. 
+
+Observa con atención el álgebra que aprende cualquier estudiante de primer semestre: Roberto multiplica $\mathbf{u}$ por su clave secreta $\mathbf{s}$:
+\[
+\mathbf{s}^T \mathbf{u} = \mathbf{s}^T (\mathbf{A}^T \mathbf{r} + \mathbf{e}_1) = \mathbf{s}^T \mathbf{A}^T \mathbf{r} + \mathbf{s}^T \mathbf{e}_1
+\]
+
+Ahora Roberto resta este resultado del valor $v$:
+\[
+v - \mathbf{s}^T \mathbf{u} = \Big(\mathbf{b}^T \mathbf{r} + e_2 + \text{Codificar}(m)\Big) - \Big(\mathbf{s}^T \mathbf{A}^T \mathbf{r} + \mathbf{s}^T \mathbf{e}_1\Big)
+\]
+
+Recordemos que la clave pública de Roberto era $\mathbf{b} = \mathbf{As} + \mathbf{e}$, por lo que $\mathbf{b}^T \mathbf{r} = \mathbf{s}^T \mathbf{A}^T \mathbf{r} + \mathbf{e}^T \mathbf{r}$. Al sustituir:
+\[
+v - \mathbf{s}^T \mathbf{u} = \text{Codificar}(m) + \underbrace{\big(\mathbf{e}^T \mathbf{r} + e_2 - \mathbf{s}^T \mathbf{e}_1\big)}_{\text{¡Un único residuo de ruido diminuto!}}
+\]
+
+\begin{intuicion}[¡Las montañas se cancelan, solo queda un susurro!]
+Los términos gigantescos $(\mathbf{s}^T \mathbf{A}^T \mathbf{r})$ que ocultaban el secreto se restan a sí mismos y desaparecen por completo. Lo único que queda en manos de Roberto es el mensaje codificado más un pequeño puñado de ruido residual.
+\end{intuicion}
+
+\section{¿Cómo se elimina el ruido final? El truco del redondeo}
+
+¿Cómo sabe Roberto si un bit original era un $0$ o un $1$ si todavía le queda ese pequeño residuo de ruido?
+
+La solución es hermosamente geométrica:
+\begin{itemize}
+  \item Si Alicia quiere mandar un $0$, lo codifica en el punto \textbf{$0$} del reloj.
+  \item Si Alicia quiere mandar un $1$, lo codifica exactamente en el punto opuesto del reloj, a mitad de camino: \textbf{$\lfloor q/2 \rceil$}.
+\end{itemize}
+
+Concretamente, la función de codificación trabaja así:
+\[
+\text{Codificar}(0) = 0 \qquad \text{Codificar}(1) = \left\lfloor \frac{q}{2} \right\rceil = 1665 \text{ (para } q = 3329\text{)}
+\]
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.95]
+  % Eje de 0 a q
+  \draw[line width=1.5pt, gray!70] (0,0) -- (9,0);
+  
+  % Puntos clave
+  \fill[PQCMainBlue] (0,0) circle (3pt) node[below=2mm, font=\small\bfseries] {$0$ (Bit 0)};
+  \fill[PQCPurple] (4.5,0) circle (3pt) node[below=2mm, font=\small\bfseries] {$\lfloor q/2 \rceil = 1665$ (Bit 1)};
+  \fill[PQCMainBlue] (9,0) circle (3pt) node[below=2mm, font=\small\bfseries] {$q=3329 \equiv 0$};
+  
+  % Zona de ruido alrededor de 0
+  \fill[PQCMainBlue!20, rounded corners=2mm] (-0.8, 0.4) rectangle (1.2, 0.9);
+  \node[font=\footnotesize\sffamily, PQCMainBlue] at (0.2, 0.65) {Zona bit 0};
+  
+  % Zona de ruido alrededor de q/2
+  \fill[PQCPurple!20, rounded corners=2mm] (3.5, 0.4) rectangle (5.5, 0.9);
+  \node[font=\footnotesize\sffamily, PQCPurple] at (4.5, 0.65) {Zona bit 1};
+  
+  % Umbrales de decision
+  \draw[dashed, line width=1.2pt, PQCAmber] (2.25, -0.6) -- (2.25, 1.2) node[above, font=\footnotesize\sffamily] {Frontera $q/4$};
+  \draw[dashed, line width=1.2pt, PQCAmber] (6.75, -0.6) -- (6.75, 1.2) node[above, font=\footnotesize\sffamily] {Frontera $3q/4$};
+  
+  % Ruido simulado
+  \draw[-{Stealth[length=2mm]}, PQCCrimson, line width=1pt] (4.5, -0.3) -- (5.0, -0.3) node[right, font=\scriptsize, PQCCrimson] {Ruido};
+  
+\end{tikzpicture}
+\caption{Decodificación por redondeo: el ruido desplaza ligeramente el punto, pero jamás cruza las fronteras de decisión en $q/4$ y $3q/4$.}
+\label{fig:redondeo_kem}
+\end{figure}
+
+Como los ruidos elegidos son matemáticamente muy pequeños comparados con la distancia $q/4$, cuando Roberto calcula $v - \mathbf{s}^T \mathbf{u}$:
+\begin{itemize}
+  \item Si el valor cae en la zona $[0, q/4)$ o $(3q/4, q)$, Roberto concluye con certeza matemática: \textbf{¡El bit era un $0$!}
+  \item Si el valor cae en la zona $(q/4, 3q/4)$, Roberto concluye: \textbf{¡El bit era un $1$!}
+\end{itemize}
+
+El ruido se esfuma, y el secreto queda recuperado a la perfección.
+
+\section{¿Qué ocurre si un espía intercepta el mensaje?}
+
+Una pregunta natural es: ¿qué ve exactamente un espía que captura el paquete $c = (\mathbf{u}, v)$ transmitido por internet?
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.9]
+  % Alicia (izquierda)
+  \node[draw=PQCPurple, fill=BoxBgPurple, rounded corners=2mm, line width=1pt, align=center, minimum width=2.4cm, minimum height=1.0cm] (A) at (0,0) {\textbf{Alicia}};
+  
+  % Espia (centro arriba)
+  \node[draw=PQCCrimson, fill=red!8, rounded corners=2mm, line width=1pt, align=center, minimum width=2.8cm, minimum height=1.0cm] (E) at (5,1.5) {\textbf{Espía}\\{\scriptsize ve: números aleatorios}};
+  
+  % Roberto (derecha)
+  \node[draw=PQCMainBlue, fill=BoxBgBlue, rounded corners=2mm, line width=1pt, align=center, minimum width=2.4cm, minimum height=1.0cm] (R) at (10,0) {\textbf{Roberto}};
+  
+  % Canal publico
+  \draw[line width=2pt, PQCTeal] (A) -- node[below, font=\small\sffamily, align=center] {Canal público\\$(\mathbf{A}, c=(\mathbf{u},v))$} (R);
+  
+  % Espia captura
+  \draw[dashed, line width=1.2pt, PQCCrimson, -{Stealth[length=2.5mm]}] (5, 0.35) -- (E);
+  
+  % Resultado del espia
+  \node[font=\footnotesize\itshape, PQCCrimson, align=center] at (5, 3.0) {``Sé que $\mathbf{u}$ y $v$ existen,\\pero no puedo encontrar $m$ sin $\mathbf{s}$''};
+  
+\end{tikzpicture}
+\caption{El espía intercepta $c = (\mathbf{u}, v)$, pero sin la clave privada $\mathbf{s}$ el cifrado es computacionalmente indistinguible de ruido.}
+\label{fig:espia_kem}
+\end{figure}
+
+El espía solo ve:
+\begin{enumerate}
+  \item La matriz $\mathbf{A}$ (pública desde el inicio, no sirve sola).
+  \item El vector $\mathbf{u}$ y el escalar $v$: parecen distribuidos uniformemente en $\mathbb{Z}_q$, es decir, \textbf{idénticos a ruido aleatorio}.
+\end{enumerate}
+
+Matemáticamente se demuestra que distinguir un texto cifrado ML-KEM de una cadena de bits puramente aleatoria es tan difícil como resolver el problema Module-LWE en dimensión 768, lo cual se estima computacionalmente imposible para los próximos siglos, incluso usando computadoras cuánticas.
+
+\section{Rendimiento real: ¿Cuánto tarda ML-KEM?}
+
+Una preocupación natural cuando se menciona ``matemática post-cuántica'' es que todo sea enormemente lento. Los números reales desmitifican esta idea de manera rotunda:
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=1.0]
+  % Titulo
+  \node[font=\sffamily\bfseries\small, PQCMainBlue] at (5.5, 3.6) {Latencia por operación — ML-KEM-768 vs RSA-2048};
+  
+  % ML-KEM barra KeyGen
+  \fill[PQCTeal!80] (0, 2.5) rectangle (0.8, 3.1);
+  \node[right, font=\scriptsize\sffamily] at (0.85, 2.8) {ML-KEM KeyGen: $\approx 0.03$ ms};
+  
+  % ML-KEM barra Encap
+  \fill[PQCTeal!80] (0, 1.8) rectangle (0.4, 2.4);
+  \node[right, font=\scriptsize\sffamily] at (0.45, 2.1) {ML-KEM Encapsular: $\approx 0.04$ ms};
+  
+  % ML-KEM barra Decap
+  \fill[PQCTeal!80] (0, 1.1) rectangle (0.5, 1.7);
+  \node[right, font=\scriptsize\sffamily] at (0.55, 1.4) {ML-KEM Desencapsular: $\approx 0.04$ ms};
+  
+  % RSA barra decrypt
+  \fill[PQCCrimson!70] (0, 0.2) rectangle (8.5, 0.8);
+  \node[right, font=\scriptsize\sffamily] at (8.55, 0.5) {RSA-2048 Descifrar: $\approx 92$ ms};
+  
+  % Eje x
+  \draw[line width=1pt, gray] (0, 0) -- (10, 0);
+  \node[font=\scriptsize\sffamily, gray] at (5, -0.3) {Escala relativa de tiempo};
+  
+\end{tikzpicture}
+\caption{ML-KEM es entre 2000 y 3000 veces más rápido que RSA-2048 en las operaciones criptográficas equivalentes.}
+\label{fig:rendimiento_kem}
+\end{figure}
+
+\begin{ejemplonumerico}[Desencapsulamiento en el proyecto real de votación UMSA]
+En el sistema de votación electrónica post-cuántica de la UMSA:
+\begin{itemize}
+  \item Cada boleta electoral enviada por un ciudadano encapsula una clave con \textbf{ML-KEM-768}.
+  \item Al momento de abrir el ánfora electoral, la Autoridad de Conteo ejecuta la operación de desencapsulamiento en apenas \textbf{$0.042$ milisegundos por voto}.
+  \item Bajo el estándar RSA-OAEP equivalente, cada voto tardaría $92.137$ ms: exactamente \textbf{$2{,}175\times$ más lento}.
+  \item Con $100{,}000$ votos: ML-KEM tarda $\approx 4.2$ segundos; RSA tardaría $\approx 2.5$ horas.
+\end{itemize}
+\end{ejemplonumerico}
+
+\section{La propiedad de seguridad más importante: CCA2-seguridad}
+
+Los criptógrafos profesionales no se conforman con decir ``parece difícil de romper''. Exigen una garantía matemática formal llamada \textbf{seguridad IND-CCA2} (\textit{Indistinguishability under Chosen Ciphertext Attack 2}).
+
+\begin{intuicion}[La prueba del oráculo maligno]
+Imagina que le das al atacante el poder de un oráculo mágico: puede descifrar \textit{cualquier} texto cifrado que quiera, excepto el que precisamente estás tratando de proteger.
+
+Un sistema IND-CCA2-seguro garantiza que incluso con ese poder sobrehumano, el atacante no puede obtener ninguna información útil sobre el mensaje cifrado. ML-KEM satisface esta garantía más fuerte gracias a la transformación \textbf{Fujisaki-Okamoto}, que convierte un esquema base más sencillo en uno completamente robustecido.
+\end{intuicion}
+
+Esta propiedad es crítica para aplicaciones reales como el voto electrónico, donde un atacante sofisticado podría intentar enviar mensajes manipulados al sistema para extraer información indirecta sobre las claves.
+
+\begin{resumencapitulo}
+\begin{itemize}
+  \item ML-KEM encapsula una clave simétrica compacta dentro de una estructura de retículos modulares con ruido, usando $n=256$, $q=3329$, $k=3$.
+  \item La clave pública mide apenas 1184 bytes; las operaciones se ejecutan en menos de 0.05 ms.
+  \item El encapsulamiento crea un texto cifrado indistinguible de ruido aleatorio sin la clave privada $\mathbf{s}$.
+  \item Roberto recupera el secreto mediante cancelación algebraica y redondeo dipolar ($0$ vs. $q/2$).
+  \item ML-KEM es formalmente IND-CCA2-seguro bajo la hipótesis de dureza de Module-LWE.
+\end{itemize}
+\end{resumencapitulo}

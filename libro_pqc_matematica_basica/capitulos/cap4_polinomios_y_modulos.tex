@@ -1,0 +1,136 @@
+\chapter{De Números Sueltos a Polinomios: El Salto a Module-LWE}
+\label{cap:polinomios_modulos}
+
+\section{El problema de la maleta pesada}
+
+Hasta ahora, la idea de LWE parece perfecta: multiplicamos matrices por vectores, sumamos un pequeño error y tenemos un candado impenetrable. 
+
+Sin embargo, cuando los ingenieros intentaron llevar LWE puro a la práctica en teléfonos celulares y tarjetas inteligentes, se toparon con una pared de concreto: \textbf{el tamaño}.
+
+Para que LWE clásico sea seguro contra computadoras de alta potencia, la matriz pública $\mathbf{A}$ debe tener dimensiones gigantescas (por ejemplo, $1000 \times 1000$ números enteros). Almacenar y transmitir esa matriz por internet requeriría varios megabytes en cada clic. Imagina enviar un mensaje por WhatsApp o emitir un voto en una elección digital y tener que esperar segundos solo para transferir las claves.
+
+\begin{metafora}[El diccionario frente a la biblioteca]
+LWE estándar es como cargar una enciclopedia de $20$ tomos en la mochila cada vez que vas a la universidad. Los matemáticos necesitaban una forma de empaquetar toda esa información en una tarjeta de bolsillo elegante y liviana.
+\end{metafora}
+
+¿Cuál fue la solución mágica? Un concepto que conoces desde el colegio: \textbf{los polinomios}.
+
+\section{El carrusel de los polinomios: \texorpdfstring{$x^n + 1 = 0$}{x\textasciicircum n + 1 = 0}}
+
+En la secundaria aprendiste a sumar y multiplicar polinomios sencillos como $(2x + 1)(x + 3)$. 
+
+En la criptografía post-cuántica moderna trabajamos en un anillo especial llamado:
+\[
+R_q = \mathbb{Z}_q[x]/(x^n + 1)
+\]
+El nombre puede sonar intimidante para un estudiante de primer semestre, pero la idea física es tan sencilla como un carrusel de feria:
+
+\begin{intuicion}[La regla del carrusel]
+Un polinomio en $R_q$ solo tiene términos de grado menor a $n$:
+\[
+P(x) = c_0 + c_1 x + c_2 x^2 + \dots + c_{n-1} x^{n-1}
+\]
+donde cada coeficiente $c_i$ vive en el reloj $\mathbb{Z}_q$.
+
+¿Qué pasa si al multiplicar dos polinomios aparece una potencia alta como $x^n$? Aplicamos la regla mágica de reducción:
+\[
+x^n \equiv -1
+\]
+Cada vez que una potencia alcanza $x^n$, ``da la vuelta'' al carrusel, reaparece como una potencia baja y cambia de signo:
+\[
+x^n = -1, \quad x^{n+1} = -x, \quad x^{n+2} = -x^2, \quad \dots
+\]
+\end{intuicion}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=1.0]
+  % Dibujo de carrusel con 4 potencias (n=4)
+  \coordinate (O) at (0,0);
+  \draw[line width=1.5pt, PQCTeal, dashed] (O) circle (2.0cm);
+  
+  \node[draw=PQCMainBlue, fill=BoxBgBlue, circle, font=\small\bfseries] (x0) at (0,2.0) {$x^0=1$};
+  \node[draw=PQCMainBlue, fill=BoxBgBlue, circle, font=\small\bfseries] (x1) at (2.0,0) {$x^1$};
+  \node[draw=PQCMainBlue, fill=BoxBgBlue, circle, font=\small\bfseries] (x2) at (0,-2.0) {$x^2$};
+  \node[draw=PQCMainBlue, fill=BoxBgBlue, circle, font=\small\bfseries] (x3) at (-2.0,0) {$x^3$};
+  
+  % Flechas
+  \draw[-{Stealth[length=2.5mm]}, line width=1.4pt, PQCMainBlue] (x0) to[bend left=20] (x1);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.4pt, PQCMainBlue] (x1) to[bend left=20] (x2);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.4pt, PQCMainBlue] (x2) to[bend left=20] (x3);
+  
+  % El salto de cambio de signo
+  \draw[-{Stealth[length=3mm]}, line width=1.8pt, PQCCrimson] (x3) to[bend left=30] node[midway, above left, font=\footnotesize\bfseries, align=center] {¡Multiplicar por $x$\\\textbf{da $-1$}!} (x0);
+\end{tikzpicture}
+\caption{El carrusel de potencias en el anillo con $n=4$: cuando llegamos a $x^4$, rebotamos al inicio con signo cambiado ($-1$). Ningún polinomio se desborda en grado.}
+\label{fig:carrusel_polinomios}
+\end{figure}
+
+\section{¿Qué es un ``Módulo'' en palabras sencillas?}
+
+En álgebra lineal de primer semestre, un vector es una columna de números comunes y corrientes:
+\[
+\mathbf{v} = \begin{pmatrix} 3 \\ -5 \\ 8 \end{pmatrix} \in \mathbb{R}^3
+\]
+Un \textbf{módulo} (en el sentido de retículos modulares) es exactamente la misma estructura, pero con un detalle fabuloso: \textbf{en lugar de poner números en cada coordenada, ponemos polinomios completos}.
+
+\[
+\mathbf{v} = \begin{pmatrix} P_1(x) \\ P_2(x) \\ P_3(x) \end{pmatrix} \in R_q^3
+\]
+
+Por ejemplo, en el estándar de seguridad \textbf{ML-KEM-768}, tenemos:
+\begin{itemize}
+  \item Cada polinomio tiene grado $n = 256$ (es decir, almacena $256$ coeficientes).
+  \item El vector tiene dimensión $k = 3$ (contiene $3$ polinomios).
+  \item ¡En total estamos manejando $3 \times 256 = 768$ coeficientes matemáticos a la vez!
+\end{itemize}
+
+\section{Module-LWE (M-LWE): La joya de la corona}
+
+Ahora combinamos todo lo aprendido:
+\begin{equation}
+\mathbf{b} = \mathbf{A} \cdot \mathbf{s} + \mathbf{e} \pmod q
+\end{equation}
+¡Pero ahora $\mathbf{A}$ no es una matriz colosal de millones de números! Es una matriz minúscula de $3 \times 3$ polinomios.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.95]
+  % Matriz A
+  \node[draw=PQCMainBlue, fill=BoxBgBlue, line width=1pt, rounded corners=2mm, minimum width=2.4cm, minimum height=1.8cm, align=center] (A) at (0,0) {$\mathbf{A}$\\\footnotesize Matriz $3 \times 3$\\\scriptsize de polinomios};
+  
+  \node[font=\large\bfseries] at (1.6,0) {$\cdot$};
+  
+  % Vector s
+  \node[draw=PQCPurple, fill=BoxBgPurple, line width=1pt, rounded corners=2mm, minimum width=1.5cm, minimum height=1.8cm, align=center] (s) at (2.7,0) {$\mathbf{s}$\\\footnotesize Secreto\\\scriptsize (3 polinomios)};
+  
+  \node[font=\large\bfseries] at (3.8,0) {$+$};
+  
+  % Vector e
+  \node[draw=PQCAmber, fill=BoxBgAmber, line width=1pt, rounded corners=2mm, minimum width=1.5cm, minimum height=1.8cm, align=center] (e) at (4.9,0) {$\mathbf{e}$\\\footnotesize Ruido\\\scriptsize (3 polinomios)};
+  
+  \node[font=\large\bfseries] at (6.0,0) {$=$};
+  
+  % Vector b
+  \node[draw=PQCTeal, fill=BoxBgTeal, line width=1pt, rounded corners=2mm, minimum width=1.5cm, minimum height=1.8cm, align=center] (b) at (7.1,0) {$\mathbf{b}$\\\footnotesize Clave pública\\\scriptsize (3 polinomios)};
+\end{tikzpicture}
+\caption{La ecuación fundamental de Module-LWE: dimensiones pequeñas en álgebra matricial, pero enorme riqueza geométrica interna gracias a los polinomios.}
+\label{fig:mlwe_arquitectura}
+\end{figure}
+
+\begin{intuicion}[¿Por qué Module-LWE es la mejor opción del mundo?]
+\begin{enumerate}
+  \item \textbf{Velocidad ultrasónica:} Los polinomios se pueden multiplicar casi instantáneamente usando el equivalente algebraico de la Transformada Rápida de Fourier (llamada NTT, \textit{Number Theoretic Transform}).
+  \item \textbf{Tamaño de bolsillo:} Las claves públicas miden apenas unos mil bytes (caben cómodamente en un solo paquete de red de internet).
+  \item \textbf{Seguridad garantizada:} Romper este esquema obligaría al adversario a resolver problemas geométricos insolubles en retículos modulares de más de $700$ dimensiones.
+\end{enumerate}
+\end{intuicion}
+
+\begin{resumencapitulo}
+\begin{itemize}
+  \item LWE estándar requiere matrices demasiado pesadas para aplicaciones cotidianas.
+  \item El anillo de polinomios $R_q = \mathbb{Z}_q[x]/(x^n+1)$ permite comprimir la información mediante un carrusel cíclico de potencias ($x^n = -1$).
+  \item Un módulo es un espacio vectorial donde cada coordenada es un polinomio en lugar de un escalar.
+  \item \textbf{Module-LWE (M-LWE)} combina matrices pequeñas ($3 \times 3$) con polinomios ($n=256$), logrando claves ultracompactas, cómputo ultrarrápido y máxima resistencia cuántica.
+\end{itemize}
+\end{resumencapitulo}

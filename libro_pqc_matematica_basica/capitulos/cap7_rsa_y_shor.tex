@@ -1,0 +1,321 @@
+\chapter{El Candado de Ayer: RSA y por qué las Computadoras Cuánticas lo Rompen}
+\label{cap:rsa_y_shor}
+
+\section{El mundo antes de la criptografía de retículos}
+
+Antes de que existieran los retículos como herramienta criptográfica, el mundo digital se protegía con una familia de algoritmos basados en un tipo diferente de problema matemático: la \textbf{factorización de números enteros grandes}.
+
+El representante más famoso de esta familia es \textbf{RSA}, creado en 1977 por Ron Rivest, Adi Shamir y Leonard Adleman (de ahí sus siglas). RSA fue el primer sistema de clave pública ampliamente adoptado y durante décadas protegió las transacciones bancarias, los correos electrónicos y los certificados de identidad digital de todo el mundo.
+
+En este capítulo vamos a aprender cómo funciona RSA con números reales (¡solo necesitas saber dividir!), y luego descubriremos exactamente por qué el algoritmo cuántico de Shor es capaz de destruirlo en cuestión de segundos.
+
+\section{El corazón de RSA: La multiplicación es fácil, la factorización no}
+
+Empieza con un experimento mental:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Tarea} & \textbf{¿Cuánto tardas?} \\
+\midrule
+Multiplicar $13 \times 17 = ?$ & Menos de 5 segundos \\
+Factorizar $221 = ? \times ?$ & Unos minutos (ensayo y error) \\
+Multiplicar $4{,}294{,}967{,}311 \times 4{,}294{,}967{,}357 = ?$ & Segundos con calculadora \\
+Factorizar $18{,}446{,}744{,}073{,}709{,}551{,}927$ & ¡Horas o días sin ayuda! \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{metafora}[El producto de primos como una cerradura de combinación]
+Imagina que tienes dos números primos $p$ y $q$ (números que solo son divisibles por sí mismos y por 1). Multiplicarlos es tan sencillo como abrir una puerta con su llave: instantáneo. Pero si solo te damos el producto $N = p \times q$ y te pedimos que encuentres de nuevo $p$ y $q$, tienes que probar cientos de miles de posibles divisores uno por uno.
+
+Para números de 2048 bits (que tienen aproximadamente 617 dígitos decimales), el mejor algoritmo clásico de factorización tardaría más tiempo que la edad del universo en encontrar $p$ y $q$.
+\end{metafora}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.9]
+  % Flecha facil izquierda a derecha
+  \node[draw=PQCGreen, fill=BoxBgGreen, rounded corners=2mm, line width=1pt, minimum width=2.5cm, minimum height=1.2cm, align=center] (pq) at (0,0) {$p \times q$\\\small (dos primos)};
+  
+  \node[draw=PQCMainBlue, fill=BoxBgBlue, rounded corners=2mm, line width=1pt, minimum width=2.5cm, minimum height=1.2cm, align=center] (N) at (5,0) {$N$\\\small (producto público)};
+  
+  % Facil
+  \draw[-{Stealth[length=3mm]}, line width=2pt, PQCGreen] (pq) -- (N) node[midway, above, font=\small\sffamily\bfseries, PQCGreen] {¡Fácil! (milisegundos)};
+  
+  % Dificil (vuelta)
+  \draw[-{Stealth[length=3mm]}, line width=2pt, PQCCrimson, dashed] (N) to[bend left=40] node[midway, below, font=\small\sffamily\bfseries, PQCCrimson, align=center] {¡Difícil para clasicas!\\(siglos de cómputo)} (pq);
+  
+  % Flecha cuantica
+  \draw[-{Stealth[length=3mm]}, line width=2pt, PQCAmber] (N) to[bend right=50] node[midway, above right, font=\small\sffamily\bfseries, PQCAmber, align=center] {Shor cuántico:\\segundos} (pq);
+  
+\end{tikzpicture}
+\caption{La asimetría de la factorización: fácil hacia adelante, imposible hacia atrás para computadoras clásicas, pero trivial para Shor cuántico.}
+\label{fig:factorizacion}
+\end{figure}
+
+\section{El funcionamiento de RSA paso a paso}
+
+Veamos RSA con números pequeños para visualizar su mecánica real. En la práctica se usan números enormes (2048 bits), pero la estructura matemática es idéntica.
+
+\subsection*{Generación de claves (lo que hace el receptor Roberto)}
+
+\begin{ejemplonumerico}[RSA con números pequeños: $p=11$, $q=13$]
+\begin{enumerate}
+  \item \textbf{Elige dos primos:} $p = 11$ y $q = 13$.
+  
+  \item \textbf{Calcula el módulo público:} $N = p \times q = 11 \times 13 = 143$.
+  
+  \item \textbf{Calcula $\phi(N)$ (función de Euler):}
+  \[
+  \phi(N) = (p-1)(q-1) = 10 \times 12 = 120
+  \]
+  Esto cuenta cuántos números entre $1$ y $N$ no comparten factores con $N$.
+  
+  \item \textbf{Elige el exponente público $e$:} Escoge un número impar pequeño coprimo con $120$. Tomaremos $e = 7$.
+  
+  \item \textbf{Calcula el exponente privado $d$:} Busca $d$ tal que $e \cdot d \equiv 1 \pmod{\phi(N)}$, es decir, $7d \equiv 1 \pmod{120}$. La solución es $d = 103$ (ya que $7 \times 103 = 721 = 6 \times 120 + 1$).
+  
+  \item \textbf{Clave Pública:} $(e, N) = (7, 143)$.
+  \item \textbf{Clave Privada:} $(d, N) = (103, 143)$.
+\end{enumerate}
+\end{ejemplonumerico}
+
+\subsection*{Cifrado (lo que hace la emisora Alicia)}
+
+Para cifrar un número $m$ (que representa nuestro mensaje), Alicia usa la clave pública de Roberto:
+\[
+c = m^e \pmod N = m^7 \pmod{143}
+\]
+
+\begin{ejemplonumerico}[Alicia cifra el mensaje $m=9$]
+\begin{align*}
+c &= 9^7 \pmod{143} \\
+9^2 &= 81 \\
+9^4 &= 81^2 = 6561 \equiv 6561 - 45 \times 143 = 6561 - 6435 = 126 \pmod{143} \\
+9^7 &= 9^4 \cdot 9^2 \cdot 9 = 126 \times 81 \times 9 \pmod{143} \\
+126 \times 81 &= 10206 \equiv 10206 - 71 \times 143 = 10206 - 10153 = 53 \pmod{143} \\
+53 \times 9 &= 477 \equiv 477 - 3 \times 143 = 477 - 429 = 48 \pmod{143}
+\end{align*}
+Alicia envía $c = 48$.
+\end{ejemplonumerico}
+
+\subsection*{Descifrado (lo que hace Roberto con su clave privada)}
+
+Roberto usa su exponente privado $d$ para recuperar el mensaje:
+\[
+m = c^d \pmod N = 48^{103} \pmod{143}
+\]
+
+Gracias al \textbf{Pequeño Teorema de Fermat} y la estructura del grupo multiplicativo $(\mathbb{Z}_N)^*$, este cálculo siempre devuelve el mensaje original $m = 9$.
+
+\begin{intuicion}[¿Por qué funciona el descifrado?]
+El matemático Euler demostró que para cualquier $m$ coprimo con $N = pq$:
+\[
+m^{\phi(N)} \equiv 1 \pmod N
+\]
+Por ello, $m^{e \cdot d} = m^{1 + k \cdot \phi(N)} = m \cdot (m^{\phi(N)})^k \equiv m \cdot 1^k = m \pmod N$.
+
+La clave es que calcular $\phi(N) = (p-1)(q-1)$ requiere conocer $p$ y $q$. Un atacante que solo conoce $N$ no puede calcular $\phi(N)$ sin factorizar $N$. Y factorizar $N$ es el problema difícil.
+\end{intuicion}
+
+\section{La amenaza cuántica: El algoritmo de Shor}
+
+En 1994, el matemático Peter Shor, trabajando en los Laboratorios Bell, publicó uno de los resultados más impactantes de la historia de la computación: un \textbf{algoritmo cuántico} capaz de factorizar cualquier número entero en tiempo polinomial.
+
+Esto significa que una computadora cuántica suficientemente grande puede romper RSA-2048 en \textbf{horas o incluso minutos}, algo que a una computadora clásica le tomaría millones de años.
+
+\subsection*{¿Qué hace especial a una computadora cuántica?}
+
+\begin{metafora}[El laberinto de infinitos pasillos]
+Imagina un laberinto gigante con millones de pasillos ramificados. Para un explorador clásico (una computadora normal), la única manera de encontrar la salida es recorrer los pasillos uno por uno o en pequeños grupos en paralelo.
+
+Una computadora cuántica es como un explorador que puede desdoblarse en \textbf{millones de copias fantasmales simultáneas}, explorando todos los pasillos a la vez. Cuando uno de los fantasmas encuentra la salida, todos los demás colapsan hacia esa solución.
+\end{metafora}
+
+El principio físico detrás de esto es la \textbf{superposición cuántica}: a diferencia de los bits clásicos (que son 0 o 1), los \textbf{qubits} cuánticos pueden estar en un estado de superposición donde representan 0 y 1 \textit{al mismo tiempo}, hasta que se miden.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.88]
+  % Bit clasico
+  \node[draw=gray!60, fill=gray!15, rounded corners=2mm, minimum width=2cm, minimum height=1.2cm, align=center] at (0,0) {\textbf{Bit clásico}\\$0$ \textit{ó} $1$};
+  
+  % Qubit
+  \node[draw=PQCTeal, fill=BoxBgTeal, rounded corners=2mm, minimum width=2.5cm, minimum height=1.6cm, align=center] at (5,0) {\textbf{Qubit cuántico}\\$\alpha|0\rangle + \beta|1\rangle$\\\scriptsize (superposición)};
+  
+  % n clasicos
+  \node[draw=gray!60, fill=gray!15, rounded corners=2mm, minimum width=3cm, minimum height=1.2cm, align=center] at (0,-2.5) {\textbf{$n$ bits clásicos}\\$2^n$ estados posibles,\\solo 1 activo a la vez};
+  
+  % n qubits
+  \node[draw=PQCPurple, fill=BoxBgPurple, rounded corners=2mm, minimum width=3cm, minimum height=1.4cm, align=center] at (5,-2.5) {\textbf{$n$ qubits}\\$2^n$ estados activos\\\textbf{simultáneamente}};
+  
+  \draw[-{Stealth[length=2.5mm]}, line width=1.3pt, gray!60] (0,0) -- (0,-2.5);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.3pt, PQCTeal] (5,0) -- (5,-2.5);
+  
+\end{tikzpicture}
+\caption{La diferencia fundamental: con $n=300$ qubits, una computadora cuántica puede explorar $2^{300}$ estados simultáneamente. Ese número supera la cantidad de átomos en el universo observable.}
+\label{fig:clasico_vs_cuantico}
+\end{figure}
+
+\subsection*{El corazón de Shor: Detectar periodicidad oculta}
+
+La genialidad del algoritmo de Shor radica en transformar el problema de factorizar $N$ en un problema de encontrar el \textbf{período de una función}, y luego usar el poder cuántico para encontrar ese período instantáneamente.
+
+Aquí está la idea en etapas, sin fórmulas intimidantes:
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.9]
+  % Columna de pasos
+  \node[draw=PQCMainBlue, fill=BoxBgBlue, rounded corners=2mm, line width=1pt, align=center, minimum width=5cm] (s1) at (5, 7) {\textbf{Paso 1: Elegir $a$ al azar}\\\small Escoge un número $a$ con $1 < a < N$};
+  
+  \node[draw=PQCTeal, fill=BoxBgTeal, rounded corners=2mm, line width=1pt, align=center, minimum width=5cm] (s2) at (5, 5.4) {\textbf{Paso 2: Calcular la función periódica}\\\small $f(x) = a^x \pmod N$};
+  
+  \node[draw=PQCPurple, fill=BoxBgPurple, rounded corners=2mm, line width=1pt, align=center, minimum width=5.5cm] (s3) at (5, 3.8) {\textbf{Paso 3: Encontrar el período $r$}\\\small tal que $a^r \equiv 1 \pmod N$\\\small {\color{PQCGreen}$\Leftarrow$ ¡Aquí usa el poder cuántico!}};
+  
+  \node[draw=PQCGreen, fill=BoxBgGreen, rounded corners=2mm, line width=1pt, align=center, minimum width=5cm] (s4) at (5, 2.1) {\textbf{Paso 4: Calcular el factor}\\\small $\gcd(a^{r/2} - 1, N)$ = factor de $N$};
+  
+  \node[draw=PQCCrimson, fill=red!8, rounded corners=2mm, line width=1pt, align=center, minimum width=4cm] (s5) at (5, 0.5) {\textbf{¡RSA destruido!}\\\small Se conocen $p$ y $q$};
+  
+  \draw[-{Stealth[length=2.5mm]}, line width=1.3pt] (s1) -- (s2);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.3pt] (s2) -- (s3);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.3pt] (s3) -- (s4);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.3pt] (s4) -- (s5);
+  
+\end{tikzpicture}
+\caption{Flujo simplificado del algoritmo de Shor. El paso crítico (detectar el período $r$) es exponencialmente difícil para computadoras clásicas pero se resuelve en tiempo polinomial con qubits cuánticos.}
+\label{fig:shor_flujo}
+\end{figure}
+
+\subsection*{¿Por qué encontrar el período destruye RSA?}
+
+Cuando encuentras el período $r$ de la función $a^x \pmod N$, ocurre algo algebraicamente hermoso. Si $r$ es par:
+\[
+a^r \equiv 1 \pmod N \quad \Rightarrow \quad (a^{r/2} - 1)(a^{r/2} + 1) \equiv 0 \pmod N
+\]
+
+Esto significa que $N$ divide el producto, pero no necesariamente cada factor individual. Al calcular el máximo común divisor:
+\[
+\gcd(a^{r/2} - 1, N) \quad \text{y} \quad \gcd(a^{r/2} + 1, N)
+\]
+con altísima probabilidad obtienes directamente $p$ y $q$. ¡El candado RSA queda abierto!
+
+\begin{ejemplonumerico}[Shor con $N = 143$, $a = 2$]
+Calculamos la secuencia $2^x \pmod{143}$:
+\begin{center}
+\begin{tabular}{cccccccc}
+$x$: & 1 & 2 & 3 & 4 & $\cdots$ & 59 & 60 \\
+$2^x$: & 2 & 4 & 8 & 16 & $\cdots$ & 33 & 66 \\
+$x$: & 61 & 62 & $\cdots$ & \textbf{120} & & & \\
+$2^x$: & 132 & 121 & $\cdots$ & \textbf{1} & & & \\
+\end{tabular}
+\end{center}
+El período es $r = 120$. Como $r$ es par, calculamos:
+\[
+\gcd(2^{60} - 1, 143) = \gcd(\ldots, 143)
+\]
+Aplicando el algoritmo de Euclides se obtiene $13$. Y en efecto: $143 = 11 \times 13$.
+\end{ejemplonumerico}
+
+\section{¿Por qué una computadora cuántica encuentra el período tan rápido?}
+
+Una computadora clásica necesitaría calcular $2^1, 2^2, 2^3, \dots$ hasta encontrar que $2^{120} \equiv 1$: hasta $120$ evaluaciones para este ejemplo pequeño, pero para un $N$ de 2048 bits serían potencialmente $2^{1024}$ evaluaciones.
+
+La computadora cuántica aplica la \textbf{Transformada Cuántica de Fourier} (QFT), un equivalente cuántico de la Transformada Rápida de Fourier (FFT) que ya conoces de señales y audio:
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.92]
+  % Funcion periodica (onda)
+  \begin{scope}[shift={(0,0)}]
+    \draw[line width=1.5pt, PQCTeal, domain=0:8, samples=200] plot (\x, {0.6*sin(\x*180/3.14*2/4)+1.5});
+    \node[font=\small\sffamily, PQCTeal] at (4, 2.4) {$f(x) = a^x \pmod N$ (periódica con período $r$)};
+    \draw[dashed, PQCAmber, line width=1pt] (0,0.3) -- (8,0.3);
+    \draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, PQCAmber, line width=1pt] (0,0.3) -- (4,0.3) node[below, font=\tiny] {período $r$};
+  \end{scope}
+  
+  % QFT
+  \node[draw=PQCPurple, fill=BoxBgPurple, rounded corners=3mm, minimum width=2cm, minimum height=1cm, font=\small\sffamily\bfseries] (qft) at (9, 1.5) {QFT cuántica};
+  
+  % Espectro
+  \begin{scope}[shift={(11,0)}]
+    \foreach \x/\h in {1/0.2, 2/0.2, 3/2.2, 4/0.2, 5/0.2, 6/2.1, 7/0.2} {
+      \fill[PQCGreen!80] ({\x*0.9-0.45}, 0) rectangle ({\x*0.9}, \h);
+    }
+    \node[font=\small\sffamily, PQCGreen] at (3.15, 2.7) {Picos = $N/r$};
+  \end{scope}
+  
+  % Flecha QFT
+  \draw[-{Stealth[length=2.5mm]}, line width=1.5pt, PQCPurple] (8.2, 1.5) -- (qft);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.5pt, PQCPurple] (qft) -- (10.1, 1.5);
+  
+\end{tikzpicture}
+\caption{La QFT cuántica detecta el período $r$ de $f(x)$ en un solo paso: busca los picos de frecuencia en el espectro, que están separados exactamente por $N/r$.}
+\label{fig:qft}
+\end{figure}
+
+La QFT coloca todos los $2^n$ posibles valores de $x$ en superposición simultánea, evalúa $f(x)$ en todos ellos a la vez, y luego extrae la información de periodicidad mediante interferencia cuántica. El período $r$ emerge de los picos del espectro.
+
+Para un número de 2048 bits, la QFT necesita apenas del orden de $(2048)^2 \approx 4 \times 10^6$ operaciones cuánticas, en lugar de los $2^{1024}$ pasos de un algoritmo clásico.
+
+\section{¿Y los retículos? La inmunidad a Shor}
+
+La pregunta natural es: ¿por qué el algoritmo de Shor no rompe también a ML-KEM y ML-DSA?
+
+\begin{intuicion}[La diferencia fundamental entre RSA y retículos]
+\begin{itemize}
+  \item \textbf{RSA} esconde el secreto en la \textbf{estructura periódica} del grupo multiplicativo $(\mathbb{Z}_N)^*$. La función $a^x \pmod N$ es perfectamente periódica, limpia, como una onda de radio pura. La QFT detecta esa onda en un instante.
+  
+  \item \textbf{Module-LWE} esconde el secreto en \textbf{datos ruidosos}: $\mathbf{b} = \mathbf{As} + \mathbf{e}$. El error $\mathbf{e}$ destruye completamente cualquier estructura periódica. No hay onda, solo caos aleatorio. La QFT no tiene nada que sintonizar.
+\end{itemize}
+\end{intuicion}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.92]
+  % RSA: onda limpia
+  \begin{scope}[shift={(0,2.5)}]
+    \node[font=\small\sffamily\bfseries, PQCCrimson] at (4, 2) {\textbf{RSA}: función periódica limpia $\Rightarrow$ Shor la detecta};
+    \draw[line width=1.8pt, PQCCrimson, domain=0:8, samples=200] plot (\x, {0.7*sin(\x*180/3.14*2/2)});
+    \draw[dashed, PQCAmber, line width=1pt] (0,-0.9) -- (8,-0.9);
+    \draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, PQCAmber] (0,-0.9) -- (2,-0.9) node[midway, below, font=\tiny] {período};
+  \end{scope}
+  
+  % Ruido LWE
+  \begin{scope}[shift={(0,0)}]
+    \node[font=\small\sffamily\bfseries, PQCGreen] at (4, 1.2) {\textbf{LWE}: datos ruidosos sin período $\Rightarrow$ Shor no tiene nada};
+    \foreach \x in {0.3,0.6,...,7.8} {
+      \pgfmathsetmacro\yr{(rand)*0.7}
+      \draw[line width=1.5pt, PQCGreen!70] (\x, 0) -- (\x, \yr);
+    }
+  \end{scope}
+  
+\end{tikzpicture}
+\caption{La razón geométrica de la inmunidad post-cuántica: RSA tiene una señal periódica limpia que Shor detecta; LWE tiene ruido puro sin patrón que ningún algoritmo cuántico puede explotar.}
+\label{fig:rsa_vs_lwe_shor}
+\end{figure}
+
+Formalmente, los mejores algoritmos cuánticos conocidos para atacar problemas de retículos (como BKZ cuántico) siguen siendo \textbf{exponenciales} en la dimensión del retículo. Para dimensiones de $n = 768$ como las usadas en ML-KEM-768, la complejidad de romper el sistema se estima en $2^{178}$ operaciones cuánticas, lo cual está firmemente fuera del alcance de cualquier tecnología imaginable.
+
+\section{El estado actual de las computadoras cuánticas}
+
+En 2024, las computadoras cuánticas más avanzadas tienen entre 400 y 1000 qubits \textbf{físicos}, pero con tasas de error tan altas que en la práctica equivalen a solo unos pocos \textbf{qubits lógicos} estables. Para ejecutar el algoritmo de Shor sobre RSA-2048 se estima que se necesitan aproximadamente \textbf{4 millones de qubits lógicos} sin errores.
+
+\begin{intuicion}[¿Por qué migrar ahora si los qubits no existen aún?]
+El concepto de \textbf{``cosechar ahora, descifrar después''} (\textit{Harvest now, decrypt later}) es una amenaza real: adversarios sofisticados pueden estar capturando y almacenando hoy el tráfico cifrado con RSA, esperando el día en que tengan suficientes qubits para descifrarlo retroactivamente.
+
+Datos cifrados hoy con RSA-2048 que deban mantenerse secretos por 20 o 30 años (como archivos médicos, estrategias de estado o claves de infraestructura crítica) están en riesgo si no se migran ahora a algoritmos post-cuánticos como ML-KEM y ML-DSA.
+\end{intuicion}
+
+Por eso el NIST publicó sus estándares post-cuánticos en 2024, y por eso el proyecto de grado de la UMSA implementa ML-KEM y ML-DSA en lugar de RSA para el sistema de votación electrónica.
+
+\begin{resumencapitulo}
+\begin{itemize}
+  \item RSA se basa en la dificultad de \textbf{factorizar} el producto de dos números primos grandes.
+  \item El proceso de cifrado/descifrado RSA usa potenciación modular: $c = m^e \pmod N$ y $m = c^d \pmod N$.
+  \item El algoritmo de Shor transforma la factorización en detección de periodicidad, usando la QFT cuántica para encontrar el período $r$ de $a^x \pmod N$ en tiempo polinomial.
+  \item LWE/Module-LWE no tiene estructura periódica (el ruido $\mathbf{e}$ la destruye), por lo que Shor no puede aplicarse.
+  \item La migración a criptografía post-cuántica es urgente hoy debido al riesgo de ``cosechar ahora, descifrar después''.
+\end{itemize}
+\end{resumencapitulo}

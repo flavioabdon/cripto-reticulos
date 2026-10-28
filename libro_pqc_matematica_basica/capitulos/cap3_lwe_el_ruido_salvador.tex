@@ -1,0 +1,123 @@
+\chapter{El Secreto con Ruido: Aprendiendo con Errores (LWE)}
+\label{cap:lwe_ruido}
+
+\section{La aritmética del reloj: Números que dan vueltas}
+
+Antes de comprender cómo funciona el problema más famoso de la criptografía moderna, necesitamos recordar una herramienta matemática que utilizas todos los días sin darte cuenta: \textbf{el reloj}.
+
+Si tu reloj marca las $10$ de la mañana y tu clase dura $4$ horas, no dices que saldrás a las ``$14$ de la mañana'', sino a las $2$. ¿Qué hiciste mentalmente? Sumaste $10 + 4 = 14$, le restaste el ciclo completo de $12$, y te quedaste con el residuo:
+\[
+10 + 4 \equiv 2 \pmod{12}
+\]
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.95]
+  % Circulo
+  \draw[line width=1.5pt, PQCMainBlue] (0,0) circle (2.2cm);
+  
+  % Horas 0 a 10 (Z_11)
+  \foreach \i in {0,...,10} {
+    \coordinate (H\i) at ({90 - \i*360/11}:2.2cm);
+    \fill[PQCMainBlue] (H\i) circle (3pt);
+    \node[font=\small\sffamily\bfseries] at ({90 - \i*360/11}:2.65cm) {\i};
+  }
+  
+  % Flecha que ilustra dar la vuelta
+  \draw[-{Stealth[length=3mm]}, line width=1.5pt, PQCTeal] (90:1.6cm) arc (90:-40:1.6cm);
+  \node[font=\footnotesize\sffamily, align=center, PQCTeal] at (0.4, 0.5) {$8 + 5 = 13 \equiv 2$\\(en ciclo $q=11$)};
+\end{tikzpicture}
+\caption{La aritmética modular $\mathbb{Z}_{11}$: una rueda cerrada donde los números nunca escapan al infinito.}
+\label{fig:reloj_modular}
+\end{figure}
+
+En criptografía, en lugar de trabajar con la recta real infinita $\mathbb{R}$ (donde los números con decimales crecen y consumen memoria infinita), fijamos un número entero positivo $q$ llamado \textbf{módulo}. 
+
+El universo donde vivimos se llama $\mathbb{Z}_q = \{0, 1, 2, \dots, q-1\}$. Cada vez que una suma o multiplicación sobrepasa $q$, simplemente nos quedamos con el residuo de la división entre $q$.
+
+\section{El problema LWE: El invento de Oded Regev}
+
+En el año 2005, el matemático y científico de la computación Oded Regev formuló un problema computacional brillante llamado \textbf{LWE} (\textit{Learning With Errors}, o Aprendizaje con Errores). 
+
+Su idea es tan elegante que cabe en una conversación de café:
+
+\begin{intuicion}[¿Cómo se juega a LWE?]
+\begin{enumerate}
+  \item \textbf{El Secreto:} Imagina que tienes un vector secreto $\mathbf{s}$ compuesto por números enteros pequeños (por ejemplo $\mathbf{s} = (s_1, s_2)$).
+  \item \textbf{Las Preguntas Públicas:} Alguien elige al azar una fila de números $\mathbf{a} = (a_1, a_2)$ a la vista de todo el mundo.
+  \item \textbf{El Cálculo Limpio:} Haces el producto punto habitual:
+  \[
+  \mathbf{a} \cdot \mathbf{s} = a_1 s_1 + a_2 s_2 \pmod q
+  \]
+  \item \textbf{El Ruido Mágico:} En lugar de publicar ese resultado limpio, le sumas un error diminuto secreto $e$ (elegido al azar, por ejemplo de $\{-1, 0, 1\}$):
+  \[
+  b = \mathbf{a} \cdot \mathbf{s} + e \pmod q
+  \]
+\end{enumerate}
+\end{intuicion}
+
+Tú publicas los pares $(\mathbf{a}, b)$. Todo el mundo conoce las preguntas $\mathbf{a}$ y los resultados ruidosos $b$. 
+
+\begin{ojo}[El desafío imposible para el atacante]
+Dada una lista pública gigante de parejas $(\mathbf{a}_1, b_1), (\mathbf{a}_2, b_2), \dots, (\mathbf{a}_m, b_m)$, ¿puede un atacante descubrir el vector secreto $\mathbf{s}$?
+
+\textbf{Respuesta:} ¡No! Si no hubiera error ($e=0$), el sistema se resolvería con el método de Gauss en milisegundos. Pero al existir el pequeño error desconocido $e$, el problema de hallar $\mathbf{s}$ es computacionalmente equivalente a resolver el problema del vector más cercano (CVP) en un retículo de alta dimensión.
+\end{ojo}
+
+\section{Un ejemplo numérico paso a paso}
+
+Hagamos juntos un ejercicio real con números pequeños para ver la magia con tus propios ojos.
+
+\begin{ejemplonumerico}[LWE con módulo $q=13$]
+Elijamos un módulo pequeño $q = 13$.
+Supongamos que nuestro secreto es un solo número: $s = 4$.
+
+Generemos tres muestras públicas:
+\begin{enumerate}
+  \item \textbf{Muestra 1:} Elegimos al azar $a_1 = 3$. 
+  Calculamos $3 \times 4 = 12$. Agregamos un pequeño ruido $e_1 = +1$:
+  \[
+  b_1 = 12 + 1 = 13 \equiv 0 \pmod{13}
+  \]
+  Publicamos el par $(3, 0)$.
+  
+  \item \textbf{Muestra 2:} Elegimos al azar $a_2 = 5$. 
+  Calculamos $5 \times 4 = 20 \equiv 7 \pmod{13}$. Agregamos un ruido $e_2 = -1$:
+  \[
+  b_2 = 7 - 1 = 6 \pmod{13}
+  \]
+  Publicamos el par $(5, 6)$.
+  
+  \item \textbf{Muestra 3:} Elegimos al azar $a_3 = 2$. 
+  Calculamos $2 \times 4 = 8$. Ruido $e_3 = 0$:
+  \[
+  b_3 = 8 + 0 = 8 \pmod{13}
+  \]
+  Publicamos el par $(2, 8)$.
+\end{enumerate}
+
+El público solo ve:
+\[
+(a_1=3, b_1=0), \quad (a_2=5, b_2=6), \quad (a_3=2, b_3=8)
+\]
+Para un atacante, los números $b$ parecen absolutamente aleatorios. No puede simplemente ``despejar'' $s$ porque no sabe qué porción de cada $b$ es información pura y qué porción es ruido.
+\end{ejemplonumerico}
+
+\section{¿Por qué una computadora cuántica no puede romper LWE?}
+
+Las computadoras cuánticas son máquinas fascinantes, pero no son varitas mágicas capaces de probar todas las combinaciones al instante. 
+
+El motivo por el cual una computadora cuántica puede resolver ciertos problemas tradicionales es que esos problemas antiguos poseen una \textbf{estructura periódica regular} (como una onda de radio limpia con una frecuencia exacta). El algoritmo cuántico de Shor es una especie de ``sintonizador de radio cuántico'' ultrasensible que detecta periodos regulares a la perfección.
+
+\begin{intuicion}[La belleza del caos en LWE]
+En el problema LWE, el ruido rompe cualquier patrón periódico. No hay una onda limpia que sintonizar: cada ecuación fue perturbada en una dirección diferente e impredecible. Por eso, ni las supercomputadoras clásicas más potentes ni las futuras computadoras cuánticas universales conocen un algoritmo eficiente para quebrar LWE en dimensiones altas.
+\end{intuicion}
+
+\begin{resumencapitulo}
+\begin{itemize}
+  \item La aritmética modular $\mathbb{Z}_q$ confina todos los cálculos a un anillo finito de números como las horas de un reloj.
+  \item LWE formula ecuaciones lineales simples perturbadas por un pequeño error secreto: $\mathbf{b} = \mathbf{A}\mathbf{s} + \mathbf{e} \pmod q$.
+  \item El ruido destruye la posibilidad de aplicar eliminación gaussiana, convirtiendo el problema en una búsqueda geométrica en un retículo.
+  \item La ausencia de periodicidad regular protege a LWE tanto de atacantes convencionales como de computadoras cuánticas.
+\end{itemize}
+\end{resumencapitulo}

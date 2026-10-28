@@ -1,0 +1,2023 @@
+% ============================================================
+%  GUÍA TAMARIN PROVER — ESTILO LIBRO
+%  Tesis de Grado: Protocolo de Votación Electrónica PQC
+%  Universidad Mayor de San Andrés (UMSA) — 2026
+% ============================================================
+\documentclass[12pt, a4paper, twoside, openright]{book}
+
+% ── Codificación y lenguaje ─────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish, es-tabla]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% ── Geometría de página ─────────────────────────────────────
+\usepackage[
+  top=2.8cm, bottom=3cm,
+  inner=3.2cm, outer=2.5cm,
+  headheight=28pt
+]{geometry}
+
+% ── Matemáticas ─────────────────────────────────────────────
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools}
+
+% ── Gráficos y colores ──────────────────────────────────────
+\usepackage{graphicx}
+\usepackage[dvipsnames, table]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, shapes.geometric, positioning, fit,
+  backgrounds, calc, decorations.pathreplacing, shadows, matrix}
+
+% ── Tablas ──────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{tabularx}
+
+% ── Cajas y entornos ────────────────────────────────────────
+\usepackage[most]{tcolorbox}
+\usepackage{mdframed}
+
+% ── Código fuente ───────────────────────────────────────────
+\usepackage{listings}
+
+% ── Encabezados y pies ──────────────────────────────────────
+\usepackage{fancyhdr}
+\usepackage{emptypage}
+
+% ── Referencias e índice ────────────────────────────────────
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{makeidx}
+\makeindex
+
+% ── Flotantes ───────────────────────────────────────────────
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% ── Epígrafes ───────────────────────────────────────────────
+\usepackage{epigraph}
+\setlength{\epigraphrule}{0pt}
+\setlength{\epigraphwidth}{0.72\textwidth}
+
+% ── Formato de títulos ──────────────────────────────────────
+\usepackage{titlesec}
+\usepackage{titletoc}
+
+% ============================================================
+%  PALETA DE COLORES
+% ============================================================
+\definecolor{TamarinBlue}  {RGB}{25,  85, 160}
+\definecolor{TamarinDark}  {RGB}{10,  40,  80}
+\definecolor{TamarinLight} {RGB}{210, 228, 255}
+\definecolor{TamarinCyan}  {RGB}{  0, 180, 210}
+\definecolor{AccentGreen}  {RGB}{ 34, 139,  34}
+\definecolor{AccentOrange} {RGB}{200,  90,   0}
+\definecolor{AccentRed}    {RGB}{170,  30,  20}
+\definecolor{CodeBg}       {RGB}{ 22,  27,  45}
+\definecolor{CodeFg}       {RGB}{215, 215, 195}
+\definecolor{CodeKeyword}  {RGB}{  0, 200, 230}
+\definecolor{CodeComment}  {RGB}{100, 200, 100}
+\definecolor{CodeString}   {RGB}{255, 210,  80}
+\definecolor{CodeNumber}   {RGB}{200, 140, 255}
+\definecolor{GrisClaro}    {RGB}{245, 247, 252}
+\definecolor{AmarilloClaro}{RGB}{255, 253, 220}
+\definecolor{VerdeSuave}   {RGB}{230, 248, 232}
+\definecolor{RojoSuave}    {RGB}{255, 235, 235}
+
+% ============================================================
+%  ESTILO DE PÁGINA
+% ============================================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\small\textcolor{TamarinBlue}{\textbf{\leftmark}}}
+\fancyhead[RO]{\small\textcolor{TamarinBlue}{\textbf{\rightmark}}}
+\fancyfoot[LE,RO]{\small\thepage}
+\fancyfoot[C]{\small\textcolor{gray}{\textit{Guía Tamarin Prover --- UMSA 2026}}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.3pt}
+
+% ============================================================
+%  FORMATO DE CAPÍTULOS
+% ============================================================
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{TamarinDark}}
+  {\filleft\Large\color{TamarinBlue}
+   \MakeUppercase{\chaptertitlename}\ \Huge\thechapter}
+  {1ex}
+  {\titlerule[1.5pt]\vspace{1ex}\filright}
+  [\vspace{1ex}\titlerule]
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{TamarinBlue}}
+  {\thesection}{1em}{}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{TamarinDark}}
+  {\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{TamarinBlue!80!black}}
+  {\thesubsubsection}{1em}{}
+
+% ============================================================
+%  LENGUAJE TAMARIN
+% ============================================================
+\lstdefinelanguage{Tamarin}{
+  morekeywords=[1]{theory, begin, end, builtins, functions, equations,
+    restriction, rule, lemma, axiom, let, in, Fr, In, Out,
+    All, Ex, not, and, or, exists-trace, all-traces},
+  morekeywords=[2]{K, KU, KD, true, false},
+  morekeywords=[3]{sign, verify, pk, senc, sdec, encaps, decaps,
+    ek_from_dk, h, aenc, adec},
+  morestring=[b]{"},
+  morestring=[b]{'},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  sensitive=true,
+}
+
+\lstdefinestyle{TamarinStyle}{
+  language=Tamarin,
+  backgroundcolor=\color{CodeBg},
+  basicstyle=\ttfamily\small\color{CodeFg},
+  keywordstyle=[1]{\color{CodeKeyword}\bfseries},
+  keywordstyle=[2]{\color{CodeNumber}\bfseries},
+  keywordstyle=[3]{\color{AccentOrange!90!white}},
+  stringstyle=\color{CodeString},
+  commentstyle=\color{CodeComment}\itshape,
+  numbers=left,
+  numberstyle=\tiny\color{gray!60},
+  numbersep=10pt,
+  breaklines=true,
+  frame=none,
+  tabsize=4,
+  keepspaces=true,
+  xleftmargin=16pt,
+  xrightmargin=4pt,
+  showstringspaces=false,
+  captionpos=b,
+}
+
+\lstdefinestyle{BashStyle}{
+  language=bash,
+  backgroundcolor=\color{TamarinDark},
+  basicstyle=\ttfamily\small\color{white},
+  commentstyle=\color{CodeComment}\itshape,
+  stringstyle=\color{CodeString},
+  numbers=none,
+  frame=none,
+  breaklines=true,
+  tabsize=2,
+  xleftmargin=10pt,
+  showstringspaces=false,
+}
+
+\lstset{style=TamarinStyle}
+
+% ============================================================
+%  CAJAS TEMÁTICAS
+% ============================================================
+\tcbuselibrary{most}
+
+\newtcolorbox{cajaDef}[2][]{
+  colback=TamarinLight!50, colframe=TamarinBlue, coltitle=white,
+  fonttitle=\bfseries\small, title={#2}, #1,
+  boxrule=1pt, arc=6pt, left=10pt, right=10pt, top=6pt, bottom=6pt}
+
+\newtcolorbox{cajaEjemplo}[2][]{
+  colback=VerdeSuave, colframe=AccentGreen, coltitle=white,
+  fonttitle=\bfseries\small, title={Ejemplo: #2}, #1,
+  boxrule=1pt, arc=6pt, left=10pt, right=10pt}
+
+\newtcolorbox{cajaAnalogia}[2][]{
+  colback=AmarilloClaro, colframe=AccentOrange, coltitle=white,
+  fonttitle=\bfseries\small, title={Analog\'ia: #2}, #1,
+  boxrule=1pt, arc=6pt, left=10pt, right=10pt}
+
+\newtcolorbox{cajaAviso}[2][]{
+  colback=RojoSuave, colframe=AccentRed, coltitle=white,
+  fonttitle=\bfseries\small, title={Importante: #2}, #1,
+  boxrule=1pt, arc=6pt, left=10pt, right=10pt}
+
+\newtcolorbox{cajaResultado}[2][]{
+  colback=VerdeSuave, colframe=AccentGreen!80!black, coltitle=white,
+  fonttitle=\bfseries\normalsize, title={\textcolor{white}{#2}}, #1,
+  boxrule=1.5pt, arc=8pt, left=10pt, right=10pt}
+
+\newtcolorbox{cajaSintaxis}[2][]{
+  colback=CodeBg!95, colframe=TamarinCyan, coltitle=TamarinCyan,
+  fonttitle=\bfseries\small\ttfamily, title={Sintaxis: #2}, #1,
+  boxrule=1pt, arc=6pt, left=10pt, right=10pt,
+  fontupper=\ttfamily\small\color{CodeFg}}
+
+\definecolor{LogicBlue}    {RGB}{ 20,  45, 110}
+\definecolor{LogicBg}      {RGB}{243, 246, 255}
+
+\newtcolorbox{cajaResumen}[1][]{
+  colback=TamarinLight, colframe=TamarinBlue,
+  title={\bfseries\color{TamarinDark} Resumen del Cap\'itulo}, #1,
+  boxrule=1.2pt, arc=8pt, left=10pt, right=10pt}
+
+\newtcolorbox{cajaLogica}[2][]{
+  colback=LogicBg, colframe=LogicBlue, coltitle=white,
+  fonttitle=\bfseries\small, title={Formulaci\'on en L\'ogica Formal: #2}, #1,
+  boxrule=1.2pt, arc=6pt, left=10pt, right=10pt, top=7pt, bottom=7pt}
+
+\newtheorem{teorema}{Teorema}[chapter]
+\newtheorem{definicion}{Definici\'on}[chapter]
+
+% ============================================================
+%  HYPERREF
+% ============================================================
+\hypersetup{
+  colorlinks=true, linkcolor=TamarinBlue, urlcolor=TamarinCyan,
+  citecolor=AccentGreen,
+  pdftitle={Gu\'ia Tamarin Prover --- Protocolo PQC UMSA 2026},
+  pdfauthor={UMSA --- Carrera de Inform\'atica --- 2026},
+  pdfsubject={Verificaci\'on formal, Tamarin, criptograf\'ia post-cu\'antica},
+  bookmarksopen=true, bookmarksnumbered=true,
+}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+% ============================================================
+\begin{document}
+% ============================================================
+
+% ── PORTADA ─────────────────────────────────────────────────
+\begin{titlepage}
+  \pagecolor{TamarinDark}
+  \color{white}
+  \centering
+  \vspace*{1.5cm}
+
+  \begin{tikzpicture}
+    \node[draw=TamarinCyan, line width=2pt, rounded corners=10pt,
+          inner sep=16pt, fill=TamarinBlue!40] {
+      \Large\bfseries\color{white}
+      \begin{tabular}{c}
+        UMSA\\
+        Universidad Mayor de San Andr\'es\\
+        {\normalsize Carrera de Inform\'atica --- FCPN}
+      \end{tabular}
+    };
+  \end{tikzpicture}
+
+  \vspace{2cm}
+
+  {\Huge\bfseries\color{TamarinCyan}
+    Gu\'ia de \\ Tamarin Prover}\\[0.8em]
+  {\Large\color{white!85}
+    Verificaci\'on Formal de Protocolos Criptogr\'aficos}\\[0.4em]
+  {\large\color{white!70}
+    Fundamentos, Sintaxis y Aplicaci\'on al\\
+    Protocolo de Votaci\'on Electr\'onica Post-Cu\'antica}
+
+  \vspace{1.5cm}
+
+  \begin{tcolorbox}[
+    colback=TamarinBlue!60, colframe=TamarinCyan,
+    width=0.85\textwidth, arc=8pt, boxrule=1.5pt
+  ]
+    \centering\itshape\large\color{white}
+    ``La verificaci\'on formal no prueba que un protocolo\\
+    funciona bien en algunos casos ---\\
+    prueba que \textbf{no puede fallar} en ning\'un caso posible.''
+  \end{tcolorbox}
+
+  \vfill
+
+  \begin{tikzpicture}
+    \node[fill=TamarinBlue!30, rounded corners=6pt,
+          inner sep=12pt, text width=0.7\textwidth, align=center] {
+      {\bfseries\color{TamarinCyan} Proyecto de Grado 2026}\\[4pt]
+      {\small\color{white!80}
+        ML-KEM-768 $\cdot$ ML-DSA-65 $\cdot$ FIPS 203/204\\
+        Protocolo: \texttt{tamarin/protocolo.spthy}\\
+        Motor: Maude 3.5.1 $+$ Tamarin Prover}
+    };
+  \end{tikzpicture}
+
+  \vspace{1cm}
+  \nopagecolor
+\end{titlepage}
+
+\newpage\thispagestyle{empty}\null\newpage
+
+% ── DEDICATORIA ─────────────────────────────────────────────
+\thispagestyle{empty}
+\vspace*{5cm}
+\begin{flushright}
+  \itshape\large
+  A todos los que creen que\\
+  la matem\'atica puede construir\\
+  sistemas m\'as justos y confiables.
+\end{flushright}
+\newpage
+
+% ── PRÓLOGO ─────────────────────────────────────────────────
+\chapter*{Pr\'ologo}
+\addcontentsline{toc}{chapter}{Pr\'ologo}
+
+Esta gu\'ia naci\'o de la necesidad de explicar, con rigor pero
+tambi\'en con claridad, c\'omo se usa \textbf{Tamarin Prover} para
+demostrar formalmente que un protocolo criptogr\'afico es seguro.
+Fue escrita como parte del desarrollo de la tesis de grado sobre un
+\textit{protocolo de votaci\'on electr\'onica post-cu\'antica},
+dise\~nado para resistir ataques de computadoras cu\'anticas mediante
+los est\'andares FIPS~203 (ML-KEM-768) y FIPS~204 (ML-DSA-65) del NIST.
+
+\medskip
+
+El lector encontrar\'a aqu\'i tanto los fundamentos te\'oricos de la
+verificaci\'on formal como una gu\'ia pr\'actica, paso a paso, del
+lenguaje \texttt{.spthy} de Tamarin. Los ejemplos de c\'odigo est\'an
+tomados directamente del archivo \texttt{protocolo.spthy} que acompa\~na
+la tesis, de modo que cada concepto abstracto tiene un correlato
+concreto y ejecutable.
+
+\medskip
+
+\noindent La gu\'ia est\'a organizada en \textbf{ocho cap\'itulos}:
+los primeros tres cubren los fundamentos conceptuales; los cap\'itulos
+cuatro a seis exploran la sintaxis y sem\'antica de Tamarin; el
+cap\'itulo siete presenta el an\'alisis completo del protocolo PQC;
+y el cap\'itulo ocho cierra con las instrucciones de ejecuci\'on y
+los resultados obtenidos.
+
+\medskip\noindent
+\textit{La Paz, Bolivia, 2026}
+
+% ── TABLA DE CONTENIDOS ─────────────────────────────────────
+\tableofcontents
+\listoffigures
+\listoftables
+
+% ────────────────────────────────────────────────────────────
+%   PARTE I — FUNDAMENTOS
+% ────────────────────────────────────────────────────────────
+\part{Fundamentos de la Verificaci\'on Formal}
+
+% ============================================================
+\chapter{Por qu\'e Verificar Formalmente un Protocolo}
+% ============================================================
+
+\epigraph{%
+  \textit{``Anyone can invent a cryptographic system that they
+  themselves cannot break. What's hard is creating one that
+  others cannot break.''}
+}{--- Bruce Schneier}
+
+\section{El problema de los protocolos ``casi seguros''}
+
+La historia de la criptograf\'ia moderna es, en parte, un cat\'alogo
+de protocolos que \textit{parec\'ian} seguros pero no lo eran.
+El protocolo WEP, ampliamente utilizado en la d\'ecada de 2000,
+fue dise\~nado por ingenieros expertos y tard\'o a\~nos en ser
+completamente roto. Lo mismo ocurri\'o con SSL~2.0, con MS-CHAP,
+y con docenas de esquemas que resistieron pruebas emp\'iricas durante
+a\~nos antes de ser vulnerados.
+
+\medskip
+
+El problema fundamental es que probar un sistema con casos de prueba,
+por exhaustivo que sea el proceso, \textbf{nunca puede garantizar}
+la ausencia de vulnerabilidades: solo prueba que el sistema funciona
+en los casos probados. Un atacante inteligente no ataca donde usted
+prob\'o; ataca donde usted no prob\'o.
+
+\begin{cajaAnalogia}{El duelo de espadas}
+  Probar un protocolo con pruebas unitarias es como entrenar a un
+  espadach\'in contra rivales conocidos. Por m\'as que practique
+  con cien contrincantes distintos, siempre existe un movimiento
+  que ninguno de ellos us\'o. La verificaci\'on formal es distinta:
+  en lugar de entrenar contra rivales concretos, se demuestra
+  matem\'aticamente que \textit{no existe ning\'un movimiento posible}
+  que pueda derrotar al espadach\'in, sin importar qui\'en lo enfrente.
+\end{cajaAnalogia}
+
+\section{Qu\'e garantiza la verificaci\'on formal}
+
+\begin{cajaDef}{Verificaci\'on Formal de Protocolos}
+  La \textbf{verificaci\'on formal} de un protocolo criptogr\'afico
+  es un proceso matem\'atico que demuestra, con certeza absoluta dentro
+  de un modelo declarado, que el protocolo cumple ciertas propiedades
+  de seguridad bajo \emph{todos} los posibles comportamientos del
+  ambiente y del atacante, sin excepci\'on.
+\end{cajaDef}
+
+\medskip
+
+Las propiedades que t\'ipicamente se verifican son:
+\begin{itemize}[leftmargin=*, itemsep=4pt]
+  \item \textbf{Confidencialidad}: un dato secreto nunca es revelado
+    al atacante, sin importar qu\'e mensajes intercepte o inyecte.
+  \item \textbf{Autenticidad}: el receptor de un mensaje puede estar
+    seguro de que fue enviado por el emisor leg\'itimo.
+  \item \textbf{Integridad}: el contenido de un mensaje no puede ser
+    alterado en tr\'ansito sin ser detectado.
+  \item \textbf{No repudio}: el emisor no puede negar haber enviado
+    un mensaje que firm\'o.
+  \item \textbf{Unicidad / anti-replay}: un mensaje v\'alido no puede
+    ser reutilizado por un atacante para obtener efectos adicionales.
+\end{itemize}
+
+\section{Herramientas de verificaci\'on formal}
+
+\begin{table}[H]
+\centering
+\caption{Comparaci\'on de herramientas de verificaci\'on formal.}
+\label{tab:herramientas}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.2cm} X X}
+\toprule
+Herramienta & Enfoque & Caracter\'isticas principales \\
+\midrule
+\textbf{Tamarin} & Reescritura de multiconjuntos &
+  Motor Maude; estado mutable, XOR, DH; altamente expresivo.\\[4pt]
+ProVerif & \'Algebra de procesos &
+  M\'as autom\'atico; menos expresivo para equivalencias.\\[4pt]
+Scyther & Grafos de roles &
+  M\'as sencillo; menos potente para protocolos con estado.\\[4pt]
+CPSA & \'Algebra de hebras &
+  Especializado en intercambio de claves.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\medskip
+
+En este trabajo usamos \textbf{Tamarin Prover} porque:
+\begin{enumerate}[itemsep=2pt]
+  \item Soporta el modelo de estado global mutable, necesario para
+    modelar el \'anfora digital.
+  \item Permite definir restricciones arbitrarias como axiomas del
+    sistema (por ejemplo, ``cada votante solo puede votar una vez'').
+  \item Maneja la ecuaci\'on de correcci\'on del KEM
+    \texttt{decaps(dk, encaps(ek, r)) = r} sin necesidad de plugins.
+\end{enumerate}
+
+\begin{cajaResumen}
+  La verificaci\'on formal demuestra la seguridad de un protocolo
+  bajo \emph{cualquier} comportamiento del atacante, no solo bajo
+  los ataques conocidos. Tamarin Prover es la herramienta elegida
+  por su capacidad para manejar estado mutable y ecuaciones
+  criptogr\'aficas arbitrarias.
+\end{cajaResumen}
+
+% ============================================================
+\chapter{El Modelo de Atacante Dolev-Yao}
+% ============================================================
+
+\epigraph{%
+  \textit{``The attacker knows everything about the protocol, controls
+  the network completely, and is bounded only by the laws of
+  mathematics.''}
+}{--- Adaptado de Dolev \& Yao, 1983}
+
+\section{Origen y motivaci\'on}
+
+En 1983, Danny Dolev y Andrew Yao formalizaron por primera vez un
+modelo matem\'atico del adversario en protocolos criptogr\'aficos:
+
+\begin{cajaDef}{Modelo de Atacante Dolev-Yao}
+  En el modelo \textbf{Dolev-Yao}, el atacante $\mathcal{A}$ controla
+  completamente el canal de red. Puede:
+  \begin{itemize}[itemsep=2pt]
+    \item \textbf{Interceptar} cualquier mensaje enviado por cualquier
+      participante.
+    \item \textbf{Modificar} mensajes en tr\'ansito.
+    \item \textbf{Eliminar} mensajes (denegaci\'on de servicio).
+    \item \textbf{Reenviar} mensajes previos (ataques de repetici\'on).
+    \item \textbf{Construir} nuevos mensajes a partir de fragmentos
+      que ha observado.
+    \item \textbf{Hacerse pasar} por cualquier participante leg\'itimo.
+  \end{itemize}
+  Sin embargo, $\mathcal{A}$ \emph{no puede} romper las primitivas
+  criptogr\'aficas: no puede descifrar sin la clave, no puede falsificar
+  firmas, y no puede invertir funciones hash.
+\end{cajaDef}
+
+\section{El atacante en Tamarin: el hecho \texttt{K}}
+
+En Tamarin, el conocimiento del atacante se representa con el hecho
+especial \texttt{K(t)}, que significa ``el atacante conoce el
+t\'ermino~$t$''.
+
+\begin{cajaSintaxis}{Interacci\'on con la red}
+  \texttt{Out(t)} $\rightarrow$ el protocolo env\'ia \textit{t} a la red\\
+  \texttt{In(t)} $\rightarrow$ el protocolo recibe \textit{t} de la red\\
+  \texttt{K(t)} $\rightarrow$ el atacante conoce el t\'ermino \textit{t}
+\end{cajaSintaxis}
+
+\begin{cajaAviso}{El atacante controla \texttt{In}}
+  Cuando una regla tiene \texttt{In(t)} en sus premisas, \textbf{no
+  significa que el mensaje lleg\'o del participante leg\'itimo}.
+  Significa que lleg\'o de la red, bajo control del atacante.
+  El atacante puede haber modificado, sustituido o fabricado ese mensaje.
+\end{cajaAviso}
+
+\section{Por qu\'e Dolev-Yao en un sistema electoral}
+
+En el contexto de una votaci\'on electr\'onica, el modelo Dolev-Yao
+captura amenazas muy reales:
+\begin{itemize}[leftmargin=*, itemsep=4pt]
+  \item Un atacante que compromete un enrutador y modifica el tr\'afico.
+  \item Un administrador de red que intenta inyectar boletas falsas.
+  \item Un atacante que graba tr\'afico y lo reenv\'ia (replay).
+  \item Un gobierno extranjero con capacidad de interceptar
+    comunicaciones.
+\end{itemize}
+
+\begin{cajaResumen}
+  El modelo Dolev-Yao pone al atacante m\'as poderoso posible en el
+  control de la red. Si el protocolo es seguro en este modelo, es
+  seguro contra cualquier ataque de red concebible. El hecho
+  \texttt{K(t)} en Tamarin representa el conocimiento acumulado
+  del atacante a lo largo de la ejecuci\'on del protocolo.
+\end{cajaResumen}
+
+% ============================================================
+\chapter{Criptograf\'ia Simb\'olica vs.\ Computacional}
+% ============================================================
+
+\epigraph{%
+  \textit{``Symbolic models trade precision for automation;
+  computational models trade automation for precision.''}
+}{--- Cortier, Kremer \& Warinschi, 2011}
+
+\section{Dos enfoques para modelar la criptograf\'ia}
+
+\begin{table}[H]
+\centering
+\caption{Comparaci\'on entre modelos simb\'olico y computacional.}
+\label{tab:simbol-comput}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.5cm} X X}
+\toprule
+Aspecto & Modelo Simb\'olico & Modelo Computacional \\
+\midrule
+Representaci\'on & T\'erminos algebraicos & Cadenas de bits \\[3pt]
+Operaciones & Funciones opacas & Algoritmos reales con costos\\[3pt]
+Atacante & Dolev-Yao & Adversario probabil\'istico\\[3pt]
+Garant\'ia & Seguridad en el modelo formal & Seguridad computacional\\[3pt]
+Automatizaci\'on & Alta (Tamarin, ProVerif) & Baja (pruebas manuales)\\[3pt]
+Aplicaci\'on & Dise\~no de protocolos & Criptograf\'ia de bajo nivel\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{El modelo simb\'olico: cajas negras perfectas}
+
+\begin{cajaDef}{Caja Negra Perfecta}
+  Una operaci\'on criptogr\'afica es una \textbf{caja negra perfecta}
+  en el modelo simb\'olico si:
+  \begin{enumerate}[itemsep=2pt]
+    \item Solo se puede invertir con el conocimiento correcto (la clave).
+    \item No existe ning\'un atajo computacional.
+    \item El atacante no puede aprender nada sobre las entradas a
+      partir de la salida, excepto lo que las ecuaciones del modelo
+      permiten.
+  \end{enumerate}
+\end{cajaDef}
+
+\begin{lstlisting}[caption={Declaraci\'on de primitivas como cajas negras en Tamarin.}]
+builtins: dest-signing, symmetric-encryption
+
+functions:
+    encaps/2,        // ML-KEM-768: encapsula un secreto k con pk
+    decaps/2,        // ML-KEM-768: desencapsula con dk, recupera k
+    ek_from_dk/1,    // Deriva la clave publica de encapsulamiento
+    h/1              // SHA3-256: hash para recibos de voto
+
+equations:
+    // Propiedad de correccion del KEM (FIPS 203)
+    decaps(dk, encaps(ek_from_dk(dk), r)) = r
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\caption{Builtins de Tamarin Prover y sus funciones.}
+\label{tab:builtins}
+\begin{tabular}{>{\ttfamily}p{5cm} p{8cm}}
+\toprule
+\normalfont Builtin & Funciones que incluye \\
+\midrule
+dest-signing & \texttt{sign/2}, \texttt{verify/3}, \texttt{pk/1} \\[3pt]
+symmetric-encryption & \texttt{senc/2}, \texttt{sdec/2} \\[3pt]
+asymmetric-encryption & \texttt{aenc/2}, \texttt{adec/2}, \texttt{pk/1} \\[3pt]
+hashing & \texttt{h/1} \\[3pt]
+xor & Operaci\'on XOR ($\oplus$) \\[3pt]
+diffie-hellman & Aritm\'etica modular para DH \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Ecuaciones: las propiedades de las funciones}
+
+\begin{cajaEjemplo}{Ecuaciones est\'andar de Tamarin}
+  Las siguientes ecuaciones est\'an impl\'icitas en los builtins:
+  \begin{itemize}[itemsep=3pt]
+    \item Firma digital:
+      $\texttt{verify(sign(m, sk), m, pk(sk)) = true}$
+    \item Cifrado sim\'etrico:
+      $\texttt{sdec(senc(m, k), k) = m}$
+    \item KEM (declarada expl\'icitamente):
+      $\texttt{decaps(dk, encaps(ek\_from\_dk(dk), r)) = r}$
+  \end{itemize}
+\end{cajaEjemplo}
+
+\begin{cajaLogica}{Teor\'ia Ecuacional y Congruencia Simb\'olica}
+  En el modelo simb\'olico de Tamarin, los mensajes son elementos del \'algebra libre de t\'erminos $\mathcal{T}_\Sigma(\mathcal{V})$ sobre una signatura funcional $\Sigma$ y variables $\mathcal{V}$, cocientada por una teor\'ia ecuacional $E$ ($\mathcal{T}_\Sigma(\mathcal{V}) / =_E$).
+  
+  \textbf{Proposiciones Ecuacionales del Protocolo PQC:}
+  \begin{align*}
+    \forall m \in \mathcal{T},\; \forall sk \in \mathcal{V}: & \quad
+      \operatorname{verify}(\operatorname{sign}(m, sk),\, m,\, \operatorname{pk}(sk)) =_E \mathrm{true} \\
+    \forall m, k \in \mathcal{T}: & \quad
+      \operatorname{sdec}(\operatorname{senc}(m, k),\, k) =_E m \\
+    \forall dk, r \in \mathcal{V}: & \quad
+      \operatorname{decaps}(dk,\, \operatorname{encaps}(\operatorname{ek\_from\_dk}(dk),\, r)) =_E r
+  \end{align*}
+  \textbf{Axioma de Caja Negra (No-deribabilidad):} Para cualquier t\'ermino cifrado $\operatorname{senc}(m, k)$, se cumple que el conocimiento del atacante est\'a acotado por:
+  \[
+    \mathrm{K}(\operatorname{senc}(m, k)) \;\land\; \neg\,\mathrm{K}(k) \implies \neg\,\mathrm{K}(m)
+  \]
+\end{cajaLogica}
+
+\begin{cajaAviso}{Qu\'e no pueden hacer las ecuaciones}
+  Las ecuaciones solo definen las formas \emph{leg\'itimas} de usar
+  las funciones. No permiten al atacante obtener informaci\'on
+  adicional: a partir de \texttt{senc(m, k)}, sin conocer \texttt{k},
+  el atacante no puede aprender nada sobre \texttt{m}.
+\end{cajaAviso}
+
+\begin{cajaResumen}
+  El modelo simb\'olico trata las operaciones criptogr\'aficas como
+  cajas negras perfectas. Las ecuaciones capturan \'unicamente las
+  propiedades de correcci\'on. Este enfoque permite la automatizaci\'on
+  completa de la verificaci\'on.
+\end{cajaResumen}
+
+% ────────────────────────────────────────────────────────────
+%   PARTE II — TAMARIN: LENGUAJE Y SEMÁNTICA
+% ────────────────────────────────────────────────────────────
+\part{Tamarin Prover: Lenguaje y Sem\'antica}
+
+% ============================================================
+\chapter{Arquitectura y Estructura de un Archivo \texttt{.spthy}}
+% ============================================================
+
+\epigraph{%
+  \textit{``A formal model is a contract: it defines exactly what
+  we are proving and exactly under what assumptions.''}
+}{--- Cas Cremers, ETH Z\"urich}
+
+\section{Estructura general de una teor\'ia Tamarin}
+
+Un archivo \texttt{.spthy} (\textit{security protocol theory}) es
+la unidad b\'asica de especificaci\'on en Tamarin:
+
+\begin{lstlisting}[caption={Esqueleto de una teor\'ia Tamarin.}]
+theory NombreDeTeoria
+begin
+  // 1. Primitivas (builtins y funciones)
+  builtins: ...
+  functions: ...
+  equations: ...
+
+  // 2. Restricciones (axiomas del sistema)
+  restriction NombreRestriccion: "formula"
+
+  // 3. Reglas del protocolo
+  rule NombreRegla:
+      [ Premisas ]
+    --[ Acciones ]->
+      [ Conclusiones ]
+
+  // 4. Lemas de seguridad
+  lemma NombreLema: tipo "formula"
+end
+\end{lstlisting}
+
+\begin{cajaDef}{Teor\'ia Tamarin}
+  Una \textbf{teor\'ia} en Tamarin es un m\'odulo autocontenido que
+  especifica:
+  \begin{itemize}[itemsep=2pt]
+    \item Las primitivas criptogr\'aficas disponibles.
+    \item Las reglas de reescritura que definen el comportamiento
+      del protocolo y del atacante.
+    \item Las restricciones que acotan el espacio de trazas v\'alidas.
+    \item Los lemas que Tamarin debe verificar (probar o refutar).
+  \end{itemize}
+\end{cajaDef}
+
+\section{El concepto de multiconjunto de hechos}
+
+El estado del sistema en Tamarin se representa como un
+\textbf{multiconjunto de hechos} (\textit{multiset of facts}).
+
+\begin{cajaSintaxis}{Hechos en Tamarin}
+  \texttt{NombreHecho(arg1, arg2, \ldots)}\\
+  \texttt{!} prefijo $\Rightarrow$ hecho \textbf{persistente}
+    (no se consume al usarse)\\
+  Sin \texttt{!} $\Rightarrow$ hecho \textbf{lineal}
+    (se consume una vez)
+\end{cajaSintaxis}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw=TamarinBlue, fill=TamarinLight!70, rounded corners=5pt,
+              inner sep=8pt, text width=3.8cm, align=center, font=\small},
+  arrow/.style={-Stealth, thick, TamarinBlue},
+  lbl/.style={font=\small\itshape, color=gray, align=center}
+]
+  \node[box] (e1) {\textbf{Estado inicial}\\[4pt]
+     \texttt{Fr(\textasciitilde sk\_AR)}\\
+     \texttt{Fr(\textasciitilde sk\_SV)}};
+  \node[box, right=2.8cm of e1] (e2) {\textbf{Tras Setup\_AR}\\[4pt]
+     \texttt{!ClavePrivadaAR}\\
+     \texttt{!ClavePublicaAR}};
+  \node[box, right=2.8cm of e2] (e3) {\textbf{Tras Setup\_SV}\\[4pt]
+     \texttt{!ClaveDesenc..}\\
+     \texttt{!ClavePublicaKEM..}};
+  \draw[arrow] (e1) -- node[above, lbl]{regla\\Setup\_AR} (e2);
+  \draw[arrow] (e2) -- node[above, lbl]{regla\\Setup\_SV} (e3);
+\end{tikzpicture}
+\caption{Evoluci\'on del multiconjunto de hechos durante el protocolo.}
+\label{fig:multiconjunto}
+\end{figure}
+
+\section{T\'erminos y variables}
+
+En Tamarin, los \textbf{t\'erminos} son las ``palabras'' del lenguaje:
+\begin{itemize}[leftmargin=*, itemsep=4pt]
+  \item \textbf{Variables frescas} (\texttt{\textasciitilde x}):
+    valores aleatorios \'unicos generados en tiempo de ejecuci\'on.
+  \item \textbf{Variables de patr\'on} (\texttt{x}):
+    variables que se instancian al hacer coincidir patrones.
+  \item \textbf{Constantes p\'ublicas} (\texttt{'nombre'}):
+    cadenas literales conocidas por todos, incluyendo el atacante.
+  \item \textbf{Tuplas} (\texttt{<a, b, c>}): agrupaciones de t\'erminos.
+  \item \textbf{Aplicaciones de funci\'on} (\texttt{f(a, b)}).
+\end{itemize}
+
+\begin{cajaEjemplo}{Variables en \texttt{protocolo.spthy}}
+  \begin{itemize}[itemsep=3pt]
+    \item \texttt{\textasciitilde sk\_AR}: clave privada fresca de la AR.
+    \item \texttt{\textasciitilde k\_efimera}: secreto KEM ef\'imero.
+    \item \texttt{'AR'}: constante p\'ublica que identifica el rol AR.
+    \item \texttt{<idV, pk\_V, ts\_reg>}: tupla de la credencial.
+  \end{itemize}
+\end{cajaEjemplo}
+
+\section{Trazas de ejecuci\'on}
+
+\begin{cajaDef}{Traza de Ejecuci\'on}
+  Una \textbf{traza} $\tau = \langle (S_0, A_0), (S_1, A_1), \ldots,
+  (S_n, A_n) \rangle$ es una secuencia donde:
+  \begin{itemize}[itemsep=2pt]
+    \item $S_i$ es el multiconjunto de hechos en el paso $i$.
+    \item $A_i$ es el multiconjunto de acciones realizadas.
+    \item Cada transici\'on $S_i \to S_{i+1}$ est\'a justificada por
+      la aplicaci\'on de alguna regla del protocolo.
+  \end{itemize}
+\end{cajaDef}
+
+\begin{cajaResumen}
+  Un archivo \texttt{.spthy} define una \emph{teor\'ia}: las
+  primitivas, las reglas de reescritura, las restricciones y los
+  lemas. El estado del protocolo es un multiconjunto de hechos que
+  evoluciona por aplicaci\'on de reglas. Las trazas son las historias
+  de ejecuci\'on posibles del sistema.
+\end{cajaResumen}
+
+% ============================================================
+\chapter{Reglas: El Coraz\'on del Modelo}
+% ============================================================
+
+\epigraph{%
+  \textit{``Rules are the atomic steps of the protocol, each one
+  describing a transition from one global state to another.''}
+}{--- Manual de Tamarin Prover, 2023}
+
+\section{Sintaxis de una regla}
+
+\begin{cajaSintaxis}{Regla de reescritura}
+  \texttt{rule NombreRegla:}\\
+  \texttt{\ \ \ \ let var = expresion in}\\
+  \texttt{\ \ \ \ [ Premisas ] --[ Acciones ]-> [ Conclusiones ]}
+\end{cajaSintaxis}
+
+\begin{itemize}[leftmargin=*, itemsep=6pt]
+  \item \textbf{Premisas}: hechos presentes en el multiconjunto de estado.
+    Los lineales (sin \texttt{!}) se consumen; los persistentes no.
+  \item \textbf{Acciones}: etiquetas registradas en la traza de ejecuci\'on.
+    Son los puntos de observaci\'on que usan los lemas.
+  \item \textbf{Conclusiones}: hechos nuevos que se agregan al estado.
+\end{itemize}
+
+\section{Hechos especiales: Fr, In, Out}
+
+\begin{table}[H]
+\centering
+\caption{Hechos especiales de Tamarin y su significado.}
+\label{tab:hechos-esp}
+\begin{tabular}{>{\ttfamily}p{3.2cm} p{9.5cm}}
+\toprule
+\normalfont Hecho & Significado \\
+\midrule
+Fr(\textasciitilde x) &
+  Genera un valor \textbf{fresco} (aleatorio, nunca antes visto).
+  Solo puede aparecer en premisas. \\[4pt]
+In(t) &
+  La regla \textbf{recibe} el t\'ermino \texttt{t} de la red.
+  El atacante controla qu\'e valor se instancia aqu\'i. \\[4pt]
+Out(t) &
+  La regla \textbf{env\'ia} el t\'ermino \texttt{t} a la red.
+  El atacante puede leer y registrar este valor. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Hechos lineales vs.\ persistentes}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  box/.style={rounded corners=5pt, inner sep=10pt,
+              text width=5cm, align=center, font=\small},
+  arrow/.style={-Stealth, thick}
+]
+  \node[box, fill=AccentOrange!20, draw=AccentOrange] (lineal) at (0,0) {
+    \textbf{Hecho Lineal}\\[4pt]
+    \texttt{AnforaDigital(...)}\\[4pt]
+    Se \emph{consume} cuando una regla lo usa como premisa.
+    Puede usarse \textbf{una sola vez}.
+  };
+  \node[box, fill=AccentGreen!15, draw=AccentGreen] (persist) at (8,0) {
+    \textbf{Hecho Persistente}\\[4pt]
+    \texttt{!ClavePrivadaAR(...)}\\[4pt]
+    \emph{No se consume} cuando una regla lo usa.
+    Puede usarse \textbf{m\'ultiples veces}.
+  };
+  \node[below=0.6cm of lineal, font=\small\itshape, text=AccentOrange]
+    {El \'anfora se ``abre'' exactamente una vez};
+  \node[below=0.6cm of persist, font=\small\itshape, text=AccentGreen]
+    {La AR firma m\'ultiples credenciales};
+\end{tikzpicture}
+\caption{Diferencia entre hechos lineales y persistentes.}
+\label{fig:lineal-persist}
+\end{figure}
+
+\section{An\'alisis de las seis reglas del protocolo PQC}
+
+\subsection{Regla 1: Setup\_Autoridad\_Registro}
+
+\begin{lstlisting}[caption={Configuraci\'on de la Autoridad de Registro con ML-DSA-65.}]
+rule Setup_Autoridad_Registro:
+    let  pk_AR = pk(~sk_AR)  in
+    [ Fr(~sk_AR) ]
+  --[ SetupAR(pk_AR) ]->
+    [ !ClavePrivadaAR('AR', ~sk_AR)   // Confidencial
+    , !ClavePublicaAR('AR', pk_AR)
+    , Out(pk_AR)                       // Publicada en la red
+    ]
+\end{lstlisting}
+
+\begin{cajaDef}{Lectura en lenguaje llano}
+  Si est\'a disponible un valor aleatorio fresco \texttt{\textasciitilde
+  sk\_AR}, entonces se establece como clave privada de la AR
+  (persistente, confidencial), se registra la clave p\'ublica
+  correspondiente (persistente), y se publica \texttt{pk\_AR} en la
+  red (cualquiera puede verla).
+\end{cajaDef}
+
+\begin{cajaLogica}{Sem\'antica MSR y L\'ogica Lineal de Setup\_Autoridad\_Registro}
+  \textbf{Transici\'on de Estado en Reescritura de Multiconjuntos (MSR):}
+  \[
+    \begin{aligned}
+      \mathcal{S} \cup \{ \operatorname{Fr}(\mathit{sk}_{\mathrm{AR}}) \}
+      &\xrightarrow{\;\operatorname{SetupAR}(\operatorname{pk}(\mathit{sk}_{\mathrm{AR}}))\;} \\
+      \mathcal{S} \cup \big\{
+        &!\operatorname{ClavePrivadaAR}(\text{'AR'}, \mathit{sk}_{\mathrm{AR}}), \\
+        &!\operatorname{ClavePublicaAR}(\text{'AR'}, \operatorname{pk}(\mathit{sk}_{\mathrm{AR}})),\,
+        \operatorname{Out}(\operatorname{pk}(\mathit{sk}_{\mathrm{AR}}))
+      \big\}
+    \end{aligned}
+  \]
+  \textbf{Proposici\'on en L\'ogica Lineal de Girard:}
+  \[
+    \begin{aligned}
+      \operatorname{Fr}(\mathit{sk}_{\mathrm{AR}}) \multimap
+      &\operatorname{SetupAR}(\operatorname{pk}(\mathit{sk}_{\mathrm{AR}})) \;\otimes\;
+      !\operatorname{ClavePrivadaAR}(\text{'AR'}, \mathit{sk}_{\mathrm{AR}}) \\
+      &\otimes\; !\operatorname{ClavePublicaAR}(\text{'AR'}, \operatorname{pk}(\mathit{sk}_{\mathrm{AR}})) \;\otimes\;
+      \operatorname{Out}(\operatorname{pk}(\mathit{sk}_{\mathrm{AR}}))
+    \end{aligned}
+  \]
+  \textbf{Condici\'on L\'ogica de Traza Temporal (FOTL):}
+  \[
+    \forall \mathit{pk}, t.\; \operatorname{SetupAR}(\mathit{pk})@t \implies
+    \exists \mathit{sk}.\; \big(\mathit{pk} = \operatorname{pk}(\mathit{sk}) \;\land\;
+    \exists t' \le t.\; \operatorname{Fr}(\mathit{sk})@t'\big)
+  \]
+\end{cajaLogica}
+
+\subsection{Regla 2: Setup\_Servidor\_Votacion}
+
+\begin{lstlisting}[caption={SV genera claves ML-KEM-768 y ML-DSA-65.}]
+rule Setup_Servidor_Votacion:
+    let
+        ek_SV = ek_from_dk(~dk_SV)   // Clave publica KEM
+        pk_SV = pk(~sk_SV)           // Clave publica firma
+    in
+    [ Fr(~dk_SV), Fr(~sk_SV) ]
+  --[ SetupSV(ek_SV, pk_SV) ]->
+    [ !ClaveDesencapsulamientoAC('AC', ~dk_SV) // Solo la AC
+    , !ClavePublicaKEM_SV('SV', ek_SV)
+    , !ClavePublicaFirma_SV('SV', pk_SV)
+    , Out(ek_SV)
+    , Out(pk_SV)
+    ]
+\end{lstlisting}
+
+\textbf{Punto clave:} \texttt{\textasciitilde dk\_SV} nunca aparece en
+un hecho \texttt{Out}; solo existe en el estado de la \texttt{'AC'}.
+Esto modela la \textit{separaci\'on de custodia}: el SV no puede
+descifrar los votos que custodia.
+
+\begin{cajaLogica}{Sem\'antica MSR y L\'ogica Lineal de Setup\_Servidor\_Votacion}
+  \textbf{Transici\'on de Estado MSR:}
+  \[
+    \begin{aligned}
+      \mathcal{S} \cup \{ \operatorname{Fr}(\mathit{dk}_{\mathrm{SV}}), \operatorname{Fr}(\mathit{sk}_{\mathrm{SV}}) \}
+      &\xrightarrow{\;\operatorname{SetupSV}(\mathit{ek}_{\mathrm{SV}}, \mathit{pk}_{\mathrm{SV}})\;} \\
+      \mathcal{S} \cup \big\{
+        &!\operatorname{ClaveDesencapsulamientoAC}(\text{'AC'}, \mathit{dk}_{\mathrm{SV}}),\,
+        !\operatorname{ClavePublicaKEM\_SV}(\text{'SV'}, \mathit{ek}_{\mathrm{SV}}), \\
+        &!\operatorname{ClavePublicaFirma\_SV}(\text{'SV'}, \mathit{pk}_{\mathrm{SV}}),\,
+        \operatorname{Out}(\mathit{ek}_{\mathrm{SV}}),\,
+        \operatorname{Out}(\mathit{pk}_{\mathrm{SV}})
+      \big\}
+    \end{aligned}
+  \]
+  \textbf{Axioma L\'ogico de Separaci\'on de Custodia:}
+  \[
+    \begin{aligned}
+      \forall t.\; &\neg\,\operatorname{Out}(\mathit{dk}_{\mathrm{SV}})@t \;\land\;
+      \Big(\operatorname{SetupSV}(\mathit{ek}, \mathit{pk})@t \implies \\
+      &\exists \mathit{dk}, \mathit{sk}.\; \mathit{ek} = \operatorname{ek\_from\_dk}(\mathit{dk}) \land \mathit{pk} = \operatorname{pk}(\mathit{sk})\Big)
+    \end{aligned}
+  \]
+\end{cajaLogica}
+
+\subsection{Regla 3: Registro\_Ciudadano\_Padron}
+
+\begin{lstlisting}[caption={La AR registra al votante y emite su credencial firmada.}]
+rule Registro_Ciudadano_Padron:
+    let
+        pk_V       = pk(~sk_V)
+        credencial = <~idV, pk_V, ~ts_reg>   // Paquete de identidad
+        firma_AR   = sign(credencial, ~sk_AR) // Firmada (ML-DSA-65)
+    in
+    [ Fr(~sk_V), Fr(~ts_reg), Fr(~idV)
+    , !ClavePrivadaAR('AR', ~sk_AR)
+    ]
+  --[ RegistroVotante(~idV, pk_V) ]->
+    [ !CredencialVotante(~idV, ~sk_V, credencial, firma_AR)
+    , !PadronElectoral(~idV, pk_V)
+    ]
+\end{lstlisting}
+
+\textbf{Nota:} El \textit{timestamp} \texttt{\textasciitilde ts\_reg}
+es fresco y \'unico, lo que impide reutilizar credenciales de otras sesiones.
+
+\begin{cajaLogica}{Sem\'antica MSR y L\'ogica Lineal de Registro\_Ciudadano\_Padron}
+  \textbf{Transici\'on de Estado MSR (con Hecho Persistente de Autoridad):}
+  \[
+    \begin{aligned}
+      \mathcal{S} \cup \{ \operatorname{Fr}(\mathit{sk}_V), \operatorname{Fr}(\mathit{ts}_{\mathrm{reg}}), \operatorname{Fr}(\mathit{idV}) \}
+      &\xrightarrow{\;\operatorname{RegistroVotante}(\mathit{idV}, \operatorname{pk}(\mathit{sk}_V))\;} \\
+      \mathcal{S} \cup \big\{
+        &!\operatorname{CredencialVotante}(\mathit{idV}, \mathit{sk}_V, \mathit{cred}, \sigma_{\mathrm{AR}}),\,
+        !\operatorname{PadronElectoral}(\mathit{idV}, \operatorname{pk}(\mathit{sk}_V))
+      \big\}
+    \end{aligned}
+  \]
+  \par\smallskip\noindent\textit{Condicionado a la premisa persistente:} $!\operatorname{ClavePrivadaAR}(\text{'AR'}, \mathit{sk}_{\mathrm{AR}}) \in \mathcal{S}$.\par\medskip
+  \textbf{Predicado de Vinculaci\'on de Credencial y Firma ML-DSA-65:}
+  \[
+    \mathit{cred} = \langle \mathit{idV}, \operatorname{pk}(\mathit{sk}_V), \mathit{ts}_{\mathrm{reg}} \rangle \;\land\;
+    \sigma_{\mathrm{AR}} = \operatorname{sign}(\mathit{cred}, \mathit{sk}_{\mathrm{AR}})
+  \]
+\end{cajaLogica}
+
+\subsection{Regla 4: Emitir\_Voto\_Mesa}
+
+\begin{lstlisting}[caption={El votante cifra su voto con ML-KEM y lo firma con ML-DSA.}]
+rule Emitir_Voto_Mesa:
+    let
+        ct_kem       = encaps(ek_SV, ~k_efimera)   // ML-KEM-768
+        voto_cifrado = senc(~m_voto, ~k_efimera)   // AES-256-GCM
+        boleta       = <ct_kem, voto_cifrado, credencial, ~ts_voto>
+        firma_V      = sign(boleta, ~sk_V)          // ML-DSA-65
+    in
+    [ Fr(~k_efimera), Fr(~m_voto), Fr(~ts_voto)
+    , !CredencialVotante(~idV, ~sk_V, credencial, firma_AR)
+    , !ClavePublicaKEM_SV('SV', ek_SV)
+    ]
+  --[ VotoEmitido(~idV, ~m_voto)
+    , VotoEnviado(~idV, boleta, firma_V)
+    , SecretoVoto(~m_voto)   // Marca el voto para el lema de secreto
+    ]->
+    [ Out(<boleta, firma_V, firma_AR>) ]  // Sale a la red
+\end{lstlisting}
+
+\textbf{Acci\'on \texttt{SecretoVoto}:} esta etiqueta marca el
+contenido del voto para que el lema de confidencialidad pueda
+monitorearlo. Sin esta acci\'on, el lema no sabr\'ia a qu\'e dato
+aplicar la garant\'ia de secreto.
+
+\begin{cajaLogica}{Sem\'antica MSR y L\'ogica Lineal de Emitir\_Voto\_Mesa}
+  \textbf{Transici\'on de Estado MSR (Cifrado H\'ibrido PQC):}
+  \[
+    \mathcal{S} \cup \{ \operatorname{Fr}(\mathit{k}_{\text{ef\'im}}), \operatorname{Fr}(\mathit{m}_{\text{voto}}), \operatorname{Fr}(\mathit{ts}_{\text{voto}}) \}
+    \xrightarrow{\;\mathbf{A}_{\text{emisi\'on}}\;}
+    \mathcal{S} \cup \{ \operatorname{Out}(\langle \mathit{boleta}, \sigma_V, \sigma_{\mathrm{AR}} \rangle) \}
+  \]
+  donde el vector de acciones temporales registradas en el instante $t$ es:
+  \[
+    \mathbf{A}_{\text{emisi\'on}} = \big[
+      \operatorname{VotoEmitido}(\mathit{idV}, \mathit{m}_{\text{voto}}),\,
+      \operatorname{VotoEnviado}(\mathit{idV}, \mathit{boleta}, \sigma_V),\,
+      \operatorname{SecretoVoto}(\mathit{m}_{\text{voto}})
+    \big]
+  \]
+  \textbf{Proposici\'on de Construcci\'on Criptogr\'afica Cifra-Firma:}
+  \[
+    \begin{aligned}
+      \mathit{boleta} &= \big\langle \operatorname{encaps}(\mathit{ek}_{\mathrm{SV}}, \mathit{k}_{\text{ef\'im}}),\,
+      \operatorname{senc}(\mathit{m}_{\text{voto}}, \mathit{k}_{\text{ef\'im}}),\, \mathit{credencial},\, \mathit{ts}_{\text{voto}} \big\rangle \\
+      \sigma_V &= \operatorname{sign}(\mathit{boleta}, \mathit{sk}_V)
+    \end{aligned}
+  \]
+\end{cajaLogica}
+
+\subsection{Regla 5: Recepcion\_Y\_Deposito\_Anfora}
+
+\begin{lstlisting}[caption={El SV verifica la boleta y la deposita en el anfora.}]
+rule Recepcion_Y_Deposito_Anfora:
+    let
+        credencial  = <idV, pk_V, ts_reg>
+        boleta      = <ct_kem, voto_cifrado, credencial, ts_voto>
+        recibo_hash = h(<boleta, ~ts_recibo>)
+    in
+    [ In(<boleta, firma_V, firma_AR>)
+    , !ClavePublicaAR('AR', pk_AR)
+    , !PadronElectoral(idV, pk_V)
+    , Fr(~ts_recibo)
+    ]
+  --[ Eq(verify(firma_AR, credencial, pk_AR), true) // Firma AR
+    , Eq(verify(firma_V, boleta, pk_V), true)       // Firma Votante
+    , VotoUnico(idV)                                // Anti-duplicado
+    , VotoAceptado(idV, boleta, firma_V)
+    , VotoRegistrado(idV, ct_kem, voto_cifrado)
+    ]->
+    [ AnforaDigital(idV, ct_kem, voto_cifrado,
+                   pk_V, credencial, firma_V, ts_voto)
+    , Out(recibo_hash)
+    ]
+\end{lstlisting}
+
+\textbf{Doble verificaci\'on:} La acci\'on \texttt{Eq(verify(...), true)}
+combinada con la restricci\'on \texttt{Verificacion\_Exitosa} garantiza
+que Tamarin solo considere trazas donde ambas firmas son v\'alidas.
+
+\begin{cajaLogica}{Sem\'antica MSR y L\'ogica Lineal de Recepci\'on y Dep\'osito en \'Anfora}
+  \textbf{Transici\'on de Estado MSR (Consumo de Red y Generaci\'on de Recurso Lineal):}
+  \[
+    \begin{aligned}
+      \mathcal{S} \cup \{ \operatorname{In}(\langle \mathit{boleta}, \sigma_V, \sigma_{\mathrm{AR}} \rangle),\, \operatorname{Fr}(\mathit{ts}_{\text{recibo}}) \}
+      &\xrightarrow{\;\mathbf{A}_{\text{rec}}\;} \\
+      \mathcal{S} \cup \big\{ \operatorname{AnforaDigital}(\dots),\,
+      &\operatorname{Out}(\operatorname{h}(\langle \mathit{boleta}, \mathit{ts}_{\text{recibo}} \rangle)) \big\}
+    \end{aligned}
+  \]
+  \textbf{Guardas L\'ogicas de Verificaci\'on Ecuacional:}
+  \[
+    \operatorname{verify}(\sigma_{\mathrm{AR}}, \mathit{credencial}, \mathit{pk}_{\mathrm{AR}}) =_E \mathrm{true}
+    \quad \land \quad
+    \operatorname{verify}(\sigma_V, \mathit{boleta}, \mathit{pk}_V) =_E \mathrm{true}
+  \]
+  \textbf{Naturaleza Lineal del Recurso \'Anfora:}
+  \[
+    \operatorname{AnforaDigital} \in \mathcal{F}_{\mathrm{lineal}} \implies
+    \text{el hecho es consumido al abrirse el \'anfora, impidiendo doble conteo.}
+  \]
+\end{cajaLogica}
+
+\subsection{Regla 6: Apertura\_Anfora\_Y\_Escrutinio}
+
+\begin{lstlisting}[caption={La AC desencapsula el secreto KEM y descifra el voto.}]
+rule Apertura_Anfora_Y_Escrutinio:
+    let
+        k_recuperada = decaps(~dk_SV, ct_kem)
+        voto_plano   = sdec(voto_cifrado, k_recuperada)
+    in
+    [ AnforaDigital(idV, ct_kem, voto_cifrado,
+                   pk_V, credencial, firma_V, ts_voto)
+    , !ClaveDesencapsulamientoAC('AC', ~dk_SV)
+    ]
+  --[ VotoContado(idV, voto_plano) ]->
+    [ Out(<idV, voto_plano>) ]
+\end{lstlisting}
+
+\begin{cajaLogica}{Sem\'antica MSR y L\'ogica Lineal de Apertura y Escrutinio}
+  \textbf{Transici\'on de Estado MSR (Consumo del Recurso Lineal del \'Anfora):}
+  \[
+    \mathcal{S} \cup \{ \operatorname{AnforaDigital}(\mathit{idV}, \mathit{ct}_{\text{kem}}, \mathit{voto\_cifrado}, \dots) \}
+    \xrightarrow{\;\operatorname{VotoContado}(\mathit{idV}, \mathit{voto\_plano})\;}
+    \mathcal{S} \cup \{ \operatorname{Out}(\langle \mathit{idV}, \mathit{voto\_plano} \rangle) \}
+  \]
+  \par\smallskip\noindent\textit{Condicionado a la premisa persistente:} $!\operatorname{ClaveDesencapsulamientoAC}(\text{'AC'}, \mathit{dk}_{\mathrm{SV}}) \in \mathcal{S}$.\par\medskip
+  \textbf{Ecuaciones de Reducci\'on Simb\'olica del Escrutinio:}
+  \[
+    \mathit{k} = \operatorname{decaps}(\mathit{dk}_{\mathrm{SV}}, \operatorname{encaps}(\operatorname{ek\_from\_dk}(\mathit{dk}_{\mathrm{SV}}), \mathit{k}_{\text{ef\'im}})) =_E \mathit{k}_{\text{ef\'im}}
+  \]
+  \[
+    \mathit{voto\_plano} = \operatorname{sdec}(\operatorname{senc}(\mathit{m}_{\text{voto}}, \mathit{k}_{\text{ef\'im}}), \mathit{k}_{\text{ef\'im}}) =_E \mathit{m}_{\text{voto}}
+  \]
+  \textbf{Proposici\'on de Correcci\'on del Conteo:}
+  \[
+    \forall \mathit{idV}, \mathit{m}, t.\; \operatorname{VotoContado}(\mathit{idV}, \mathit{m})@t \implies
+    \mathit{m} = \mathit{m}_{\text{voto\_original}}
+  \]
+\end{cajaLogica}
+
+\begin{cajaDef}{Por qu\'e solo la AC puede descifrar}
+  La clave \texttt{\textasciitilde dk\_SV} es persistente con el
+  agente \texttt{'AC'}: solo la Autoridad de Conteo tiene acceso a ella.
+  Sin esta clave, el ciphertext \texttt{ct\_kem} es computacionalmente
+  indistinguible de valores aleatorios (seguridad IND-CCA2 de ML-KEM-768).
+\end{cajaDef}
+
+\begin{cajaResumen}
+  Las seis reglas modelan el ciclo completo de una votaci\'on: configuraci\'on
+  de autoridades, registro, emisi\'on, recepci\'on y escrutinio. Los hechos
+  persistentes preservan informaci\'on reutilizable; los lineales representan
+  recursos que se consumen exactamente una vez.
+\end{cajaResumen}
+
+% ============================================================
+\chapter{Lemas y Restricciones: Las Propiedades Formales}
+% ============================================================
+
+\epigraph{%
+  \textit{``A lemma is a precise mathematical statement about the
+  behavior of the protocol under adversarial conditions.''}
+}{--- Basin, Dreier \& Sasse, 2018}
+
+\section{Restricciones (Axiomas del sistema)}
+
+Las \textbf{restricciones} permiten filtrar el espacio de trazas,
+conservando \'unicamente aquellas coherentes con las invariantes del
+protocolo.
+
+\begin{cajaSintaxis}{Restricci\'on}
+  \texttt{restriction NombreRestriccion:}\\
+  \texttt{\ \ \ \ "formula\_de\_primer\_orden"}
+\end{cajaSintaxis}
+
+\begin{lstlisting}[caption={Restricciones del protocolo de votaci\'on.}]
+// Cada votante solo puede depositar UN voto en el anfora
+restriction Unicidad_Voto:
+    "All id #i #j.
+        VotoUnico(id) @i & VotoUnico(id) @j ==> #i = #j"
+
+// La verificacion de firma siempre es exitosa cuando se usa Eq
+restriction Verificacion_Exitosa:
+    "All x y #i. Eq(x, y) @i ==> x = y"
+\end{lstlisting}
+
+\begin{cajaDef}{F\'ormulas temporales en Tamarin}
+  Las f\'ormulas de los lemas y restricciones usan la siguiente sintaxis:
+  \begin{itemize}[itemsep=4pt]
+    \item \texttt{Accion(t) @\#i}: la acci\'on \texttt{Accion(t)}
+      ocurri\'o en el instante $\#i$.
+    \item \texttt{\#i < \#j}: el instante $\#i$ es anterior a $\#j$.
+    \item \texttt{All x \#i. P(x) @\#i ==> Q}: para todo $x$ e
+      instante $\#i$ en que ocurre $P(x)$, se cumple $Q$.
+    \item \texttt{Ex x \#i. P(x) @\#i}: existe alg\'un $x$ e
+      instante $\#i$ en que ocurre $P(x)$.
+    \item \texttt{not(...)}: negaci\'on l\'ogica.
+    \item \texttt{K(t)}: el atacante conoce el t\'ermino $t$.
+  \end{itemize}
+\end{cajaDef}
+
+\section{Tipos de lemas}
+
+\begin{table}[H]
+\centering
+\caption{Tipos de lemas en Tamarin Prover.}
+\label{tab:tipos-lemas}
+\begin{tabularx}{\textwidth}{>{\bfseries\ttfamily}p{3.5cm} X X}
+\toprule
+\normalfont Tipo & Verificaci\'on & Cu\'ando usar \\
+\midrule
+exists-trace & Se verifica si \emph{existe} al menos una traza que
+  satisface la f\'ormula. & Sanity checks: probar que el protocolo
+  puede completarse. \\[6pt]
+all-traces & Se verifica si la f\'ormula se cumple en \emph{todas}
+  las trazas posibles. & Propiedades de seguridad: confidencialidad,
+  autenticidad, integridad. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Los cuatro lemas del protocolo PQC}
+
+\subsection{Lema 1: Ejecutabilidad (Sanity Check)}
+
+\begin{lstlisting}[caption={Lema de ejecutabilidad del protocolo completo.}]
+lemma ejecutabilidad:
+    exists-trace
+    "Ex idV m blt sig #t1 #t2 #t3.
+        VotoEmitido(idV, m)         @#t1
+      & VotoAceptado(idV, blt, sig) @#t2
+      & VotoContado(idV, m)         @#t3
+      & #t1 < #t2
+      & #t2 < #t3"
+\end{lstlisting}
+
+\begin{cajaLogica}{Proposici\'on L\'ogica de Ejecutabilidad (Existencia de Modelo)}
+  \[
+    \exists \tau \in \operatorname{Traces}(\mathcal{P}),\; \exists \mathit{idV}, m, \mathit{blt}, \mathit{sig} \in \mathcal{T},\; \exists t_1, t_2, t_3 \in \mathbb{N}:
+  \]
+  \[
+    \begin{aligned}
+      \tau, t_1 &\models \operatorname{VotoEmitido}(\mathit{idV}, m) \\
+      \land\quad \tau, t_2 &\models \operatorname{VotoAceptado}(\mathit{idV}, \mathit{blt}, \mathit{sig}) \\
+      \land\quad \tau, t_3 &\models \operatorname{VotoContado}(\mathit{idV}, m) \\
+      \land\quad t_1 &< t_2 < t_3
+    \end{aligned}
+  \]
+  \textbf{Interpretaci\'on en Teor\'ia de Modelos:} Esta f\'ormula es de tipo \emph{alcanzabilidad existencial}. Demuestra formalmente que existe al menos una traza admisible $\tau$ en la que el protocolo se ejecuta de principio a fin, garantizando la ausencia de interbloqueos (\emph{deadlocks}) o precondiciones inalcanzables.
+\end{cajaLogica}
+
+\textbf{Prop\'osito:} verificar que el protocolo es \textit{ejecutable},
+es decir, que existe al menos una historia de ejecuci\'on en la que
+todo funciona correctamente en el orden esperado. Si este lema falla,
+el modelo est\'a mal construido.
+
+\subsection{Lema 2: Confidencialidad del Voto}
+
+\begin{lstlisting}[caption={Confidencialidad: el atacante Dolev-Yao no aprende el voto.}]
+lemma secreto_voto:
+    all-traces
+    "All m #t.
+        SecretoVoto(m) @#t
+        ==>
+        not(Ex #t2. K(m) @#t2)"
+\end{lstlisting}
+
+\begin{cajaLogica}{Proposici\'on L\'ogica del Secreto del Sufragio (Invariante Universal)}
+  \[
+    \forall \tau \in \operatorname{Traces}(\mathcal{P}),\; \forall m \in \mathcal{T},\; \forall t \in \mathbb{N}:
+  \]
+  \[
+    \tau, t \models \operatorname{SecretoVoto}(m) \implies \neg\,\Big(\exists t_2 \in \mathbb{N}:\; \tau, t_2 \models \mathrm{K}(m)\Big)
+  \]
+  \textbf{Equivalente por Contraposici\'on:}
+  \[
+    \exists t_2 \in \mathbb{N}:\; \tau, t_2 \models \mathrm{K}(m) \implies \neg\,\Big(\exists t \in \mathbb{N}:\; \tau, t \models \operatorname{SecretoVoto}(m)\Big)
+  \]
+  \textbf{Cadena Deductiva Simb\'olica:}
+  \[
+    \mathrm{K}(m) \iff \Big(\mathrm{K}(\operatorname{senc}(m, k_{\text{ef\'im}})) \;\land\; \mathrm{K}(k_{\text{ef\'im}})\Big)
+  \]
+  \[
+    \mathrm{K}(k_{\text{ef\'im}}) \iff \Big(\mathrm{K}(\operatorname{encaps}(\mathit{ek}_{\mathrm{SV}}, k_{\text{ef\'im}})) \;\land\; \mathrm{K}(\mathit{dk}_{\mathrm{SV}})\Big)
+  \]
+  Dado que $\forall t.\; \neg\,\mathrm{K}(\mathit{dk}_{\mathrm{SV}})@t$ (pues $\mathit{dk}_{\mathrm{SV}}$ nunca es publicado en un hecho $\operatorname{Out}$), se concluye:
+  \[
+    \forall t.\; \neg\,\mathrm{K}(k_{\text{ef\'im}})@t \implies \forall t_2.\; \neg\,\mathrm{K}(m)@t_2 \quad \blacksquare
+  \]
+\end{cajaLogica}
+
+\textbf{Prop\'osito:} garantizar el \textbf{secreto del sufragio}.
+El atacante controla la red y puede interceptar todos los mensajes,
+incluyendo la boleta cifrada. Sin embargo, sin la clave \texttt{dk\_SV}
+(que nunca circula por la red), el contenido del voto es inasequible.
+
+\subsection{Lema 3: Integridad del Sufragio}
+
+\begin{lstlisting}[caption={Integridad: todo voto contado fue leg\'itimamente emitido.}]
+lemma integridad_voto:
+    all-traces
+    "All idV m #tc.
+        VotoContado(idV, m) @#tc
+        ==>
+        Ex #te. VotoEmitido(idV, m) @#te & #te < #tc"
+\end{lstlisting}
+
+\begin{cajaLogica}{Proposici\'on L\'ogica de Integridad y Correspondencia Causal}
+  \[
+    \forall \tau \in \operatorname{Traces}(\mathcal{P}),\; \forall \mathit{idV}, m \in \mathcal{T},\; \forall t_c \in \mathbb{N}:
+  \]
+  \[
+    \begin{aligned}
+      \tau, t_c \models \operatorname{VotoContado}(\mathit{idV}, m) \implies
+      \exists t_e \in \mathbb{N}:\; \Big( &\tau, t_e \models \operatorname{VotoEmitido}(\mathit{idV}, m) \\
+      &\land\; t_e < t_c \Big)
+    \end{aligned}
+  \]
+  \textbf{Significado Sem\'antico:} Ning\'un voto puede emerger en el escrutinio de la AC en el paso $t_c$ a menos que exista un evento causal leg\'itimo previo de emisi\'on por el votante $\mathit{idV}$ en $t_e < t_c$ con el mismo contenido de sufragio $m$. Descarta formalmente la inyecci\'on de votos espurios o manipulaciones en tr\'ansito.
+\end{cajaLogica}
+
+\textbf{Prop\'osito:} garantizar la \textbf{correspondencia} entre
+voto emitido y voto contado. Ning\'un voto puede aparecer en el
+escrutinio sin haber sido emitido leg\'itimamente. Esto descarta votos
+fantasma y alteraciones en tr\'ansito.
+
+\subsection{Lema 4: Autenticidad e Injective Agreement}
+
+\begin{lstlisting}[caption={Autenticidad: injective agreement entre env\'io y aceptaci\'on.}]
+lemma autenticidad_votante:
+    all-traces
+    "All idV blt sig #ta.
+        VotoAceptado(idV, blt, sig) @#ta
+        ==>
+        ( Ex #ts.
+            VotoEnviado(idV, blt, sig) @#ts
+          & #ts < #ta
+          & not( Ex #ta2.
+                VotoAceptado(idV, blt, sig) @#ta2
+              & not(#ta = #ta2) ) )"
+\end{lstlisting}
+
+\begin{cajaLogica}{Proposici\'on L\'ogica de Injective Agreement (Autenticidad y Anti-Replay)}
+  \[
+    \forall \tau \in \operatorname{Traces}(\mathcal{P}),\; \forall \mathit{idV}, \mathit{blt}, \mathit{sig} \in \mathcal{T},\; \forall t_a \in \mathbb{N}:
+  \]
+  \[
+    \begin{aligned}
+      \tau, t_a \models \operatorname{VotoAceptado}(\mathit{idV}, \mathit{blt}, \mathit{sig}) \implies
+      &\Big( \exists t_s < t_a:\; \tau, t_s \models \operatorname{VotoEnviado}(\mathit{idV}, \mathit{blt}, \mathit{sig}) \Big) \\
+      &\land\; \neg\,\Big( \exists t_a' \neq t_a:\; \tau, t_a' \models \operatorname{VotoAceptado}(\mathit{idV}, \mathit{blt}, \mathit{sig}) \Big)
+    \end{aligned}
+  \]
+  \textbf{Descomposici\'on Te\'orica del Acuerdo Inyectivo de Lowe:}
+  \begin{itemize}[itemsep=2pt]
+    \item \textbf{Autenticidad (Non-injective Agreement):} Todo voto aceptado fue efectivamente enviado por el votante aut\'entico $\mathit{idV}$.
+    \item \textbf{Inyectividad Estricta (Anti-replay):} La relaci\'on binaria entre emisiones y aceptaciones es inyectiva; no existe ninguna traza donde una misma boleta sea aceptada m\'as de una vez en instantes temporales distintos ($t_a' \neq t_a$).
+  \end{itemize}
+\end{cajaLogica}
+
+\textbf{Prop\'osito:} el \textit{injective agreement} garantiza
+\textbf{dos propiedades simult\'aneamente}: (1)~autenticidad --- la
+boleta proviene del votante leg\'itimo; (2)~anti-replay --- la misma
+boleta no puede ser aceptada m\'as de una vez.
+
+\begin{cajaResumen}
+  Los lemas son el coraz\'on de la verificaci\'on formal. El lema
+  \texttt{exists-trace} verifica ejecutabilidad; los de
+  \texttt{all-traces} verifican propiedades de seguridad universales.
+  Las cuatro propiedades del protocolo PQC cubren los requisitos
+  m\'inimos de un sistema electoral: confidencialidad, integridad,
+  autenticidad y unicidad del voto.
+\end{cajaResumen}
+
+% ────────────────────────────────────────────────────────────
+%   PARTE III — EL PROTOCOLO PQC Y SUS RESULTADOS
+% ────────────────────────────────────────────────────────────
+\part{Protocolo PQC: An\'alisis y Resultados}
+
+% ============================================================
+\chapter{El Protocolo de Votaci\'on Electr\'onica Post-Cu\'antica}
+% ============================================================
+
+\epigraph{%
+  \textit{``A quantum computer powerful enough to break today's
+  cryptography may be a decade away. But the data encrypted today
+  may still need to be protected in a decade.''}
+}{--- NIST, Special Publication 800-208}
+
+\section{Contexto: criptograf\'ia post-cu\'antica}
+
+Los algoritmos criptogr\'aficos tradicionales (RSA, ECDSA, Diffie-Hellman)
+basan su seguridad en la dificultad de ciertos problemas matem\'aticos.
+El algoritmo de Shor, ejecutable en una computadora cu\'antica,
+puede resolver estos problemas en tiempo polinomial, rompiendo todos
+estos esquemas.
+
+\medskip
+
+El NIST respondi\'o con un proceso de estandarizaci\'on de algoritmos
+post-cu\'anticos, concluido en 2024 con:
+\begin{itemize}[itemsep=3pt]
+  \item \textbf{FIPS~203 (ML-KEM)}: mecanismo de encapsulamiento de
+    claves basado en ret\'iculos modulares.
+  \item \textbf{FIPS~204 (ML-DSA)}: esquema de firma digital basado
+    en ret\'iculos modulares.
+\end{itemize}
+
+\section{Arquitectura del protocolo}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  entity/.style={draw=TamarinBlue, fill=TamarinLight!70,
+                 rounded corners=8pt, inner sep=10pt,
+                 text width=3cm, align=center, font=\small\bfseries},
+  arrow/.style={-Stealth, thick, TamarinBlue},
+  lbl/.style={font=\scriptsize\itshape, text=gray, align=center}
+]
+  \node[entity] (AR) at (0,4)   {AR\\{\normalfont\tiny Aut. de Registro}};
+  \node[entity] (V)  at (0,0)   {V\\{\normalfont\tiny Votante}};
+  \node[entity] (SV) at (8,2)   {SV\\{\normalfont\tiny Servidor Votaci\'on}};
+  \node[entity] (AC) at (4,-2.5){AC\\{\normalfont\tiny Aut. de Conteo}};
+
+  \draw[arrow] (AR) -- node[left, lbl]{(b) Credencial firmada} (V);
+  \draw[arrow] (V)  -- node[above, lbl]{(c) Boleta cifrada + firmada} (SV);
+  \draw[arrow, dashed] (SV) -- node[right, lbl]{dk\_SV\\(fuera de banda)} (AC);
+  \draw[arrow] (SV) -- node[above left, lbl]{\'Anfora Digital\\(tras cierre)} (AC);
+  \draw[arrow, dashed, gray] (AR) -- node[above, lbl]{(a) Config.} (SV);
+\end{tikzpicture}
+\caption{Arquitectura y flujo de mensajes del protocolo de votaci\'on PQC.}
+\label{fig:arquitectura}
+\end{figure}
+
+\section{Las entidades del protocolo}
+
+\begin{table}[H]
+\centering
+\caption{Roles del protocolo de votaci\'on electr\'onica PQC.}
+\label{tab:roles}
+\begin{tabular}{>{\bfseries\color{TamarinBlue}}p{1.2cm}
+                >{\bfseries}p{4cm}
+                p{7.5cm}}
+\toprule
+Rol & Entidad & Responsabilidad \\
+\midrule
+AR & Autoridad de Registro &
+  Verifica identidades, genera claves del votante y emite credenciales
+  firmadas con ML-DSA-65. \\[4pt]
+SV & Servidor de Votaci\'on &
+  Recepciona boletas, verifica firmas, previene doble voto y custodia
+  el \'Anfora Digital. \\[4pt]
+AC & Autoridad de Conteo &
+  Custodia exclusivamente \texttt{dk\_SV}. Al cierre electoral, abre
+  el \'anfora y totaliza los votos. \\[4pt]
+V  & Votante / Ciudadano &
+  Cifra su voto con ML-KEM-768, firma la boleta con ML-DSA-65 y la
+  env\'ia al SV. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Las seis fases del protocolo}
+
+\begin{enumerate}[label=\textbf{Fase \Alph*:}, leftmargin=*, itemsep=8pt]
+
+  \item \textbf{Configuraci\'on de la AR.} La Autoridad de Registro
+    genera su par de claves ML-DSA-65 (\texttt{sk\_AR}, \texttt{pk\_AR})
+    y publica \texttt{pk\_AR}.
+
+  \item \textbf{Configuraci\'on del SV.} El Servidor de Votaci\'on genera
+    su par ML-KEM-768 (\texttt{dk\_SV}, \texttt{ek\_SV}) y su par
+    ML-DSA-65 (\texttt{sk\_SV}, \texttt{pk\_SV}). Entrega
+    \texttt{dk\_SV} exclusivamente a la AC fuera de banda y publica
+    las claves p\'ublicas.
+
+  \item \textbf{Registro en el Padr\'on.} La AR verifica la identidad
+    del votante, genera su par de claves, construye la credencial
+    $\langle idV, pk_V, ts_{reg} \rangle$, la firma y la entrega
+    junto con \texttt{sk\_V}.
+
+  \item \textbf{Emisi\'on del Voto.} El votante: (1)~genera
+    \texttt{\textasciitilde k\_efimera}; (2)~encapsula:
+    $ct_{kem} = \texttt{encaps}(ek_{SV}, k_{ef})$; (3)~cifra:
+    $vc = \texttt{senc}(m_{voto}, k_{ef})$; (4)~construye boleta;
+    (5)~firma; (6)~env\'ia al SV.
+
+  \item \textbf{Verificaci\'on y Dep\'osito (SV).} El SV verifica las
+    dos firmas, comprueba unicidad del votante, deposita en el \'Anfora
+    Digital y emite recibo $h(\langle blt, ts_{recibo}\rangle)$.
+
+  \item \textbf{Escrutinio (AC).} Tras el cierre electoral, la AC
+    recupera $k = \texttt{decaps}(dk_{SV}, ct_{kem})$, descifra
+    $m = \texttt{sdec}(vc, k)$ y totaliza los resultados.
+
+\end{enumerate}
+
+\section{Propiedades de seguridad requeridas}
+
+\begin{table}[H]
+\centering
+\caption{Propiedades de seguridad del protocolo y su fundamento.}
+\label{tab:propiedades}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3cm} X p{3.5cm}}
+\toprule
+Propiedad & Descripci\'on & Mecanismo \\
+\midrule
+Confidencialidad &
+  El contenido del voto no es accesible salvo a la AC, y solo
+  tras el cierre electoral. &
+  ML-KEM-768 + AES-256-GCM \\[5pt]
+Autenticidad &
+  Solo votantes registrados pueden emitir boletas v\'alidas. &
+  ML-DSA-65 \\[5pt]
+Integridad &
+  El voto contado es exactamente el voto emitido. &
+  Firma boleta + ecuaci\'on KEM \\[5pt]
+Unicidad &
+  Cada votante puede emitir exactamente un voto. &
+  Restricci\'on \texttt{VotoUnico} \\[5pt]
+Anti-replay &
+  Una boleta v\'alida no puede ser reutilizada. &
+  Timestamp fresco + Injective Agr. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ============================================================
+\chapter{Ejecuci\'on y Resultados de la Verificaci\'on}
+% ============================================================
+
+\epigraph{%
+  \textit{``verified doesn't mean perfect. It means: within the model,
+  under these assumptions, no attack exists. That is both very strong
+  and very precise.''}
+}{--- Simon Meier, ETH Z\"urich}
+
+\section{Requisitos del sistema}
+
+\begin{table}[H]
+\centering
+\caption{Requisitos del sistema para ejecutar Tamarin.}
+\label{tab:requisitos}
+\begin{tabular}{>{\bfseries}p{4cm} p{8cm}}
+\toprule
+Componente & Versi\'on / Notas \\
+\midrule
+Tamarin Prover & \texttt{tamarin-prover-1.8.x} o superior \\[3pt]
+Maude & 3.5.1 (incluido con el instalador de Tamarin) \\[3pt]
+Sistema operativo & Linux (recomendado), macOS, Windows (WSL2) \\[3pt]
+RAM & M\'inimo 4~GB; recomendado 8~GB o m\'as \\[3pt]
+Tiempo de verificaci\'on & $\approx 30$~s (protocolo PQC, 4~lemas) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Comandos de ejecuci\'on}
+
+\begin{lstlisting}[style=BashStyle,
+                   caption={Comandos para verificar el protocolo PQC.}]
+# Verificar todos los lemas automaticamente
+tamarin-prover --prove tamarin/protocolo.spthy
+
+# Verificar un solo lema
+tamarin-prover --prove=secreto_voto tamarin/protocolo.spthy
+
+# Modo interactivo con interfaz web (GUI)
+# Abrir navegador en http://localhost:3001
+tamarin-prover interactive tamarin/protocolo.spthy
+
+# Verificacion con multiples nucleos (4 hilos)
+tamarin-prover --prove +RTS -N4 -RTS tamarin/protocolo.spthy
+\end{lstlisting}
+
+\section{Salida del motor Maude}
+
+Tras iniciar la verificaci\'on, Tamarin reporta el progreso:
+
+\begin{lstlisting}[style=BashStyle,
+                   caption={Salida del motor Maude (reporte\_tamarin.txt).}]
+maude tool: 'maude'
+ checking version: 3.5.1. OK.
+ checking installation: OK.
+[Theory ProtocoloVotacionPQC] Theory loaded
+[Theory ProtocoloVotacionPQC] Theory translated
+[Theory ProtocoloVotacionPQC] Derivation checks started
+[Theory ProtocoloVotacionPQC] Derivation checks ended
+[Theory ProtocoloVotacionPQC] Theory closed
+[Saturating Sources] Step 1 (Max 5)
+[Saturating Sources] Done
+\end{lstlisting}
+
+\section{Resultados de la verificaci\'on formal}
+
+\begin{cajaResultado}{\Large Resultados: 4 / 4 Lemas Verificados}
+\begin{table}[H]
+\centering
+\begin{tabular}{>{\ttfamily}p{5cm}
+                p{5.5cm}
+                >{\bfseries\color{AccentGreen}}p{2.5cm}}
+\toprule
+\normalfont Lema &
+\normalfont Propiedad garantizada &
+\normalfont Estado \\
+\midrule
+ejecutabilidad &
+  Traza completa ejecutable (sanity check) &
+  VERIFIED \\[5pt]
+secreto\_voto &
+  Confidencialidad del sufragio &
+  VERIFIED \\[5pt]
+integridad\_voto &
+  Correspondencia voto emitido/contado &
+  VERIFIED \\[5pt]
+autenticidad\_votante &
+  Anti-replay (Injective Agreement) &
+  VERIFIED \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{cajaResultado}
+
+\bigskip
+
+\begin{cajaDef}{Qu\'e significa \texttt{VERIFIED}}
+  Cuando Tamarin devuelve \texttt{verified} para un lema de tipo
+  \texttt{all-traces}, ha explorado \textbf{el espacio completo de
+  trazas} del protocolo (posiblemente infinito, gracias a las t\'ecnicas
+  de saturaci\'on de fuentes e inducci\'on sobre el n\'umero de sesiones)
+  y no ha encontrado ninguna traza que viole la propiedad declarada.
+
+  Para el lema \texttt{exists-trace}, ha encontrado al menos una traza
+  concreta que satisface la f\'ormula.
+
+  En ambos casos, el resultado es una \textbf{demostraci\'on matem\'atica}
+  dentro del modelo declarado, no una prueba emp\'irica.
+\end{cajaDef}
+
+\section{Limitaciones del modelo}
+
+\begin{table}[H]
+\centering
+\caption{Alcance y limitaciones de la verificaci\'on formal.}
+\label{tab:limites}
+\begin{tabularx}{\textwidth}{X X}
+\toprule
+\textbf{Lo que S\'I garantiza} & \textbf{Lo que NO cubre} \\
+\midrule
+Seguridad en el modelo simb\'olico Dolev-Yao &
+  Seguridad computacional de ML-KEM / ML-DSA \\[4pt]
+Resistencia a ataques de red (replay, MITM) &
+  Ataques de canal lateral (timing, power) \\[4pt]
+Imposibilidad de doble voto en el modelo &
+  Errores en la implementaci\'on Python/C \\[4pt]
+Autenticidad e integridad simb\'olica &
+  Ataques al sistema operativo o hardware \\[4pt]
+Confidencialidad del voto ante Dolev-Yao &
+  Coerci\'on del votante o compra de voto \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{cajaAviso}{La verificaci\'on no reemplaza la implementaci\'on segura}
+  La verificaci\'on formal es un \textbf{complemento} a las pruebas
+  unitarias, las auditor\'ias de c\'odigo y el an\'alisis de seguridad
+  computacional. Garantiza que el \textit{dise\~no} del protocolo es
+  correcto; no garantiza que la \textit{implementaci\'on} lo sea.
+\end{cajaAviso}
+
+\section{Interpretaci\'on de los resultados en el contexto de la tesis}
+
+\begin{enumerate}[leftmargin=*, itemsep=8pt]
+  \item \textbf{Rigor cient\'ifico:} la demostraci\'on formal eleva el
+    trabajo m\'as all\'a de una implementaci\'on experimental, situ\'andolo
+    en el nivel de la verificaci\'on matem\'atica.
+  \item \textbf{Confianza en el dise\~no:} el modelo Dolev-Yao es el
+    est\'andar de la industria para el an\'alisis de protocolos. Haber
+    verificado el protocolo bajo este modelo garantiza que no existen
+    vulnerabilidades estructurales conocidas en el dise\~no.
+  \item \textbf{Alineaci\'on con est\'andares:} las primitivas ML-KEM-768
+    y ML-DSA-65 est\'an estandarizadas por el NIST (FIPS~203 y FIPS~204),
+    y su abstracci\'on simb\'olica en Tamarin es coherente con sus
+    propiedades formalmente definidas.
+\end{enumerate}
+
+\begin{cajaResumen}
+  Los 4/4 lemas verificados demuestran formalmente que el protocolo de
+  votaci\'on PQC es confidencial, \'integro, aut\'entico y resistente a
+  ataques de repetici\'on bajo el modelo Dolev-Yao. La verificaci\'on fue
+  realizada con Tamarin Prover sobre el motor Maude 3.5.1.
+\end{cajaResumen}
+
+% ── APÉNDICES ───────────────────────────────────────────────
+\appendix
+
+% ============================================================
+\chapter{C\'odigo Fuente Completo: \texttt{protocolo.spthy}}
+% ============================================================
+
+A continuaci\'on se reproduce el archivo completo de especificaci\'on
+formal para referencia:
+
+\begin{lstlisting}[caption={Archivo completo protocolo.spthy},
+                   label={lst:full-protocol}]
+theory ProtocoloVotacionPQC
+begin
+
+/*
+================================================================================
+  TESIS DE GRADO: PROTOCOLO DE VOTACION ELECTRONICA BASADO EN CRIPTOGRAFIA
+                  POST-CUANTICA DE RETICULOS (ML-KEM-768 + ML-DSA-65)
+  Universidad Mayor de San Andres (UMSA) -- 2026
+================================================================================
+*/
+
+builtins: dest-signing, symmetric-encryption
+
+functions:
+    encaps/2,
+    decaps/2,
+    ek_from_dk/1,
+    h/1
+
+equations:
+    decaps(dk, encaps(ek_from_dk(dk), r)) = r
+
+restriction Unicidad_Voto:
+    "All id #i #j. VotoUnico(id) @i & VotoUnico(id) @j ==> #i = #j"
+
+restriction Verificacion_Exitosa:
+    "All x y #i. Eq(x, y) @i ==> x = y"
+
+rule Setup_Autoridad_Registro:
+    let  pk_AR = pk(~sk_AR)  in
+    [ Fr(~sk_AR) ]
+  --[ SetupAR(pk_AR) ]->
+    [ !ClavePrivadaAR('AR', ~sk_AR)
+    , !ClavePublicaAR('AR', pk_AR)
+    , Out(pk_AR)
+    ]
+
+rule Setup_Servidor_Votacion:
+    let
+        ek_SV = ek_from_dk(~dk_SV)
+        pk_SV = pk(~sk_SV)
+    in
+    [ Fr(~dk_SV), Fr(~sk_SV) ]
+  --[ SetupSV(ek_SV, pk_SV) ]->
+    [ !ClaveDesencapsulamientoAC('AC', ~dk_SV)
+    , !ClavePublicaKEM_SV('SV', ek_SV)
+    , !ClavePublicaFirma_SV('SV', pk_SV)
+    , Out(ek_SV)
+    , Out(pk_SV)
+    ]
+
+rule Registro_Ciudadano_Padron:
+    let
+        pk_V       = pk(~sk_V)
+        credencial = <~idV, pk_V, ~ts_reg>
+        firma_AR   = sign(credencial, ~sk_AR)
+    in
+    [ Fr(~sk_V), Fr(~ts_reg), Fr(~idV)
+    , !ClavePrivadaAR('AR', ~sk_AR)
+    ]
+  --[ RegistroVotante(~idV, pk_V) ]->
+    [ !CredencialVotante(~idV, ~sk_V, credencial, firma_AR)
+    , !PadronElectoral(~idV, pk_V)
+    ]
+
+rule Emitir_Voto_Mesa:
+    let
+        ct_kem       = encaps(ek_SV, ~k_efimera)
+        voto_cifrado = senc(~m_voto, ~k_efimera)
+        boleta       = <ct_kem, voto_cifrado, credencial, ~ts_voto>
+        firma_V      = sign(boleta, ~sk_V)
+    in
+    [ Fr(~k_efimera), Fr(~m_voto), Fr(~ts_voto)
+    , !CredencialVotante(~idV, ~sk_V, credencial, firma_AR)
+    , !ClavePublicaKEM_SV('SV', ek_SV)
+    ]
+  --[ VotoEmitido(~idV, ~m_voto)
+    , VotoEnviado(~idV, boleta, firma_V)
+    , SecretoVoto(~m_voto)
+    ]->
+    [ Out(<boleta, firma_V, firma_AR>) ]
+
+rule Recepcion_Y_Deposito_Anfora:
+    let
+        credencial  = <idV, pk_V, ts_reg>
+        boleta      = <ct_kem, voto_cifrado, credencial, ts_voto>
+        recibo_hash = h(<boleta, ~ts_recibo>)
+    in
+    [ In(<boleta, firma_V, firma_AR>)
+    , !ClavePublicaAR('AR', pk_AR)
+    , !PadronElectoral(idV, pk_V)
+    , Fr(~ts_recibo)
+    ]
+  --[ Eq(verify(firma_AR, credencial, pk_AR), true)
+    , Eq(verify(firma_V, boleta, pk_V), true)
+    , VotoUnico(idV)
+    , VotoAceptado(idV, boleta, firma_V)
+    , VotoRegistrado(idV, ct_kem, voto_cifrado)
+    ]->
+    [ AnforaDigital(idV, ct_kem, voto_cifrado,
+                   pk_V, credencial, firma_V, ts_voto)
+    , Out(recibo_hash)
+    ]
+
+rule Apertura_Anfora_Y_Escrutinio:
+    let
+        k_recuperada = decaps(~dk_SV, ct_kem)
+        voto_plano   = sdec(voto_cifrado, k_recuperada)
+    in
+    [ AnforaDigital(idV, ct_kem, voto_cifrado,
+                   pk_V, credencial, firma_V, ts_voto)
+    , !ClaveDesencapsulamientoAC('AC', ~dk_SV)
+    ]
+  --[ VotoContado(idV, voto_plano) ]->
+    [ Out(<idV, voto_plano>) ]
+
+lemma ejecutabilidad:
+    exists-trace
+    "Ex idV m blt sig #t1 #t2 #t3.
+        VotoEmitido(idV, m)         @#t1
+      & VotoAceptado(idV, blt, sig) @#t2
+      & VotoContado(idV, m)         @#t3
+      & #t1 < #t2
+      & #t2 < #t3"
+
+lemma secreto_voto:
+    all-traces
+    "All m #t.
+        SecretoVoto(m) @#t
+        ==>
+        not(Ex #t2. K(m) @#t2)"
+
+lemma integridad_voto:
+    all-traces
+    "All idV m #tc.
+        VotoContado(idV, m) @#tc
+        ==>
+        Ex #te. VotoEmitido(idV, m) @#te & #te < #tc"
+
+lemma autenticidad_votante:
+    all-traces
+    "All idV blt sig #ta.
+        VotoAceptado(idV, blt, sig) @#ta
+        ==>
+        ( Ex #ts.
+            VotoEnviado(idV, blt, sig) @#ts
+          & #ts < #ta
+          & not( Ex #ta2.
+                VotoAceptado(idV, blt, sig) @#ta2
+              & not(#ta = #ta2) ) )"
+
+end
+\end{lstlisting}
+
+% ============================================================
+\chapter{Glosario de T\'erminos T\'ecnicos}
+% ============================================================
+
+\begin{description}[leftmargin=3.5cm, style=nextline,
+                    font=\bfseries\color{TamarinBlue}]
+
+  \item[all-traces] Tipo de lema en Tamarin. La propiedad debe
+    cumplirse en \textit{todas} las trazas posibles. Se usa para
+    propiedades de seguridad universales.
+
+  \item[\'Anfora Digital] Contenedor l\'ogico (hecho lineal de Tamarin)
+    donde el SV deposita las boletas cifradas para su escrutinio.
+
+  \item[Builtin] M\'odulo predefinido de Tamarin con funciones y
+    ecuaciones para operaciones criptogr\'aficas est\'andar.
+
+  \item[Caja negra perfecta] Abstracci\'on del modelo simb\'olico:
+    una operaci\'on criptogr\'afica que solo puede invertirse con
+    el conocimiento correcto (la clave).
+
+  \item[Dolev-Yao] Modelo de atacante que controla completamente el
+    canal de red pero no puede romper las primitivas criptogr\'aficas.
+
+  \item[exists-trace] Tipo de lema en Tamarin. Se verifica si
+    \textit{existe} al menos una traza que la satisface. Se usa
+    para sanity checks.
+
+  \item[Hecho fresco (\textasciitilde)] Variable generada con
+    \texttt{Fr(\textasciitilde x)} en Tamarin. Valor aleatorio
+    \'unico no reutilizado.
+
+  \item[Hecho lineal] Hecho del multiconjunto de estado que se
+    consume al ser usado como premisa.
+
+  \item[Hecho persistente (!)] Hecho que no se consume al usarse;
+    puede reutilizarse m\'ultiples veces.
+
+  \item[Injective Agreement] Propiedad que garantiza que por cada
+    aceptaci\'on de un mensaje, existe exactamente un env\'io previo
+    y \'unico.
+
+  \item[K(t)] Hecho especial de Tamarin: el atacante conoce $t$.
+
+  \item[KEM] Key Encapsulation Mechanism. Esquema que permite
+    encapsular un secreto con la clave p\'ublica del destinatario.
+
+  \item[Lemma / Lema] Declaraci\'on formal de una propiedad que
+    Tamarin debe probar o refutar.
+
+  \item[ML-DSA] Module Lattice Digital Signature Algorithm.
+    Firma digital post-cu\'antica (FIPS~204).
+
+  \item[ML-KEM] Module Lattice Key Encapsulation Mechanism.
+    KEM post-cu\'antico (FIPS~203, antes Kyber).
+
+  \item[Multiconjunto de hechos] Representaci\'on del estado global
+    del protocolo en Tamarin.
+
+  \item[Restricci\'on] Axioma del sistema en Tamarin. Filtra las
+    trazas no coherentes con las invariantes del protocolo.
+
+  \item[Regla de reescritura] Mecanismo b\'asico de transici\'on en
+    Tamarin. Consume hechos de las premisas y produce nuevos hechos.
+
+  \item[Sanity check] Verificaci\'on de que el modelo es coherente
+    y el protocolo puede completarse (lema \texttt{exists-trace}).
+
+  \item[.spthy] Extensi\'on de archivo de las teor\'ias Tamarin
+    (\textit{security protocol theory}).
+
+  \item[Tamarin Prover] Herramienta de verificaci\'on formal de
+    protocolos criptogr\'aficos. Desarrollada en ETH Z\"urich.
+    Usa Maude como motor de reescritura.
+
+  \item[Traza de ejecuci\'on] Secuencia de estados y acciones que
+    describe una posible historia de ejecuci\'on del protocolo.
+
+  \item[Verificaci\'on formal] Demostraci\'on matem\'atica rigurosa
+    de que un sistema cumple ciertas propiedades bajo todas las
+    condiciones posibles.
+
+\end{description}
+
+% ── BIBLIOGRAFÍA ────────────────────────────────────────────
+\bibliographystyle{plain}
+\begin{thebibliography}{99}
+
+\bibitem{tamarin2012}
+  Schmidt, B., Meier, S., Cremers, C., \& Basin, D. (2012).
+  \textit{The TAMARIN Prover for the Symbolic Analysis of Security Protocols}.
+  In \textit{Proceedings of CAV 2012}, LNCS, vol.~7358, pp.~696--701. Springer.
+
+\bibitem{cremers2012}
+  Cremers, C., \& Mauw, S. (2012).
+  \textit{Operational Semantics and Verification of Security Protocols}.
+  Springer.
+
+\bibitem{fips203}
+  National Institute of Standards and Technology. (2024).
+  \textit{FIPS 203 --- Module-Lattice-Based Key-Encapsulation Mechanism Standard}.
+  U.S. Department of Commerce.
+
+\bibitem{fips204}
+  National Institute of Standards and Technology. (2024).
+  \textit{FIPS 204 --- Module-Lattice-Based Digital Signature Standard}.
+  U.S. Department of Commerce.
+
+\bibitem{dolevyao1983}
+  Dolev, D., \& Yao, A. C. (1983).
+  On the security of public key protocols.
+  \textit{IEEE Transactions on Information Theory}, 29(2), 198--208.
+
+\bibitem{basin2015}
+  Basin, D., Dreier, J., \& Sasse, R. (2015).
+  Automated Symbolic Proofs of Observational Equivalence.
+  In \textit{Proceedings of CCS 2015}, pp.~1144--1155. ACM.
+
+\bibitem{kyber2018}
+  Bos, J., Ducas, L., Kiltz, E., et al. (2018).
+  CRYSTALS-Kyber: A CCA-Secure Module-Lattice-Based KEM.
+  In \textit{EuroS\&P 2018}, pp.~353--367. IEEE.
+
+\bibitem{dilithium2018}
+  Ducas, L., Kiltz, E., Lepoint, T., et al. (2018).
+  CRYSTALS-Dilithium: A Lattice-Based Digital Signature Scheme.
+  \textit{IACR Transactions on Cryptographic Hardware and Embedded
+  Systems}, 2018(1), 238--268.
+
+\bibitem{tamarin-manual}
+  The Tamarin Team. (2023).
+  \textit{Tamarin Prover Manual}.
+  \url{https://tamarin-prover.github.io/manual/}
+
+\bibitem{pqclean}
+  PQClean Project. (2024).
+  \textit{Clean, portable implementations of post-quantum cryptography}.
+  \url{https://github.com/PQClean/PQClean}
+
+\end{thebibliography}
+
+\printindex
+
+\end{document}

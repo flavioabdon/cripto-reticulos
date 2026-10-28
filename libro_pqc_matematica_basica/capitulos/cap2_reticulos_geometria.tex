@@ -1,0 +1,151 @@
+\chapter{Una Cuadrícula Infinita en el Espacio: ¿Qué es un Retículo?}
+\label{cap:reticulos_geometria}
+
+\section{De la hoja cuadriculada al infinito}
+
+Toma un cuaderno cuadriculado escolar. Cada intersección de dos líneas es un punto $(x, y)$ donde las coordenadas $x$ e $y$ son números enteros:
+\[
+(0,0),\; (1,0),\; (0,1),\; (2,3),\; (-1, 4),\dots
+\]
+Ese conjunto de puntos discretos y perfectamente espaciados que se extiende hacia el infinito se llama en matemáticas $\mathbb{Z}^2$.
+
+Ahora imagina que deformamos esa cuadrícula: en lugar de caminar en pasos perpendiculares de longitud $1$ hacia la derecha y hacia arriba, elegimos dos flechas (vectores) cualesquiera en el plano, digamos:
+\[
+\mathbf{b}_1 = \begin{pmatrix} 2 \\ 1 \end{pmatrix}, \quad \mathbf{b}_2 = \begin{pmatrix} 1 \\ 3 \end{pmatrix}
+\]
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.85]
+  % Puntos del reticulo
+  \foreach \x in {-2,...,3} {
+    \foreach \y in {-2,...,2} {
+      \coordinate (P) at ({\x*1.5 + \y*0.7}, {\x*0.4 + \y*1.8});
+      \fill[PQCMainBlue!80!black] (P) circle (2.2pt);
+    }
+  }
+  
+  % Origen
+  \coordinate (O) at (0,0);
+  \node[below left, font=\small\bfseries] at (O) {$(0,0)$};
+  
+  % Vectores base b1 y b2
+  \draw[-{Stealth[length=3mm]}, line width=1.8pt, PQCTeal] (O) -- (1.5, 0.4) node[midway, below right, font=\small\bfseries] {$\mathbf{b}_1$};
+  \draw[-{Stealth[length=3mm]}, line width=1.8pt, PQCGreen] (O) -- (0.7, 1.8) node[midway, above left, font=\small\bfseries] {$\mathbf{b}_2$};
+  
+  % Combinacion de ejemplo
+  \draw[-{Stealth[length=2.5mm]}, line width=1.2pt, PQCPurple, dashed] (O) -- ({2*1.5 + 1*0.7}, {2*0.4 + 1*1.8}) node[above right, font=\small\bfseries] {$2\mathbf{b}_1 + \mathbf{b}_2$};
+
+\end{tikzpicture}
+\caption{Un retículo en 2 dimensiones generado por los vectores $\mathbf{b}_1$ y $\mathbf{b}_2$. Cada punto es el resultado de sumar múltiplos enteros de las flechas base.}
+\label{fig:reticulo_2d}
+\end{figure}
+
+Si sumamos o restamos estas dos flechas multiplicadas por números enteros (por ejemplo $3\mathbf{b}_1 - 2\mathbf{b}_2$), generamos una red infinita de puntos regulares en el plano.
+
+\begin{intuicion}[Definición para primer semestre: ¿Qué es un Retículo?]
+Un \textbf{retículo} (\textit{lattice} en inglés) es una cuadrícula infinita de puntos en el espacio donde:
+\begin{enumerate}
+  \item El origen $(0,0,\dots,0)$ siempre forma parte de la cuadrícula.
+  \item Si tomas dos puntos cualquiera de la red y los sumas, caes exactamente en otro punto de la red.
+  \item Si caminas de un punto al siguiente, siempre hay una distancia mínima positiva (los puntos están separados, no se amontonan de manera continua como el agua).
+\end{enumerate}
+\end{intuicion}
+
+\section{Bases buenas y bases malas: El poder de la perspectiva}
+
+Aquí viene el primer gran secreto de los retículos. Un mismo retículo (la misma constelación idéntica de puntos) puede ser generado por \textbf{diferentes pares de vectores base}.
+
+\begin{itemize}
+  \item \textbf{Una base ``buena'':} Está formada por vectores cortos y casi perpendiculares (a casi 90 grados). Es como tener una regla bien calibrada: es fácil saber en qué celda estás y a qué punto estás más cerca.
+  \item \textbf{Una base ``mala'':} Está formada por vectores larguísimos, muy inclinados y casi paralelos entre sí. Aunque generan la misma red, visualmente parecen un laberinto enmarañado.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.85]
+  % Puntos
+  \foreach \x in {-2,...,4} {
+    \foreach \y in {-2,...,3} {
+      \coordinate (P) at ({\x*1.3 + \y*0.3}, {\x*0.2 + \y*1.4});
+      \fill[gray!60] (P) circle (1.8pt);
+    }
+  }
+  
+  \coordinate (O) at (0,0);
+  
+  % Base buena (verde)
+  \draw[-{Stealth[length=2.5mm]}, line width=1.6pt, PQCGreen] (O) -- (1.3, 0.2) node[below, font=\footnotesize\bfseries] {$\mathbf{b}_1$ (Corta)};
+  \draw[-{Stealth[length=2.5mm]}, line width=1.6pt, PQCGreen] (O) -- (0.3, 1.4) node[left, font=\footnotesize\bfseries] {$\mathbf{b}_2$ (Corta)};
+  
+  % Base mala (rojo)
+  \draw[-{Stealth[length=2.5mm]}, line width=1.6pt, PQCCrimson] (O) -- ({3*1.3 + 2*0.3}, {3*0.2 + 2*1.4}) node[above right, font=\footnotesize\bfseries] {$\mathbf{v}_1$ (Larga y distorsionada)};
+  \draw[-{Stealth[length=2.5mm]}, line width=1.6pt, PQCCrimson] (O) -- ({2*1.3 + 1*0.3}, {2*0.2 + 1*1.4}) node[midway, below right, font=\footnotesize\bfseries] {$\mathbf{v}_2$};
+
+\end{tikzpicture}
+\caption{La misma cuadrícula vista a través de dos bases distintas: la base buena (verde) es clara y ordenada; la base mala (roja) es confusa y distorsionada.}
+\label{fig:base_buena_mala}
+\end{figure}
+
+\begin{metafora}[La cuadrícula de una ciudad]
+Imagina una ciudad como Manhattan, con avenidas y calles perpendiculares (base buena). Si te dicen ``avanza 3 cuadras al norte y 2 al este'', sabes exactamente dónde estás y cuál es la casa más cercana. 
+
+Ahora imagina que te dan dos direcciones raras: una avenida diagonal que avanza 100 kilómetros hacia el noreste y otra que avanza 99 kilómetros casi en la misma dirección (base mala). Para llegar a la tienda de la esquina tendrías que sumar y restar números gigantescos con precisión astronómica. Cualquier pequeño error te dejaría en otra provincia.
+\end{metafora}
+
+\section{El problema geométrico central: CVP (El vector más cercano)}
+
+Ahora presentemos el problema que le quita el sueño a las supercomputadoras: el \textbf{Problema del Vector Más Cercano} (\textit{Closest Vector Problem} o CVP).
+
+\begin{intuicion}[El juego del CVP]
+\textbf{Planteamiento:} Imagina que te entregan un punto en el espacio $\mathbf{t}$ que no pertenece al retículo (cayó en el ``espacio vacío'' entre los puntos de la cuadrícula, por culpa de un pequeño error). 
+
+\textbf{El desafío:} ¿Cuál es el punto del retículo más cercano a $\mathbf{t}$?
+\end{intuicion}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.95]
+  % Puntos
+  \foreach \x in {-1,...,3} {
+    \foreach \y in {-1,...,2} {
+      \coordinate (P) at ({\x*1.8 + \y*0.4}, {\x*0.3 + \y*1.6});
+      \fill[PQCMainBlue] (P) circle (2.2pt);
+    }
+  }
+  
+  % Punto objetivo t (fuera de la malla)
+  \coordinate (T) at ({1*1.8 + 1*0.4 + 0.35}, {1*0.3 + 1*1.6 + 0.45});
+  \fill[PQCCrimson] (T) circle (3pt) node[above right, font=\small\bfseries] {Punto objetivo $\mathbf{t}$ (con ruido)};
+  
+  % Punto mas cercano
+  \coordinate (Closest) at ({1*1.8 + 1*0.4}, {1*0.3 + 1*1.6});
+  \draw[PQCGreen, line width=1.5pt] (Closest) circle (6pt);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.2pt, PQCAmber] (Closest) -- (T) node[midway, below right, font=\footnotesize\bfseries] {ruido $\mathbf{e}$};
+  \node[below left, font=\footnotesize\bfseries, PQCGreen] at (Closest) {¡Punto más cercano!};
+\end{tikzpicture}
+\caption{El problema CVP: Dado un punto $\mathbf{t}$ que fue desplazado por un ruido $\mathbf{e}$, el objetivo es encontrar cuál punto azul era el original.}
+\label{fig:cvp}
+\end{figure}
+
+\begin{itemize}
+  \item \textbf{Si tienes la base buena:} Miras tus coordenadas, redondeas al entero más cercano, y en un instante descubres el punto exacto.
+  \item \textbf{Si solo tienes la base mala:} No sabes hacia dónde redondear. En dimensiones altas (por ejemplo $n = 500$ o $n = 768$ dimensiones), hay tantas posibilidades de búsqueda que ni siquiera todas las computadoras del planeta trabajando juntas durante siglos podrían encontrar el punto correcto.
+\end{itemize}
+
+¡Eureka! Ya tenemos nuestra primera trampa criptográfica:
+\begin{itemize}
+  \item \textbf{Tu Clave Privada} es la \textbf{base buena} (corta y ordenada).
+  \item \textbf{Tu Clave Pública} es la \textbf{base mala} (larga y desordenada).
+  \item Cualquiera puede usar tu clave pública para sumar vectores y agregarle un poco de ruido (cifrar).
+  \item Solo tú, con tu base buena, puedes quitar el ruido y encontrar el mensaje original (descifrar).
+\end{itemize}
+
+\begin{resumencapitulo}
+\begin{itemize}
+  \item Un retículo es una cuadrícula infinita y periódica de puntos generada por combinaciones lineales enteras de vectores.
+  \item Un mismo retículo tiene infinitas bases: bases ``buenas'' (vectores cortos, fáciles de manejar) y bases ``malas'' (vectores largos y casi paralelos).
+  \item El Problema del Vector Más Cercano (CVP) consiste en hallar el punto del retículo más próximo a un punto ruidoso.
+  \item En cientos de dimensiones, CVP es extremadamente fácil si conoces la base buena, pero computacionalmente imposible si solo tienes la base mala.
+\end{itemize}
+\end{resumencapitulo}

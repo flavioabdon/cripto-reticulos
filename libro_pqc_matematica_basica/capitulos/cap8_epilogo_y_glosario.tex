@@ -1,0 +1,62 @@
+\chapter{Epílogo y Glosario Amigable}
+\label{cap:epilogo_glosario}
+
+\section{Epílogo: La matemática viva que protege al mundo}
+
+¡Felicidades por llegar hasta aquí!
+
+Al iniciar este libro, tal vez pensabas que la criptografía post-cuántica era un territorio impenetrable, reservado únicamente para matemáticos con décadas de experiencia o investigadores de laboratorios nucleares.
+
+Sin embargo, a lo largo de estas páginas has descubierto una verdad inspiradora:
+\begin{enumerate}
+  \item Los conceptos fundamentales no son monstruos incomprensibles; son \textbf{ideas geométricas puras y elegantes}.
+  \item Una cuadrícula de puntos regulares en el plano que aprendiste a graficar en tu cuaderno de colegio es el germen de un \textbf{retículo multidimensional}.
+  \item La aritmética de las horas de un reloj que utilizas para saber cuándo empieza tu clase es la misma \textbf{aritmética modular $\mathbb{Z}_q$} que confina los secretos digitales.
+  \item El juego de mezclar pintura o susurrar en un concierto ruidoso es exactamente lo que hace el problema \textbf{LWE}, donde un error deliberado frustra los métodos convencionales de resolución.
+  \item Los polinomios que sumas en el pizarrón permiten que las matrices viajen livianas por las redes de fibra óptica en \textbf{Module-LWE}.
+\end{enumerate}
+
+Las dos grandes primitivas que acabas de comprender ---\textbf{ML-KEM} para el candado de confidencialidad y \textbf{ML-DSA} para el sello de autenticidad--- no son teorías de ciencia ficción archivadas en una biblioteca: son los estándares oficiales del Instituto Nacional de Estándares y Tecnología (NIST) aprobados en agosto de 2024 para blindar toda la infraestructura informática del planeta durante los próximos cincuenta años.
+
+Y son exactamente las primitivas matemáticas que dan vida al artefacto de investigación desarrollado en la Universidad Mayor de San Andrés (UMSA) para garantizar que los votos ciudadanos sean anónimos, incorruptibles y eternamente seguros frente a cualquier máquina cuántica del futuro.
+
+\section{Glosario Amigable para Primer Semestre}
+
+Guarda este glosario como una brújula rápida para tus estudios:
+
+\begin{description}
+  \item[\textbf{Aritmética Modular ($\mathbb{Z}_q$):}] Sistema numérico circular finito donde los cálculos dan la vuelta al llegar a un valor tope $q$, quedándose con el residuo de la división entera.
+  
+  \item[\textbf{Base de un Retículo:}] Conjunto mínimo de vectores cuyas combinaciones lineales enteras generan todos y cada uno de los puntos de la red. Una base ``buena'' tiene vectores cortos y casi ortogonales; una base ``mala'' tiene vectores largos y distorsionados.
+  
+  \item[\textbf{CVP (\textit{Closest Vector Problem}):}] Problema geométrico que consiste en encontrar el punto del retículo más cercano a un punto que fue perturbado por un pequeño ruido en el espacio.
+  
+  \item[\textbf{Firma Digital:}] Equivalente criptográfico moderno de un sello de cera real: garantiza que el mensaje no fue modificado (integridad) y que proviene legítimamente del autor (autenticidad).
+  
+  \item[\textbf{KEM (\textit{Key Encapsulation Mechanism}):}] Protocolo criptográfico diseñado para acordar una clave secreta simétrica compacta entre dos personas a través de un canal público no confiable.
+  
+  \item[\textbf{LWE (\textit{Learning With Errors}):}] Problema computacional introducido por Oded Regev en 2005. Consiste en resolver un sistema lineal ruidoso $\mathbf{b} = \mathbf{A}\mathbf{s} + \mathbf{e} \pmod q$. Es inmune a computadoras clásicas y cuánticas.
+  
+  \item[\textbf{ML-DSA (FIPS 204):}] Algoritmo de firma digital post-cuántico basado en retículos modulares (Module-LWE y Module-SIS). Anteriormente conocido como *CRYSTALS-Dilithium*.
+  
+  \item[\textbf{ML-KEM (FIPS 203):}] Mecanismo de encapsulamiento de claves post-cuántico basado en Module-LWE. Anteriormente conocido como *CRYSTALS-Kyber*.
+  
+  \item[\textbf{Module-LWE (M-LWE):}] Variante algebraica de LWE donde las coordenadas de los vectores y las entradas de las matrices son polinomios de un anillo $R_q = \mathbb{Z}_q[x]/(x^n+1)$, ofreciendo tamaño compacto y cálculo ultrasónico.
+  
+  \item[\textbf{Muestreo con Rechazo (\textit{Rejection Sampling}):}] Técnica estadística empleada en firmas digitales de retículos donde los intentos que podrían filtrar información sobre la clave secreta se descartan y recalculan antes de publicarse.
+  
+  \item[\textbf{Retículo (\textit{Lattice}):}] Conjunto discreto e infinito de puntos en un espacio vectorial generado por todas las combinaciones lineales enteras de un conjunto de vectores base linealmente independientes.
+  
+  \item[\textbf{SIS (\textit{Short Integer Solution}):}] Problema de hallar un vector no nulo de números enteros muy pequeños $\mathbf{z}$ tal que $\mathbf{A}\mathbf{z} \equiv \mathbf{0} \pmod q$.
+\end{description}
+
+\vspace{0.8cm}
+\begin{tcolorbox}[colback=BoxBgBlue, colframe=PQCMainBlue, arc=2mm, title={\sffamily\bfseries Para Seguir Aprendiendo}]
+\sffamily\small
+Si quieres profundizar en este fascinante viaje:
+\begin{itemize}
+  \item Revisa las especificaciones oficiales del NIST: \textbf{FIPS 203} (ML-KEM) y \textbf{FIPS 204} (ML-DSA) publicadas en 2024.
+  \item Consulta los artículos fundacionales de Oded Regev (LWE, 2005) y Vadim Lyubashevsky (Firmas con rechazo, 2009).
+  \item Explora el código fuente y benchmarks del proyecto de grado en el repositorio \texttt{src/pqc} de la Carrera de Informática de la UMSA.
+\end{itemize}
+\end{tcolorbox}

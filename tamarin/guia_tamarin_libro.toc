@@ -1,0 +1,57 @@
+\babel@toc {spanish}{}\relax 
+\contentsline {chapter}{Pr\'ologo}{5}{chapter*.1}%
+\contentsline {part}{I\hspace {1em}Fundamentos de la Verificaci\'on Formal}{13}{part.1}%
+\contentsline {chapter}{\numberline {1}Por qu\'e Verificar Formalmente un Protocolo}{15}{chapter.1}%
+\contentsline {section}{\numberline {1.1}El problema de los protocolos ``casi seguros''}{15}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Qu\'e garantiza la verificaci\'on formal}{16}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Herramientas de verificaci\'on formal}{16}{section.1.3}%
+\contentsline {chapter}{\numberline {2}El Modelo de Atacante Dolev-Yao}{19}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Origen y motivaci\'on}{19}{section.2.1}%
+\contentsline {section}{\numberline {2.2}El atacante en Tamarin: el hecho \texttt {K}}{19}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Por qu\'e Dolev-Yao en un sistema electoral}{20}{section.2.3}%
+\contentsline {chapter}{\numberline {3}Criptograf\'ia Simb\'olica vs.\ Computacional}{21}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Dos enfoques para modelar la criptograf\'ia}{21}{section.3.1}%
+\contentsline {section}{\numberline {3.2}El modelo simb\'olico: cajas negras perfectas}{22}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Ecuaciones: las propiedades de las funciones}{23}{section.3.3}%
+\contentsline {part}{II\hspace {1em}Tamarin Prover: Lenguaje y Sem\'antica}{25}{part.2}%
+\contentsline {chapter}{\numberline {4}Arquitectura y Estructura de un Archivo \texttt {.spthy}}{27}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Estructura general de una teor\'ia Tamarin}{27}{section.4.1}%
+\contentsline {section}{\numberline {4.2}El concepto de multiconjunto de hechos}{28}{section.4.2}%
+\contentsline {section}{\numberline {4.3}T\'erminos y variables}{28}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Trazas de ejecuci\'on}{29}{section.4.4}%
+\contentsline {chapter}{\numberline {5}Reglas: El Coraz\'on del Modelo}{31}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Sintaxis de una regla}{31}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Hechos especiales: Fr, In, Out}{32}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Hechos lineales vs.\ persistentes}{32}{section.5.3}%
+\contentsline {section}{\numberline {5.4}An\'alisis de las seis reglas del protocolo PQC}{32}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Regla 1: Setup\_Autoridad\_Registro}{32}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Regla 2: Setup\_Servidor\_Votacion}{33}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}Regla 3: Registro\_Ciudadano\_Padron}{34}{subsection.5.4.3}%
+\contentsline {subsection}{\numberline {5.4.4}Regla 4: Emitir\_Voto\_Mesa}{35}{subsection.5.4.4}%
+\contentsline {subsection}{\numberline {5.4.5}Regla 5: Recepcion\_Y\_Deposito\_Anfora}{36}{subsection.5.4.5}%
+\contentsline {subsection}{\numberline {5.4.6}Regla 6: Apertura\_Anfora\_Y\_Escrutinio}{37}{subsection.5.4.6}%
+\contentsline {chapter}{\numberline {6}Lemas y Restricciones: Las Propiedades Formales}{39}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Restricciones (Axiomas del sistema)}{39}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Tipos de lemas}{40}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Los cuatro lemas del protocolo PQC}{40}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Lema 1: Ejecutabilidad (Sanity Check)}{40}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Lema 2: Confidencialidad del Voto}{41}{subsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.3.3}Lema 3: Integridad del Sufragio}{42}{subsection.6.3.3}%
+\contentsline {subsection}{\numberline {6.3.4}Lema 4: Autenticidad e Injective Agreement}{43}{subsection.6.3.4}%
+\contentsline {part}{III\hspace {1em}Protocolo PQC: An\'alisis y Resultados}{45}{part.3}%
+\contentsline {chapter}{\numberline {7}El Protocolo de Votaci\'on Electr\'onica Post-Cu\'antica}{47}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Contexto: criptograf\'ia post-cu\'antica}{47}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Arquitectura del protocolo}{48}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Las entidades del protocolo}{48}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Las seis fases del protocolo}{48}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Propiedades de seguridad requeridas}{49}{section.7.5}%
+\contentsline {chapter}{\numberline {8}Ejecuci\'on y Resultados de la Verificaci\'on}{51}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Requisitos del sistema}{51}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Comandos de ejecuci\'on}{51}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Salida del motor Maude}{52}{section.8.3}%
+\contentsline {section}{\numberline {8.4}Resultados de la verificaci\'on formal}{52}{section.8.4}%
+\contentsline {section}{\numberline {8.5}Limitaciones del modelo}{53}{section.8.5}%
+\contentsline {section}{\numberline {8.6}Interpretaci\'on de los resultados en el contexto de la tesis}{53}{section.8.6}%
+\contentsline {chapter}{\numberline {A}C\'odigo Fuente Completo: \texttt {protocolo.spthy}}{55}{appendix.Alph1}%
+\contentsline {chapter}{\numberline {B}Glosario de T\'erminos T\'ecnicos}{59}{appendix.Alph2}%
+\contentsfinish 

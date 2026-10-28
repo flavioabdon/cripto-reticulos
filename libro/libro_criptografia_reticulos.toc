@@ -1,0 +1,97 @@
+\babel@toc {spanish}{}\relax 
+\contentsline {chapter}{Prefacio Pedag\'ogico}{ix}{chapter*.4}%
+\contentsline {part}{I\hspace {1em}Fundamentos Matem\'aticos de los Ret\'iculos}{1}{part.1}%
+\contentsline {chapter}{\numberline {1}El Desaf\'io Cu\'antico y la Necesidad de Ret\'iculos}{3}{chapter.1}%
+\contentsline {section}{\numberline {1.1}El ocaso de la criptograf\'ia de clave p\'ublica tradicional}{3}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}El Algoritmo de Shor (1994)}{3}{subsection.1.1.1}%
+\contentsline {section}{\numberline {1.2}La amenaza ``Harvest Now, Decrypt Later'' en sistemas electorales}{4}{section.1.2}%
+\contentsline {section}{\numberline {1.3}El proceso de estandarizaci\'on del NIST (2016--2024)}{4}{section.1.3}%
+\contentsline {chapter}{\numberline {2}Geometr\'ia de los Ret\'iculos en Espacios Euclidianos}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}\textquestiondown Qu\'e es un ret\'iculo matem\'atico?}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Bases equivalentes y matrices unimodulares}{5}{section.2.2}%
+\contentsline {section}{\numberline {2.3}El paralelep\'ipedo fundamental y el determinante}{7}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Los m\'inimos sucesivos de Minkowski}{7}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Ortogonalizaci\'on de Gram-Schmidt y Reducci\'on de Bases}{8}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}El Algoritmo LLL (Lenstra--Lenstra--Lov\'asz, 1982)}{8}{subsection.2.5.1}%
+\contentsline {chapter}{\numberline {3}Problemas Computacionales Duros en Ret\'iculos}{9}{chapter.3}%
+\contentsline {section}{\numberline {3.1}El problema del vector m\'as corto (SVP)}{9}{section.3.1}%
+\contentsline {section}{\numberline {3.2}El problema del vector m\'as cercano (CVP) y BDD}{9}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}El algoritmo de redondeo de Babai (1986)}{10}{subsection.3.2.1}%
+\contentsline {section}{\numberline {3.3}El problema de la soluci\'on entera corta (SIS)}{11}{section.3.3}%
+\contentsline {chapter}{\numberline {4}Ret\'iculos $q$-arios y el Problema Learning With Errors (LWE)}{13}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Ret\'iculos $q$-arios: Conexi\'on entre \'algebra modular y geometr\'ia}{13}{section.4.1}%
+\contentsline {section}{\numberline {4.2}El problema Learning With Errors (LWE)}{13}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Intuici\'on did\'actica: \textquestiondown Por qu\'e el ruido rompe la eliminaci\'on gaussiana?}{14}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Distribuciones de error: De la Gaussiana a la CBD}{15}{section.4.4}%
+\contentsline {part}{II\hspace {1em}De LWE a los Est\'andares NIST FIPS 203 y 204}{17}{part.2}%
+\contentsline {chapter}{\numberline {5}De LWE a Ring-LWE (RLWE): Polinomios y Ret\'iculos Ideales}{19}{chapter.5}%
+\contentsline {section}{\numberline {5.1}El cuello de botella del LWE est\'andar}{19}{section.5.1}%
+\contentsline {section}{\numberline {5.2}El anillo ciclot\'omico $R_q= \mathbb {Z}_q[x]/(x^n + 1)$}{19}{section.5.2}%
+\contentsline {section}{\numberline {5.3}La regla negac\'iclica y la correspondencia matricial}{19}{section.5.3}%
+\contentsline {chapter}{\numberline {6}La Transformada Te\'orica de N\'umeros (NTT)}{23}{chapter.6}%
+\contentsline {section}{\numberline {6.1}La necesidad de acelerar el producto polinomial}{23}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Condiciones para la existencia de la NTT}{23}{section.6.2}%
+\contentsline {section}{\numberline {6.3}La singularidad matem\'atica de Kyber / \textsf {ML-KEM}{}: La NTT Incompleta}{23}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Algoritmo Mariposa (Cooley-Tukey Butterfly)}{24}{section.6.4}%
+\contentsline {chapter}{\numberline {7}Module-LWE (MLWE): El N\'ucleo de Kyber y Dilithium}{25}{chapter.7}%
+\contentsline {section}{\numberline {7.1}El equilibrio perfecto: \textquestiondown Por qu\'e M\'odulos?}{25}{section.7.1}%
+\contentsline {chapter}{\numberline {8}ML-KEM-768 (FIPS 203) en Profundidad Did\'actica}{27}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Estructura general de un KEM}{27}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Par\'ametros oficiales de ML-KEM-768 (FIPS 203)}{27}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Codificaci\'on de mensajes binarios en coeficientes polinomiales}{28}{section.8.3}%
+\contentsline {section}{\numberline {8.4}El cifrador de clave p\'ublica subyacente: Kyber.CPAPKE}{28}{section.8.4}%
+\contentsline {subsection}{\numberline {8.4.1}Generaci\'on de claves ($\mathsf {KeyGen}$)}{28}{subsection.8.4.1}%
+\contentsline {subsection}{\numberline {8.4.2}Cifrado ($\mathsf {Encaps}$)}{28}{subsection.8.4.2}%
+\contentsline {subsection}{\numberline {8.4.3}Descifrado ($\mathsf {Decaps}$)}{28}{subsection.8.4.3}%
+\contentsline {section}{\numberline {8.5}Demostraci\'on matem\'atica de la cancelaci\'on de ruido}{29}{section.8.5}%
+\contentsline {section}{\numberline {8.6}La Transformaci\'on Fujisaki-Okamoto (FO): De CPA a IND-CCA2}{29}{section.8.6}%
+\contentsline {chapter}{\numberline {9}ML-DSA-65 (FIPS 204) en Profundidad Did\'actica}{31}{chapter.9}%
+\contentsline {section}{\numberline {9.1}El paradigma de firmas con ret\'iculos: \textquestiondown Por qu\'e no un RSA inverso?}{31}{section.9.1}%
+\contentsline {section}{\numberline {9.2}\textquestiondown Por qu\'e se necesitan abortos? La fuga geom\'etrica}{31}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Algoritmos de \textsf {ML-DSA}{}-65 (FIPS 204)}{32}{section.9.3}%
+\contentsline {subsection}{\numberline {9.3.1}Par\'ametros de \textsf {ML-DSA}{}-65 (Nivel de Seguridad 3)}{32}{subsection.9.3.1}%
+\contentsline {subsection}{\numberline {9.3.2}Generaci\'on de Claves ($\mathsf {KeyGen}$)}{32}{subsection.9.3.2}%
+\contentsline {subsection}{\numberline {9.3.3}Firma ($\mathsf {Sign}$)}{33}{subsection.9.3.3}%
+\contentsline {subsection}{\numberline {9.3.4}Verificaci\'on ($\mathsf {Verify}$)}{33}{subsection.9.3.4}%
+\contentsline {part}{III\hspace {1em}El Protocolo de Votaci\'on Electr\'onica Post-Cu\'antica}{35}{part.3}%
+\contentsline {chapter}{\numberline {10}Arquitectura y Dise\~no Formal del Protocolo}{37}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Objetivos del protocolo electoral}{37}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Entidades y separaci\'on criptogr\'afica de poderes}{37}{section.10.2}%
+\contentsline {section}{\numberline {10.3}Las 6 Fases Secuenciales del Protocolo}{38}{section.10.3}%
+\contentsline {subsection}{\numberline {10.3.1}Fase 1: Inicializaci\'on y Configuraci\'on del Sistema}{38}{subsection.10.3.1}%
+\contentsline {subsection}{\numberline {10.3.2}Fase 2: Registro del Votante y Emisi\'on de Credencial}{38}{subsection.10.3.2}%
+\contentsline {subsection}{\numberline {10.3.3}Fase 3: Emisi\'on y Cifrado del Voto}{38}{subsection.10.3.3}%
+\contentsline {subsection}{\numberline {10.3.4}Fase 4: Verificaci\'on en el Servidor y Dep\'osito en el \'Anfora}{39}{subsection.10.3.4}%
+\contentsline {subsection}{\numberline {10.3.5}Fase 5: Emisi\'on de Recibo Digital al Ciudadano}{39}{subsection.10.3.5}%
+\contentsline {subsection}{\numberline {10.3.6}Fase 6: Cierre del Proceso, Escrutinio y Tally Final}{40}{subsection.10.3.6}%
+\contentsline {section}{\numberline {10.4}Estructuras de datos y presupuesto de bytes}{40}{section.10.4}%
+\contentsline {chapter}{\numberline {11}Demostraci\'on de Propiedades de Seguridad}{41}{chapter.11}%
+\contentsline {section}{\numberline {11.1}Modelo de amenazas de Dolev-Yao}{41}{section.11.1}%
+\contentsline {section}{\numberline {11.2}Propiedad 1: Secreto y Confidencialidad del Voto}{41}{section.11.2}%
+\contentsline {section}{\numberline {11.3}Propiedad 2: Integridad del Sufragio y No Alteraci\'on}{42}{section.11.3}%
+\contentsline {section}{\numberline {11.4}Propiedad 3: Prevenci\'on del Doble Voto (Unicidad)}{42}{section.11.4}%
+\contentsline {part}{IV\hspace {1em}Evaluaci\'on Emp\'irica, Benchmarking y Verificaci\'on}{43}{part.4}%
+\contentsline {chapter}{\numberline {12}Implementaci\'on del Motor Criptogr\'afico y Mapeo al C\'odigo}{45}{chapter.12}%
+\contentsline {section}{\numberline {12.1}Arquitectura modular de software}{45}{section.12.1}%
+\contentsline {section}{\numberline {12.2}La biblioteca C: PQClean y \texttt {pqc\_core.c}}{45}{section.12.2}%
+\contentsline {section}{\numberline {12.3}El puente Python (\texttt {pqc\_wrapper.py})}{46}{section.12.3}%
+\contentsline {section}{\numberline {12.4}Validaci\'on de Implementaci\'on KAT (Known Answer Tests)}{46}{section.12.4}%
+\contentsline {chapter}{\numberline {13}Benchmarking y An\'alisis Estad\'istico Inferencial}{49}{chapter.13}%
+\contentsline {section}{\numberline {13.1}Dise\~no metodol\'ogico del experimento}{49}{section.13.1}%
+\contentsline {section}{\numberline {13.2}Evaluaci\'on y comprobaci\'on de la hip\'otesis de investigaci\'on}{49}{section.13.2}%
+\contentsline {subsection}{\numberline {13.2.1}Formulaci\'on de hip\'otesis}{49}{subsection.13.2.1}%
+\contentsline {subsection}{\numberline {13.2.2}Resultados inferenciales}{49}{subsection.13.2.2}%
+\contentsline {section}{\numberline {13.3}El fen\'omeno de la apertura de \'anfora: Superioridad aplastante de ML-KEM}{50}{section.13.3}%
+\contentsline {section}{\numberline {13.4}An\'alisis de la sobrecarga de comunicaci\'on}{50}{section.13.4}%
+\contentsline {chapter}{\numberline {14}Verificaci\'on Formal de Seguridad con Tamarin Prover}{53}{chapter.14}%
+\contentsline {section}{\numberline {14.1}\textquestiondown Qu\'e es la verificaci\'on formal de protocolos?}{53}{section.14.1}%
+\contentsline {section}{\numberline {14.2}Abstracci\'on algebraica en el modelo simb\'olico}{53}{section.14.2}%
+\contentsline {section}{\numberline {14.3}Los cuatro lemas formales verificados}{54}{section.14.3}%
+\contentsline {chapter}{\numberline {15}Conclusiones, Lecciones Aprendidas y Trabajo Futuro}{55}{chapter.15}%
+\contentsline {section}{\numberline {15.1}S\'intesis de logros del proyecto}{55}{section.15.1}%
+\contentsline {section}{\numberline {15.2}Trabajo futuro y l\'ineas abiertas}{55}{section.15.2}%
+\contentsline {chapter}{\numberline {A}Notaci\'on Matem\'atica y Simbolog\'ia Completa}{57}{appendix.Alph1}%
+\contentsline {chapter}{\numberline {B}Fichas T\'ecnicas de Est\'andares NIST FIPS 203 y 204}{59}{appendix.Alph2}%
+\contentsline {chapter}{\numberline {C}Glosario Pedag\'ogico Extendido}{61}{appendix.Alph3}%
+\contentsline {chapter}{\numberline {D}Flujo del Protocolo en Notaci\'on Alice-Bob}{63}{appendix.Alph4}%
+\contentsline {chapter}{Bibliograf\'ia y Referencias Cient\'ificas}{65}{appendix*.25}%

@@ -1,0 +1,239 @@
+\chapter{El Sello Incorruptible: ¿Cómo Funciona ML-DSA?}
+\label{cap:mldsa_sello}
+
+\section{El misterio del sello de cera}
+
+En la antigüedad, cuando un rey enviaba un edicto a través de sus mensajeros, no le importaba que el mensaje fuera secreto: quería que todo el pueblo pudiera leerlo en la plaza pública. Lo que realmente necesitaba el rey era una garantía absoluta de que nadie hubiera alterado una sola palabra del texto y que ningún impostor hubiera escrito el mensaje en su nombre.
+
+Para eso utilizaba su anillo y una gota de cera caliente: \textbf{un sello de autenticidad}.
+
+En el mundo digital, la firma digital cumple exactamente ese mismo rol, pero con consecuencias que el rey medieval no podía imaginar: una firma digital matemáticamente correcta es \textbf{verificable por millones de personas simultáneamente}, no puede ser falsificada aunque un atacante tenga una supercomputadora, y no puede ser repudiada por quien la emitió.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.95]
+  % Documento
+  \node[draw=PQCMainBlue, fill=BoxBgBlue, rounded corners=2mm, line width=1pt, minimum width=3.2cm, minimum height=1.6cm, align=center] (doc) at (0,0) {\textbf{Documento}\\\small (ej. Boleta de voto\\\small o Decreto oficial)};
+  
+  % Proceso de firma
+  \node[draw=PQCPurple, fill=BoxBgPurple, rounded corners=2mm, line width=1pt, minimum width=3.4cm, minimum height=1.6cm, align=center] (sign) at (5,0) {\textbf{Algoritmo ML-DSA}\\\small Usa clave privada $\mathbf{s}$\\\small Genera vector corto $\mathbf{z}$};
+  
+  % Firma generada
+  \node[draw=PQCGreen, fill=BoxBgGreen, rounded corners=2mm, line width=1pt, minimum width=2.8cm, minimum height=1.6cm, align=center] (sig) at (10,0) {\textbf{Firma Digital $\sigma$}\\\small Todos pueden verificar\\\small Nadie puede falsificar};
+  
+  % Flechas
+  \draw[-{Stealth[length=3mm]}, line width=1.5pt, PQCMainBlue] (doc) -- (sign) node[midway, above, font=\footnotesize\sffamily] {Mensaje $\mu$};
+  \draw[-{Stealth[length=3mm]}, line width=1.5pt, PQCPurple] (sign) -- (sig) node[midway, above, font=\footnotesize\sffamily] {Sello único};
+\end{tikzpicture}
+\caption{La firma digital: un sello matemático que vincula de manera inseparable el contenido del documento con la identidad del firmante.}
+\label{fig:firma_digital}
+\end{figure}
+
+En la nueva era post-cuántica, el estándar mundial oficializado por el NIST bajo la norma \textbf{FIPS 204} es \textbf{ML-DSA} (originalmente conocido como \textit{CRYSTALS-Dilithium}).
+
+\section{¿Qué es una función Hash? La huella digital del documento}
+
+Antes de entender las firmas digitales, necesitamos conocer un ingrediente fundamental: la \textbf{función hash}.
+
+\begin{intuicion}[El compactador matemático de documentos]
+Una función hash como SHA3-256 toma un documento de cualquier longitud (¡incluso una novela de 1000 páginas!) y produce un número de exactamente 256 bits, siempre.
+\begin{itemize}
+  \item Si cambias \textbf{una sola letra} del documento, el hash resultante cambia por completo.
+  \item Dado el hash, es imposible reconstruir el documento original.
+  \item Dos documentos distintos nunca producen el mismo hash (en la práctica).
+\end{itemize}
+\end{intuicion}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.92]
+  % Documento grande
+  \node[draw=PQCMainBlue, fill=BoxBgBlue, rounded corners=2mm, line width=1pt, minimum width=4cm, minimum height=2.2cm, align=center] (doc) at (0,0) {\textbf{Documento}\\\footnotesize ``El votante Juan Pérez\\\footnotesize vota por el candidato A''\\\footnotesize (cualquier longitud)};
+  
+  % Hash
+  \node[draw=PQCAmber, fill=BoxBgAmber, rounded corners=2mm, line width=1pt, minimum width=4.5cm, minimum height=1cm, align=center] (proc) at (6,0) {SHA3-256};
+  
+  % Resultado (32 bytes fijo)
+  \node[draw=PQCCrimson, fill=red!8, rounded corners=2mm, line width=1pt, minimum width=3.8cm, minimum height=1.2cm, align=center, font=\tiny\ttfamily] (h) at (11.5,0) {a3f2...7d9b\\(siempre 256 bits)};
+  
+  \draw[-{Stealth[length=3mm]}, line width=1.5pt, PQCMainBlue] (doc) -- (proc);
+  \draw[-{Stealth[length=3mm]}, line width=1.5pt, PQCAmber] (proc) -- (h) node[midway, above, font=\small\sffamily] {Huella digital};
+  
+\end{tikzpicture}
+\caption{Una función hash comprime cualquier documento a una huella digital de tamaño fijo (256 bits en SHA3-256).}
+\label{fig:hash}
+\end{figure}
+
+En las firmas digitales, en lugar de firmar el documento completo (que podría ser enorme), siempre se firma el \textbf{hash del documento}. Así, la carga criptográfica es siempre la misma independientemente del tamaño del archivo.
+
+\section{El problema de la aguja en el pajar: Module-SIS}
+
+Para entender cómo se construyen las firmas sobre retículos, debemos conocer al hermano gemelo de LWE: el problema \textbf{SIS} (\textit{Short Integer Solution}, o Solución Entera Corta).
+
+\begin{intuicion}[¿Qué es el problema SIS?]
+Imagina que te entregan una matriz pública $\mathbf{A}$ llena de números de $\mathbb{Z}_q$, y te piden resolver la siguiente ecuación homogénea:
+\[
+\mathbf{A} \cdot \mathbf{z} \equiv \mathbf{0} \pmod q
+\]
+Si buscas cualquier vector $\mathbf{z}$ cualquiera, cualquier estudiante de primer semestre puede usar eliminación gaussiana y encontrar millones de soluciones con números grandísimos.
+
+Pero ahora viene la regla mágica: \textbf{tienes que encontrar una solución $\mathbf{z}$ donde todas las coordenadas sean números enteros pequeñísimos} (cercanos a cero, sin que $\mathbf{z}$ sea todo ceros).
+\end{intuicion}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.9]
+  % Ejes
+  \draw[->] (-3.5,0) -- (3.5,0) node[right, font=\small] {$z_1$};
+  \draw[->] (0,-3.5) -- (0,3.5) node[above, font=\small] {$z_2$};
+  
+  % Circunferencia de soluciones "pequeñas" (SIS bound)
+  \draw[PQCGreen, line width=1.5pt, dashed] (0,0) circle (1.5cm);
+  \node[PQCGreen, font=\footnotesize\sffamily] at (2.2, 1.5) {Frontera SIS ($\beta$)};
+  
+  % Vector solucion corta (buscado)
+  \draw[-{Stealth[length=3mm]}, PQCGreen, line width=2pt] (0,0) -- (0.9, 1.1) node[above right, font=\footnotesize\bfseries, PQCGreen] {Solución corta buscada};
+  
+  % Soluciones largas (fuera del circulo)
+  \fill[PQCCrimson!70] (-2.8, 1.5) circle (2.5pt) node[above, font=\tiny, PQCCrimson] {Gauss: $(-2.8, 1.5)$};
+  \fill[PQCCrimson!70] (3.0, -2.1) circle (2.5pt);
+  \fill[PQCCrimson!70] (-1.9, -2.8) circle (2.5pt);
+  \node[PQCCrimson, font=\footnotesize\sffamily] at (2.5, -2.5) {Soluciones largas};
+  
+\end{tikzpicture}
+\caption{El problema SIS: la eliminación gaussiana encuentra fácilmente soluciones grandes (rojo), pero hallar una solución dentro del círculo $\|\mathbf{z}\| \le \beta$ (verde) es computacionalmente infactible.}
+\label{fig:sis_geometria}
+\end{figure}
+
+Encontrar una combinación no trivial de vectores que sume exactamente cero manteniéndose microscópica es un problema geométrico equivalente a encontrar el vector no nulo más corto de un retículo en cientos de dimensiones (\textit{Shortest Vector Problem}, SVP).
+
+\section{El gran peligro: La fuga del secreto}
+
+Durante años, diseñar firmas con retículos fue un dolor de cabeza para los criptógrafos. ¿Por qué?
+
+Cuando firmas un documento, la idea naive es calcular directamente:
+\[
+\mathbf{z} = \mathbf{y} + c \cdot \mathbf{s}
+\]
+donde $\mathbf{y}$ es un vector aleatorio fresco y $c$ es un reto derivado del hash del mensaje.
+
+El problema es que $\mathbf{z}$ depende matemáticamente de $\mathbf{s}$. Aunque individualmente parece inofensivo, la acumulación de muchas firmas revela patrones estadísticos.
+
+\begin{ojo}[¡Cuidado con los promedios estadísticos!]
+Si firmas mil documentos distintos, un atacante paciente que recopile todos tus vectores $\mathbf{z}_1, \mathbf{z}_2, \dots, \mathbf{z}_{1000}$ puede calcular el promedio de las formas geométricas. ¡Poco a poco la clave secreta $\mathbf{s}$ empezaría a asomarse como una huella en la arena!
+
+Este ataque se denomina \textbf{ataque por análisis estadístico de firmas} y fue históricamente el principal obstáculo para los esquemas de firmas sobre retículos.
+\end{ojo}
+
+\section{La genialidad de Lyubashevsky: El arte de abortar a tiempo}
+
+En 2009, el matemático Vadim Lyubashevsky propuso una solución elegante y definitiva que cambió la historia de la criptografía: la técnica de \textbf{muestreo con rechazo} (\textit{Fiat-Shamir with Aborts}).
+
+\begin{metafora}[El arquero invisible]
+Imagina a un arquero secreto que dispara flechas hacia un blanco. Si sopla una ráfaga de viento en una dirección específica, el ángulo del disparo podría revelar desde qué árbol está disparando.
+
+¿Qué hace el arquero inteligente? Cuando siente que el viento es peligroso, \textbf{no dispara}: baja el arco, descarta esa flecha y espera una nueva brisa neutral. Así, cualquier observador que mire las flechas clavadas en el blanco solo verá una distribución geométrica perfectamente simétrica y circular, sin la más mínima pista sobre dónde está oculto el arquero.
+\end{metafora}
+
+En ML-DSA, el proceso completo de firma funciona así:
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.9]
+  % Nodos del algoritmo de firma
+  \node[draw=PQCPurple, fill=BoxBgPurple, rounded corners=2mm, align=center, font=\small, minimum width=4cm] (y) at (5, 6) {Genera $\mathbf{y}$ aleatorio\\(vector ``máscara'')};
+  \node[draw=PQCMainBlue, fill=BoxBgBlue, rounded corners=2mm, align=center, font=\small, minimum width=4cm] (c) at (5, 4.5) {Calcula $c = \text{Hash}(\mathbf{A}\mathbf{y}, \mu)$\\(el ``reto'' del mensaje)};
+  \node[draw=PQCTeal, fill=BoxBgTeal, rounded corners=2mm, align=center, font=\small, minimum width=4cm] (z) at (5, 3) {Calcula $\mathbf{z} = \mathbf{y} + c\mathbf{s}$};
+  
+  % Decision
+  \node[draw=PQCAmber, fill=BoxBgAmber, diamond, aspect=2, font=\small\sffamily, inner sep=2pt] (dec) at (5, 1.5) {¿$\|\mathbf{z}\| \le \beta$?};
+  
+  % Si ok
+  \node[draw=PQCGreen, fill=BoxBgGreen, rounded corners=2mm, align=center, font=\small] (ok) at (9, 1.5) {\textbf{Publicar firma}\\$\sigma = (c, \mathbf{z})$};
+  
+  % Si falla (abort)
+  \node[draw=PQCCrimson, fill=red!8, rounded corners=2mm, align=center, font=\small] (abort) at (1, 1.5) {\textbf{ABORTAR}\\Volver a generar $\mathbf{y}$};
+  
+  % Flechas
+  \draw[-{Stealth[length=2.5mm]}, line width=1.3pt, PQCPurple] (y) -- (c);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.3pt, PQCMainBlue] (c) -- (z);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.3pt, PQCTeal] (z) -- (dec);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.3pt, PQCGreen] (dec) -- node[above, font=\footnotesize] {Sí} (ok);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.3pt, PQCCrimson] (dec) -- node[above, font=\footnotesize] {No} (abort);
+  \draw[-{Stealth[length=2.5mm]}, line width=1.3pt, PQCCrimson] (abort) -- (1, 6) -- (y);
+  
+\end{tikzpicture}
+\caption{Flujo del algoritmo de firma ML-DSA: cuando la firma candidata es sospechosa, el algoritmo aborta y reintenta hasta que la distribución es estadísticamente pura.}
+\label{fig:firma_flujo}
+\end{figure}
+
+Concretamente, cuando el firmante calcula el vector candidato $\mathbf{z} = \mathbf{y} + c\mathbf{s}$:
+\begin{enumerate}
+  \item Mide el tamaño del vector $\mathbf{z}$ (su norma $\|\mathbf{z}\|$).
+  \item Si $\mathbf{z}$ cae demasiado cerca de los bordes o contiene cualquier sesgo que dependa de $\mathbf{s}$, el algoritmo simplemente \textbf{aborta el intento}, genera un nuevo $\mathbf{y}$ y vuelve a intentarlo.
+  \item Cuando la firma finalmente se publica, su distribución es estadísticamente independiente de la clave secreta. ¡Cero fuga de información!
+\end{enumerate}
+
+La clave matemática del truco es el siguiente teorema intuitivo: si elegimos el rango de $\mathbf{y}$ mucho más amplio que el posible efecto de $c\mathbf{s}$, entonces los $\mathbf{z}$ que pasan la prueba tienen exactamente la misma distribución que $\mathbf{y}$ solo. La clave secreta queda estadísticamente invisible.
+
+\section{¿Cómo comprueba cualquier persona la firma?}
+
+La verificación de una firma ML-DSA no requiere conocer ningún secreto. Cualquier persona en el mundo puede comprobar la validez de un voto o un documento siguiendo dos sencillos pasos de álgebra lineal:
+
+\begin{enumerate}
+  \item \textbf{Verificación de pequeñez:} Comprueba que las coordenadas del vector firma $\mathbf{z}$ sean efectivamente pequeñas (que no sobrepasen el límite de seguridad $\beta$). Esto garantiza que no fue construida por fuerza bruta.
+  \item \textbf{Verificación de coherencia algebraica:} Multiplica la matriz pública por el vector firma y verifica que coincida con el reto $c$ derivado del mensaje:
+  \[
+  c' = \text{Hash}(\mathbf{Az} - c\mathbf{t}, \mu) \stackrel{?}{=} c
+  \]
+  donde $\mathbf{t} = \mathbf{As} + \mathbf{e}$ es la clave pública (análoga a $\mathbf{b}$ en ML-KEM).
+\end{enumerate}
+
+\begin{intuicion}[¿Por qué funciona la verificación?]
+Cuando el firmante calculó $\mathbf{z} = \mathbf{y} + c\mathbf{s}$, entonces:
+\[
+\mathbf{Az} = \mathbf{A}(\mathbf{y} + c\mathbf{s}) = \mathbf{Ay} + c\mathbf{As}
+\]
+Y como $\mathbf{t} = \mathbf{As} + \mathbf{e}$, tenemos:
+\[
+\mathbf{Az} - c\mathbf{t} \approx \mathbf{Ay} - c\mathbf{e}
+\]
+El verificador solo puede reconstruir el valor $\mathbf{Ay}$ (multiplicado por la máscara aleatoriaoriginal) porque la firma fue construida de manera coherente. Un impostor que no conoce $\mathbf{s}$ no puede construir un $\mathbf{z}$ pequeño que satisfaga simultáneamente estas dos condiciones.
+\end{intuicion}
+
+Si ambas condiciones se cumplen, las matemáticas garantizan con rigor absoluto que:
+\begin{itemize}
+  \item El documento no fue modificado en ni un solo punto (cualquier cambio altera el hash $\mu$).
+  \item Quien firmó poseía la clave privada correspondiente (solo él puede construir $\mathbf{z}$).
+  \item Ninguna computadora cuántica presente o futura pudo haber falsificado la firma.
+\end{itemize}
+
+\section{Tamaños y rendimiento de ML-DSA}
+
+Al igual que ML-KEM, los tamaños reales de ML-DSA resultan sorprendentemente manejables:
+
+\begin{center}
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Componente} & \textbf{ML-DSA-65} & \textbf{ECDSA P-256} & \textbf{Factor} \\
+\midrule
+Clave pública & 1952 bytes & 64 bytes & $\approx 30\times$ \\
+Clave privada & 4032 bytes & 32 bytes & $\approx 126\times$ \\
+\textbf{Firma} & \textbf{3309 bytes} & \textbf{72 bytes} & $\approx 46\times$ \\
+Tiempo firmar & $\approx 0.18$ ms & $\approx 0.8$ ms & ML-DSA más rápido \\
+Tiempo verificar & $\approx 0.14$ ms & $\approx 2.4$ ms & ML-DSA más rápido \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+La firma de ML-DSA es más grande que ECDSA, pero a cambio ofrece \textbf{seguridad cuántica garantizada} y, paradójicamente, es más rápida en la operación de verificación gracias a que la verificación es solo multiplicación matricial (sin costosas operaciones de punto en curva elíptica).
+
+\begin{resumencapitulo}
+\begin{itemize}
+  \item Las firmas digitales garantizan autenticidad e integridad: que el mensaje proviene del emisor correcto y no fue alterado.
+  \item Se firman los \textbf{hashes} de los documentos (huellas digitales compactas de 256 bits), nunca los documentos completos.
+  \item ML-DSA se basa en el problema Module-SIS: hallar vectores enteros pequeños que satisfagan ecuaciones lineales modulares.
+  \item El \textbf{muestreo con rechazo} de Lyubashevsky elimina cualquier sesgo estadístico que podría filtrar la clave privada.
+  \item La verificación es abierta: cualquier ciudadano con la clave pública puede confirmar la autenticidad de un voto o decreto.
+\end{itemize}
+\end{resumencapitulo}

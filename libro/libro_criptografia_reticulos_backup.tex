@@ -1,0 +1,1785 @@
+%=============================================================
+%  LIBRO: Criptografia de Reticulos y Protocolo de Votacion
+%         Electronica Post-Cuantica
+%  Proyecto de Grado — UMSA, 2026
+%=============================================================
+\documentclass[12pt,a4paper,twoside,openright]{book}
+
+%------------------------------------------------------------
+% PAQUETES BASICOS
+%------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noquoting]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+%------------------------------------------------------------
+% MATEMATICAS
+%------------------------------------------------------------
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+
+%------------------------------------------------------------
+% GEOMETRIA
+%------------------------------------------------------------
+\usepackage[
+  a4paper,
+  top=2.5cm, bottom=2.5cm,
+  inner=3cm, outer=2cm,
+  headheight=15pt
+]{geometry}
+
+%------------------------------------------------------------
+% CABECERAS
+%------------------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\small\leftmark}
+\fancyhead[RO]{\small\rightmark}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%------------------------------------------------------------
+% COLORES Y CAJAS
+%------------------------------------------------------------
+\usepackage[dvipsnames,svgnames,x11names]{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
+
+\definecolor{PQCBlue}{RGB}{25,60,120}
+\definecolor{PQCCyan}{RGB}{0,150,180}
+\definecolor{PQCGreen}{RGB}{30,130,80}
+\definecolor{PQCOrange}{RGB}{200,100,20}
+\definecolor{PQCGray}{RGB}{95,95,95}
+\definecolor{BoxBg}{RGB}{245,248,255}
+\definecolor{WarnBg}{RGB}{255,248,235}
+
+\newtcolorbox{midef}[2][]{
+  colback=BoxBg, colframe=PQCBlue, fonttitle=\bfseries,
+  title={Definici\'{o}n: #2}, #1, breakable
+}
+\newtcolorbox{miteo}[2][]{
+  colback=BoxBg, colframe=PQCGreen, fonttitle=\bfseries,
+  title={Teorema: #2}, #1, breakable
+}
+\newtcolorbox{minota}[1][Nota]{
+  colback=WarnBg, colframe=PQCOrange, fonttitle=\bfseries,
+  title={#1}, breakable
+}
+
+%------------------------------------------------------------
+% CODIGO
+%------------------------------------------------------------
+\usepackage{listings}
+\lstdefinestyle{PQCstyle}{
+  backgroundcolor=\color{gray!8},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{PQCBlue}\bfseries,
+  commentstyle=\color{PQCGray}\itshape,
+  stringstyle=\color{PQCGreen},
+  numbers=left,
+  numberstyle=\tiny\color{PQCGray},
+  breaklines=true,
+  frame=single,
+  framerule=0.4pt,
+  rulecolor=\color{PQCBlue!40},
+  captionpos=b,
+  tabsize=4,
+  showstringspaces=false,
+}
+\lstset{style=PQCstyle}
+
+%------------------------------------------------------------
+% TABLAS Y FIGURAS
+%------------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf}
+
+%------------------------------------------------------------
+% ALGORITMOS
+%------------------------------------------------------------
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\SetAlFnt{\small}
+\SetAlCapFnt{\small}
+
+%------------------------------------------------------------
+% ENLACES
+%------------------------------------------------------------
+\usepackage[
+  colorlinks=true,
+  linkcolor=PQCBlue,
+  urlcolor=PQCCyan,
+  citecolor=PQCGreen,
+  pdftitle={Criptografia de Reticulos y Protocolo de Votacion PQC},
+  pdfauthor={Proyecto de Grado UMSA 2026},
+  pdfsubject={Criptografia Post-Cuantica}
+]{hyperref}
+
+%------------------------------------------------------------
+% INDICE
+%------------------------------------------------------------
+\usepackage{makeidx}
+\makeindex
+
+%------------------------------------------------------------
+% ENTORNOS MATEMATICOS
+%------------------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{thm}{Teorema}[chapter]
+\newtheorem{lem}[thm]{Lema}
+\newtheorem{prop}[thm]{Proposici\'{o}n}
+\newtheorem{cor}[thm]{Corolario}
+
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definici\'{o}n}
+\newtheorem{ej}[thm]{Ejemplo}
+
+\theoremstyle{remark}
+\newtheorem{obs}[thm]{Observaci\'{o}n}
+
+%------------------------------------------------------------
+% COMANDOS MATEMATICOS
+%------------------------------------------------------------
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Zq}{\mathbb{Z}_q}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Rq}{R_q}
+\newcommand{\vv}[1]{\mathbf{#1}}
+\newcommand{\mm}[1]{\mathbf{#1}}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\inner}[2]{\langle #1,\, #2 \rangle}
+\newcommand{\MLKEM}{\textsf{ML-KEM}}
+\newcommand{\MLDSA}{\textsf{ML-DSA}}
+\newcommand{\KeyGen}{\mathsf{KeyGen}}
+\newcommand{\Encaps}{\mathsf{Encaps}}
+\newcommand{\Decaps}{\mathsf{Decaps}}
+\newcommand{\Sign}{\mathsf{Sign}}
+\newcommand{\Verify}{\mathsf{Verify}}
+\newcommand{\negl}{\mathsf{negl}}
+
+%=============================================================
+\begin{document}
+%=============================================================
+
+%------------------------------------------------------------
+% PORTADA
+%------------------------------------------------------------
+\begin{titlepage}
+\centering
+\vspace*{1cm}
+{\huge\bfseries\color{PQCBlue}
+  Criptograf\'ia de Ret\'iculos\\[0.4em]
+  y Protocolo de Votaci\'on\\[0.4em]
+  Electr\'onica Post-Cu\'antica
+\par}
+\vspace{0.5cm}
+\rule{\linewidth}{0.5mm}
+\vspace{0.8cm}
+
+{\Large\itshape
+  Una introducci\'on t\'ecnica a los fundamentos matem\'aticos\\
+  de los ret\'iculos, los algoritmos \MLKEM{} y \MLDSA{},\\
+  y su aplicaci\'on en un sistema de votaci\'on electr\'onica
+\par}
+\vspace{1.2cm}
+
+{\large\bfseries Proyecto de Grado}\\[0.3em]
+{\large Universidad Mayor de San Andr\'es (UMSA)}\\[0.2em]
+{\large Facultad de Ciencias Puras y Naturales}\\[0.2em]
+{\large Carrera de Inform\'atica}\\[0.8em]
+
+\rule{0.6\linewidth}{0.3mm}\\[0.5em]
+{\large\textbf{Metodolog\'ia:} Design Science Research (DSR)}\\[0.2em]
+{\large\textbf{Est\'andares:} NIST FIPS 203 / FIPS 204 (2024)}\\[0.2em]
+{\large\textbf{A\~no:} 2026}
+
+\vfill
+{\small\color{PQCGray}
+  \textit{``La seguridad futura depende de fundamentos matem\'aticos\\
+  que ni las computadoras cu\'anticas puedan quebrantar.''}
+}
+\end{titlepage}
+
+%------------------------------------------------------------
+\frontmatter
+%------------------------------------------------------------
+\tableofcontents
+\listoftables
+
+%------------------------------------------------------------
+% PREFACIO
+%------------------------------------------------------------
+\chapter*{Prefacio}
+\addcontentsline{toc}{chapter}{Prefacio}
+
+Este libro nace como compa\~nero t\'ecnico del proyecto de grado
+\textit{``Protocolo para la votaci\'on electr\'onica basado en criptograf\'ia
+post-cu\'antica de ret\'iculos''}, desarrollado en la Universidad Mayor de San
+Andr\'es (UMSA) durante el a\~no 2026 bajo la metodolog\'ia \textit{Design
+Science Research} (DSR).
+
+\medskip
+La motivaci\'on principal es doble. Por un lado, los avances en computaci\'on
+cu\'antica ---en particular el algoritmo de Shor (1994)--- amenazan romper los
+criptosistemas cl\'asicos basados en la factorizaci\'on de enteros (RSA) y el
+problema del logaritmo discreto (ECDSA). Por el otro, los sistemas de
+votaci\'on electr\'onica son infraestructura cr\'itica cuya integridad debe
+garantizarse no s\'olo hoy, sino durante d\'ecadas.
+
+\medskip
+El libro est\'a pensado para un lector con conocimientos b\'asicos de \'algebra
+lineal y aritm\'etica modular, pero que \emph{se est\'a iniciando} en la
+criptograf\'ia de ret\'iculos y en los est\'andares post-cu\'anticos del NIST.
+
+\medskip
+La estructura sigue una progresi\'on natural:
+\begin{enumerate}
+  \item \textbf{Contexto hist\'orico} --- por qu\'e la criptograf\'ia cl\'asica
+        est\'a en riesgo.
+  \item \textbf{Matem\'aticas de ret\'iculos} --- definiciones, problemas
+        dif\'iciles y construcciones algebraicas.
+  \item \textbf{Primitivas criptogr\'aficas} --- LWE, MLWE, esquemas KEM y DSA.
+  \item \textbf{El protocolo de votaci\'on} --- dise\~no, implementaci\'on y
+        an\'alisis emp\'irico.
+  \item \textbf{Resultados} --- benchmarks y conclusiones.
+\end{enumerate}
+
+\medskip
+La gu\'ia de Tamarin Prover existe como documento separado
+(\texttt{tamarin/guia\_tamarin\_libro.tex}); este libro ofrece s\'olo
+una referencia m\'inima a los lemas verificados.
+
+\vspace{1cm}
+\noindent\textit{UMSA, La Paz --- 2026}
+
+%=============================================================
+\mainmatter
+%=============================================================
+
+%###############################################################
+\part{Fundamentos Matem\'aticos y Criptogr\'aficos}
+%###############################################################
+
+%==============================================================
+\chapter{El Desaf\'io Cu\'antico a la Criptograf\'ia Cl\'asica}
+%==============================================================
+\label{chap:desafio}
+
+\section{Historia breve de la criptograf\'ia de clave p\'ublica}
+
+La criptograf\'ia de clave p\'ublica naci\'o en 1976 con el art\'iculo
+seminal de Diffie y Hellman, \textit{New Directions in Cryptography}. La idea
+revolucionaria era que dos partes pod\'ian establecer un secreto compartido
+a trav\'es de un canal inseguro sin haberse reunido previamente.
+
+\medskip
+Durante los a\~nos siguientes surgieron tres familias dominantes:
+
+\begin{description}
+  \item[RSA (1978)] La seguridad descansa en la \emph{dificultad de factorizar}
+    el producto de dos primos grandes $p$ y $q$. La clave p\'ublica es $n = pq$
+    y la privada es el par $(p, q)$.
+  \item[Diffie-Hellman / ElGamal] La seguridad se basa en el
+    \emph{problema del logaritmo discreto} en grupos finitos $\Z_p^*$ o
+    curvas el\'ipticas.
+  \item[ECDSA / EdDSA] Firmas digitales sobre curvas el\'ipticas. ECDSA P-256
+    ofrece $\sim$128 bits de seguridad con claves muy compactas ($\sim$64 bytes).
+\end{description}
+
+\subsection{Por qu\'e estos sistemas est\'an en riesgo}
+
+En 1994, Peter Shor public\'o un algoritmo cu\'antico de tiempo polinomial
+que resuelve tanto la factorizaci\'on de enteros como el logaritmo discreto.
+Sobre una computadora cu\'antica universal con suficientes qubits l\'ogicos:
+
+\begin{itemize}
+  \item Factoriza $n = pq$ en $O((\log n)^3)$ operaciones cu\'anticas.
+  \item Resuelve el logaritmo discreto en grupos finitos y en curvas el\'ipticas.
+\end{itemize}
+
+\begin{minota}[\textquestiondown Cu\'ando ocurrir\'a?]
+  A la fecha de este proyecto (2026) no existe un computador cu\'antico
+  universal con los miles de qubits l\'ogicos necesarios para romper RSA-2048.
+  Sin embargo, el principio de \emph{``harvest now, decrypt later''} implica
+  que los adversarios pueden recopilar tr\'afico cifrado hoy y descifrarlo
+  en el futuro. Por ello, la migraci\'on a PQC es urgente.
+\end{minota}
+
+\section{La respuesta: Criptograf\'ia Post-Cu\'antica}
+
+La \textbf{Criptograf\'ia Post-Cu\'antica (PQC)} es el conjunto de algoritmos
+cuya seguridad se basa en problemas dif\'iciles incluso para computadoras
+cu\'anticas. En 2016, el NIST inici\'o un proceso de estandarizaci\'on que
+culmin\'o en 2024:
+
+\begin{table}[H]
+\centering
+\caption{Est\'andares PQC del NIST (2024)}
+\label{tab:nist_standards}
+\begin{tabular}{llll}
+\toprule
+\textbf{FIPS} & \textbf{Algoritmo} & \textbf{Funci\'on} & \textbf{Base matem\'atica} \\
+\midrule
+203 & ML-KEM & Encapsulamiento de clave & Module-LWE \\
+204 & ML-DSA & Firma digital & Module-LWE (Dilithium) \\
+205 & SLH-DSA & Firma digital & Hash-based (SPHINCS+) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Este proyecto implementa \textbf{ML-KEM-768} (FIPS 203) y
+\textbf{ML-DSA-65} (FIPS 204), ambos basados en Module-LWE.
+
+%==============================================================
+\chapter{Ret\'iculos: Definiciones y Geometr\'ia}
+%==============================================================
+\label{chap:reticulos}
+
+\section{\textquestiondown Qu\'e es un ret\'iculo?}
+
+\begin{midef}{Ret\'iculo (Lattice)}
+  Sea $\vv{b}_1, \ldots, \vv{b}_n \in \R^m$ un conjunto de vectores
+  linealmente independientes ($n \leq m$). El \emph{ret\'iculo}
+  $\mathcal{L}$ generado por esta base es:
+  \[
+    \mathcal{L}(\vv{b}_1,\ldots,\vv{b}_n)
+    = \left\{ \sum_{i=1}^{n} z_i \, \vv{b}_i \;\middle|\; z_i \in \Z \right\}.
+  \]
+  La matriz $\mm{B} = [\vv{b}_1 | \cdots | \vv{b}_n]$ se llama
+  \emph{base} del ret\'iculo.
+\end{midef}
+
+Un ret\'iculo es, intuitivamente, una \emph{cuadr\'icula generalizada} en el
+espacio $n$-dimensional: un conjunto discreto e infinito de puntos con
+estructura peri\'odica.
+
+\subsection{Ejemplos b\'asicos}
+
+\begin{ej}[Ret\'iculo entero $\Z^2$]
+  Tomando $\vv{b}_1 = (1,0)$ y $\vv{b}_2 = (0,1)$, obtenemos
+  $\mathcal{L} = \Z^2$: la cuadr\'icula entera del plano.
+\end{ej}
+
+\begin{ej}[Ambig\"uedad de la base]
+  $\vv{b}_1' = (2,1)$ y $\vv{b}_2' = (0,1)$ generan el mismo ret\'iculo
+  $\Z^2$. Esta ambig\"uedad es clave en criptograf\'ia: la \emph{clave
+  p\'ublica} es una base ``mala'' (vectores largos) y la \emph{clave
+  privada} es una base ``buena'' (vectores cortos, f\'acil de usar para
+  decodificar).
+\end{ej}
+
+\section{Propiedades geom\'etricas fundamentales}
+
+\subsection{Determinante y volumen fundamental}
+
+\begin{defn}
+  El \emph{determinante} de un ret\'iculo con base $\mm{B} \in \R^{n\times n}$
+  es $\det(\mathcal{L}) = |\det(\mm{B})|$. Geom\'etricamente, es el volumen
+  del dominio fundamental (celda unitaria).
+\end{defn}
+
+\subsection{Primer m\'inimo}
+
+\begin{defn}
+  El \emph{primer m\'inimo} $\lambda_1(\mathcal{L})$ es la norma del vector
+  m\'as corto no nulo:
+  \[
+    \lambda_1(\mathcal{L}) = \min_{\vv{v} \in \mathcal{L},\, \vv{v}\neq\vv{0}}
+    \|\vv{v}\|.
+  \]
+\end{defn}
+
+La cota de Hermite establece:
+$\lambda_1(\mathcal{L}) \leq \sqrt{n} \cdot \det(\mathcal{L})^{1/n}$.
+
+\section{Problemas dif\'iciles en ret\'iculos}
+
+Los criptosistemas de ret\'iculos se basan en problemas sin algoritmo
+eficiente cl\'asico \emph{ni cu\'antico} conocido.
+
+\subsection{SVP --- Problema del Vector M\'as Corto}
+
+\begin{midef}{SVP (Shortest Vector Problem)}
+  Dado un ret\'iculo $\mathcal{L}$ por una base arbitraria, encontrar
+  $\vv{v} \in \mathcal{L}$, $\vv{v}\neq\vv{0}$, tal que
+  $\|\vv{v}\| = \lambda_1(\mathcal{L})$.
+\end{midef}
+
+SVP exacto es NP-dif\'icil bajo reducciones aleatorias. En la pr\'actica se
+trabaja con la versi\'on aproximada: dado un ret\'iculo, decidir si
+$\lambda_1 \leq 1$ o $\lambda_1 > \gamma$ para un factor de aproximaci\'on
+$\gamma$.
+
+\subsection{CVP --- Problema del Vector M\'as Cercano}
+
+\begin{midef}{CVP (Closest Vector Problem)}
+  Dado un ret\'iculo $\mathcal{L}$ y un punto objetivo $\vv{t} \in \R^m$,
+  encontrar $\vv{v}^* = \arg\min_{\vv{v}\in\mathcal{L}} \|\vv{v} - \vv{t}\|$.
+\end{midef}
+
+CVP es NP-dif\'icil y es la base de los mecanismos de \emph{decodificaci\'on}
+en los esquemas de encapsulamiento.
+
+\subsection{SIS --- Short Integer Solution}
+
+\begin{midef}{SIS (Short Integer Solution)}
+  Dados vectores uniformes $\vv{a}_1,\ldots,\vv{a}_m \in \Zq^n$
+  (en la matriz $\mm{A} \in \Zq^{n\times m}$), encontrar
+  $\vv{z} \in \Z^m$, $\vv{z}\neq\vv{0}$, con $\|\vv{z}\| \leq \beta$ y
+  $\mm{A}\vv{z} = \vv{0} \pmod{q}$.
+\end{midef}
+
+SIS es la base de los esquemas de \emph{firma digital} basados en ret\'iculos
+(incluyendo ML-DSA).
+
+\begin{table}[H]
+\centering
+\caption{Complejidad de los mejores algoritmos para SVP en rango $n$}
+\label{tab:complejidad_svp}
+\begin{tabular}{lll}
+\toprule
+\textbf{Algoritmo} & \textbf{Complejidad (tiempo)} & \textbf{Tipo} \\
+\midrule
+LLL (1982) & $\mathrm{poly}(n)$ & Cl\'asico (aproximado $2^{O(n)}$) \\
+BKZ (1987) & $2^{O(n/\log n)}$ & Cl\'asico \\
+Sieving (Ajtai+) & $2^{O(n)}$ & Cl\'asico/Cu\'antico \\
+Algoritmo de Shor & N/A & No aplica a SVP \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Ning\'un algoritmo cu\'antico conocido proporciona una aceleraci\'on
+superpolinomial sobre los mejores algoritmos cl\'asicos para SVP/CVP, lo
+que justifica la seguridad post-cu\'antica de los criptosistemas de ret\'iculos.
+
+%==============================================================
+\chapter{Learning With Errors (LWE) y sus Variantes}
+%==============================================================
+\label{chap:lwe}
+
+\section{El Problema LWE}
+
+Introducido por Regev en 2005, \textbf{LWE} (Learning With Errors) es la
+piedra angular de la criptograf\'ia de ret\'iculos moderna. La idea es que
+esconder un secreto en un sistema lineal \emph{con errores peque\~nos}
+resulta computacionalmente intratable.
+
+\begin{midef}{LWE --- Distribuci\'on}
+  Sea $n$ la dimensi\'on de seguridad, $q$ el m\'odulo (primo), y
+  $\chi$ una distribuci\'on de error (Gaussiana discreta centrada). La
+  \emph{distribuci\'on LWE} $A_{\vv{s},\chi}$ para secreto
+  $\vv{s} \in \Zq^n$ genera muestras $(\vv{a}, b) \in \Zq^n \times \Zq$:
+  \[
+    \vv{a} \xleftarrow{\$} \Zq^n, \quad
+    e \leftarrow \chi, \quad
+    b = \inner{\vv{a}}{\vv{s}} + e \pmod{q}.
+  \]
+\end{midef}
+
+\begin{midef}{Problema de decisi\'on LWE}
+  Dadas $m$ muestras, distinguir si provienen de $A_{\vv{s},\chi}$
+  (LWE con secreto $\vv{s}$) o de la distribuci\'on uniforme
+  $\mathcal{U}(\Zq^n \times \Zq)$, con ventaja no despreciable.
+\end{midef}
+
+\begin{miteo}{Dificultad cu\'antica de LWE}
+  Bajo reducciones cu\'anticas, resolver LWE (incluso en promedio) es al
+  menos tan dif\'icil como resolver GapSVP$_\gamma$ en el \emph{peor caso}
+  (Regev 2005, Peikert 2009).
+\end{miteo}
+
+\subsection{Intuici\'on: por qu\'e LWE es dif\'icil}
+
+Sin el error $e$, el sistema $b_i = \inner{\vv{a}_i}{\vv{s}} \pmod{q}$ es
+resoluble en tiempo polinomial con eliminaci\'on gaussiana. El error convierte
+el sistema en uno \emph{sobredeterminado con ruido}: los algoritmos
+especializados (BKZ, sieving) requieren tiempo exponencial.
+
+\section{Ring-LWE (RLWE)}
+
+LWE est\'andar requiere almacenar matrices de tama\~no $O(n^2)$, lo que
+resulta ineficiente. \textbf{RLWE} (Lyubashevsky, Peikert, Regev 2010)
+traslada el problema al anillo de polinomios c\'iclicos:
+
+\begin{midef}{Anillo c\'iclico $R_q$}
+  \[
+    \Rq = \Z_q[x] / (x^n + 1)
+  \]
+  donde $n$ es una potencia de 2. Los elementos son polinomios de grado
+  $< n$ con coeficientes en $\Zq$.
+\end{midef}
+
+\subsection{Ventajas de $R_q$}
+
+\begin{enumerate}
+  \item La multiplicaci\'on polinomial en $\Rq$ se puede computar en
+    $O(n \log n)$ usando la \textbf{NTT} (Number Theoretic Transform),
+    an\'aloga a la DFT pero en aritm\'etica modular.
+  \item La clave p\'ublica es un \'unico polinomio en lugar de una
+    matriz completa: reducci\'on de $O(n^2)$ a $O(n)$ en tama\~no.
+\end{enumerate}
+
+\section{Module-LWE (MLWE) --- La base de ML-KEM y ML-DSA}
+
+\textbf{MLWE} (Langlois y Stehl\'e, 2012) generaliza LWE y RLWE usando
+\emph{m\'odulos} de anillos, equilibrando eficiencia y confianza en la
+seguridad.
+
+\begin{midef}{Module-LWE}
+  Sea $k \geq 1$ el rango del m\'odulo. En MLWE se trabaja con
+  vectores $\vv{s} \in R_q^k$ (secreto) y matrices $\mm{A} \in R_q^{k \times k}$
+  (p\'ublicas). Una instancia MLWE genera:
+  \[
+    \mm{A} \xleftarrow{\$} R_q^{k\times k}, \quad
+    \vv{s}, \vv{e} \leftarrow \chi^k, \quad
+    \vv{b} = \mm{A}\vv{s} + \vv{e} \in R_q^k.
+  \]
+  El problema de decisi\'on MLWE es distinguir $(\mm{A}, \vv{b})$ de
+  $(\mm{A}, \vv{u})$ con $\vv{u} \xleftarrow{\$} R_q^k$.
+\end{midef}
+
+\subsection{Par\'ametros de ML-KEM-768}
+
+\begin{table}[H]
+\centering
+\caption{Par\'ametros criptogr\'aficos de ML-KEM-768 (FIPS 203)}
+\label{tab:params_mlkem768}
+\begin{tabular}{lll}
+\toprule
+\textbf{Par\'ametro} & \textbf{Valor} & \textbf{Descripci\'on} \\
+\midrule
+$n$ & 256 & Grado del polinomio c\'iclico \\
+$q$ & 3329 & M\'odulo primo \\
+$k$ & 3 & Rango del m\'odulo \\
+$\eta_1$ & 2 & Par\'ametro de error para secreto \\
+$\eta_2$ & 2 & Par\'ametro de error para encapsulamiento \\
+$(d_u, d_v)$ & (10, 4) & Bits de compresi\'on del ciphertext \\
+\midrule
+\multicolumn{3}{l}{\textbf{Tama\~nos}} \\
+Clave p\'ublica ($\mathtt{ek}$) & 1\,184 bytes & Incluye semilla de $\mm{A}$ y $\vv{t}$ \\
+Clave privada ($\mathtt{dk}$) & 2\,400 bytes & Incluye $\vv{s}$, hash de $\mathtt{ek}$, $z$ \\
+Ciphertext ($\mathtt{ct}$) & 1\,088 bytes & Encapsulamiento de $K$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{La Transformada NTT}
+
+Con $q \equiv 1 \pmod{2n}$, existen ra\'ices $n$-\'esimas de la unidad en
+$\Zq$. La NTT permite multiplicar polinomios eficientemente:
+\begin{enumerate}
+  \item Transformar $a(x), b(x)$ al dominio NTT: $\hat{a}, \hat{b} \in \Zq^n$.
+  \item Multiplicar puntualmente: $\hat{c}_i = \hat{a}_i \cdot \hat{b}_i$.
+  \item Aplicar NTT inversa: $c(x) = \mathrm{INTT}(\hat{c})$.
+\end{enumerate}
+Costo total: $O(n \log n)$ en lugar de $O(n^2)$ con convo-luci\'on directa.
+
+%==============================================================
+\chapter{Esquemas de Encapsulamiento de Clave (KEM)}
+%==============================================================
+\label{chap:kem}
+
+\section{Concepto de KEM}
+
+Un \textbf{KEM} (Key Encapsulation Mechanism) es un protocolo asim\'etrico
+que permite a dos partes establecer un secreto compartido $K$ sin
+transmitirlo directamente. Tiene tres algoritmos:
+
+\begin{description}
+  \item[$\KeyGen() \to (\mathtt{ek}, \mathtt{dk})$] Genera un par de claves:
+    p\'ublica de encapsulamiento (\texttt{ek}) y privada de
+    desencapsulamiento (\texttt{dk}).
+  \item[$\Encaps(\mathtt{ek}) \to (\mathtt{ct}, K)$] Usando la clave p\'ublica,
+    genera un texto cifrado $\mathtt{ct}$ y un secreto compartido $K$.
+  \item[$\Decaps(\mathtt{dk}, \mathtt{ct}) \to K$] Usando la clave privada,
+    recupera el secreto $K$ a partir de $\mathtt{ct}$.
+\end{description}
+
+\begin{minota}
+  En un KEM seguro: (1) \textbf{Correcci\'on}: $\Decaps(\mathtt{dk},
+  \Encaps(\mathtt{ek})) = K$; (2) \textbf{Seguridad IND-CCA2}: $K$ es
+  indistinguible de un valor aleatorio para cualquier adversario que no
+  posea $\mathtt{dk}$.
+\end{minota}
+
+\section{Construcci\'on de ML-KEM (FIPS 203)}
+
+ML-KEM es el KEM estandarizado por el NIST basado en MLWE. Internamente es
+una versi\'on CCA-segura del esquema Kyber, transformada mediante la t\'ecnica
+de Fujisaki-Okamoto (FO).
+
+\subsection{Generaci\'on de claves}
+
+\begin{algorithm}[H]
+\caption{$\MLKEM.\KeyGen()$}
+\label{alg:mlkem_keygen}
+\SetKwInOut{Output}{Salida}
+\Output{Par de claves $(\mathtt{ek}, \mathtt{dk})$}
+Muestrear semilla aleatoria $d \xleftarrow{\$} \{0,1\}^{32}$\;
+$(d', z) \leftarrow H(d)$\tcp*{H: hash extendible (XOF)}
+$(\hat{\mm{A}}, \vv{s}, \vv{e}) \leftarrow \mathrm{SampleNoise}(d')$\;
+$\vv{t} \leftarrow \hat{\mm{A}}\hat{\vv{s}} + \hat{\vv{e}}$\tcp*{en dominio NTT}
+$\mathtt{ek} \leftarrow (\vv{t},\; \mathrm{seed}(\mm{A}))$\tcp*{clave p\'ublica}
+$\mathtt{dk} \leftarrow (\hat{\vv{s}},\; \mathtt{ek},\; H(\mathtt{ek}),\; z)$\tcp*{clave privada}
+\Return $(\mathtt{ek}, \mathtt{dk})$
+\end{algorithm}
+
+\subsection{Encapsulamiento}
+
+\begin{algorithm}[H]
+\caption{$\MLKEM.\Encaps(\mathtt{ek})$}
+\label{alg:mlkem_encaps}
+\SetKwInOut{Output}{Salida}
+\Output{$(K, \mathtt{ct})$}
+$m \xleftarrow{\$} \{0,1\}^{32}$\tcp*{valor aleatorio ef\'imero}
+$(K, r) \leftarrow G(m,\; H(\mathtt{ek}))$\tcp*{G: funci\'on hash}
+$(\vv{u}, v) \leftarrow \mathrm{PKE.Enc}(\mathtt{ek},\; m;\; r)$\tcp*{cifrado PKE subyacente}
+$\mathtt{ct} \leftarrow \mathrm{Compress}(\vv{u}, v)$\;
+\Return $(K, \mathtt{ct})$
+\end{algorithm}
+
+El PKE subyacente opera sobre MLWE:
+\begin{align}
+  \vv{r} &\leftarrow \chi^k, \quad \vv{e}_1 \leftarrow \chi^k, \quad e_2 \leftarrow \chi \notag\\
+  \vv{u} &= \mm{A}^T \vv{r} + \vv{e}_1 \pmod{q}\\
+  v      &= \vv{t}^T \vv{r} + e_2 + \lfloor q/2 \rfloor \cdot m \pmod{q}
+\end{align}
+
+\subsection{Desencapsulamiento}
+
+\begin{algorithm}[H]
+\caption{$\MLKEM.\Decaps(\mathtt{dk}, \mathtt{ct})$}
+\label{alg:mlkem_decaps}
+\SetKwInOut{Output}{Salida}
+\Output{Secreto compartido $K$}
+$(\vv{u}', v') \leftarrow \mathrm{Decompress}(\mathtt{ct})$\;
+$m' \leftarrow \mathrm{Round}(v' - \hat{\vv{s}}^T \vv{u}')$\tcp*{recuperar $m$}
+$(K', r') \leftarrow G(m',\; H(\mathtt{ek}))$\;
+Reencapsular: $\mathtt{ct}' \leftarrow \mathrm{PKE.Enc}(\mathtt{ek},\; m';\; r')$\;
+\If{$\mathtt{ct}' = \mathtt{ct}$}{
+  \Return $K'$\;
+}
+\Else{
+  \Return $\mathrm{PRF}(z,\; \mathtt{ct})$\tcp*{rechazo impl\'icito}
+}
+\end{algorithm}
+
+\subsection{Por qu\'e el desencapsulamiento funciona}
+
+La operaci\'on clave es:
+\[
+  v' - \vv{s}^T \vv{u}'
+  = \vv{t}^T\vv{r} + e_2 + \tfrac{q}{2}m - \vv{s}^T(\mm{A}^T\vv{r} + \vv{e}_1)
+  = \tfrac{q}{2}m + \underbrace{e_2 + \vv{e}^T\vv{r} - \vv{s}^T\vv{e}_1}_{\text{ruido peque\~no}}
+\]
+Si el ruido total es menor que $q/4$, el redondeo a $\{0,1\}$ recupera $m$
+correctamente. La verificaci\'on de re-encapsulamiento garantiza IND-CCA2
+(transformaci\'on Fujisaki-Okamoto).
+
+%==============================================================
+\chapter{Firmas Digitales Basadas en Ret\'iculos}
+%==============================================================
+\label{chap:firmas}
+
+\section{Concepto de firma digital}
+
+Una firma digital permite verificar que un mensaje $m$ fue producido por
+quien posee la clave privada, y que no ha sido modificado:
+
+\begin{description}
+  \item[$\KeyGen() \to (\mathtt{sk}, \mathtt{pk})$] Genera el par de claves.
+  \item[$\Sign(\mathtt{sk}, m) \to \sigma$] Produce una firma $\sigma$.
+  \item[$\Verify(\mathtt{pk}, m, \sigma) \to \{0,1\}$] Verifica la firma.
+\end{description}
+
+La propiedad de seguridad central es la \textbf{EUF-CMA}: un adversario que
+puede solicitar firmas de mensajes de su elecci\'on no puede forjar una firma
+v\'alida sobre ning\'un mensaje nuevo.
+
+\section{Construcci\'on de ML-DSA (FIPS 204) --- Dilithium}
+
+ML-DSA se basa en el esquema Dilithium (Ducas et al., 2018), que usa el
+paradigma \emph{Fiat-Shamir con abortos}.
+
+\subsection{Idea intuitiva}
+
+El protocolo de identificaci\'on subyacente funciona as\'i:
+\begin{enumerate}
+  \item El firmante elige $\vv{y} \xleftarrow{\$} R_q^k$ uniformemente.
+  \item Calcula el ``compromiso'': $\vv{w} = \mm{A}\vv{y} \pmod{q}$.
+  \item Se genera un desaf\'io $c$ (hash del mensaje y del compromiso).
+  \item El firmante responde con $\vv{z} = \vv{y} + c\vv{s}$.
+  \item El verificador acepta si $\mm{A}\vv{z} - c\vv{t} = \mm{A}\vv{y}$
+    y $\|\vv{z}\|_\infty$ es peque\~no.
+\end{enumerate}
+
+El \emph{mecanismo de aborto} descarta $\vv{z}$ si es demasiado grande o no
+tiene distribuci\'on uniforme, previniendo fugas del secreto $\vv{s}$.
+
+\subsection{Generaci\'on de claves ML-DSA-65}
+
+\begin{algorithm}[H]
+\caption{$\MLDSA.\KeyGen()$}
+\label{alg:mldsa_keygen}
+\SetKwInOut{Output}{Salida}
+\Output{$(\mathtt{sk}, \mathtt{pk})$}
+$\xi \xleftarrow{\$} \{0,1\}^{32}$\;
+$(\rho, \rho', K) \leftarrow H(\xi)$\;
+Generar $\mm{A} \in R_q^{k\times\ell}$ a partir de $\rho$\;
+Muestrear $\vv{s}_1 \leftarrow S_\eta^\ell$,\; $\vv{s}_2 \leftarrow S_\eta^k$\tcp*{coeficientes en $[-\eta, \eta]$}
+$\vv{t} \leftarrow \mm{A}\vv{s}_1 + \vv{s}_2$\;
+$(\vv{t}_1, \vv{t}_0) \leftarrow \mathrm{Power2Round}(\vv{t})$\;
+$\mathtt{pk} \leftarrow (\rho, \vv{t}_1)$;\quad
+$\mathtt{sk} \leftarrow (\rho, K, \mathrm{tr}, \vv{s}_1, \vv{s}_2, \vv{t}_0)$\;
+\Return $(\mathtt{sk}, \mathtt{pk})$
+\end{algorithm}
+
+\subsection{Firma}
+
+\begin{algorithm}[H]
+\caption{$\MLDSA.\Sign(\mathtt{sk}, m)$}
+\label{alg:mldsa_sign}
+\SetKwInOut{Output}{Salida}
+\Output{Firma $\sigma$}
+\Repeat{no abortar}{
+  $\vv{y} \leftarrow S_\gamma^{\ell}$\;
+  $\vv{w} \leftarrow \mm{A}\vv{y}$\;
+  $c \leftarrow H(\mathrm{tr} \| m \| \mathrm{HighBits}(\vv{w}))$\tcp*{desaf\'io hash}
+  $\vv{z} \leftarrow \vv{y} + c\vv{s}_1$\;
+  \If{$\|\vv{z}\|_\infty \geq \gamma_1 - \beta$
+      \textbf{o} $\|\mathrm{LowBits}(\vv{w} - c\vv{s}_2)\|_\infty \geq \gamma_2 - \beta$}{
+    \textbf{abortar}\tcp*{reiniciar}
+  }
+  $\vv{h} \leftarrow \mathrm{MakeHint}(-c\vv{t}_0,\; \vv{w} - c\vv{s}_2 + c\vv{t}_0)$\;
+}
+\Return $\sigma \leftarrow (\tilde{c}, \vv{z}, \vv{h})$
+\end{algorithm}
+
+\subsection{Verificaci\'on}
+
+\begin{algorithm}[H]
+\caption{$\MLDSA.\Verify(\mathtt{pk}, m, \sigma)$}
+\label{alg:mldsa_verify}
+\SetKwInOut{Output}{Salida}
+\Output{$\{0,1\}$}
+$(\rho, \vv{t}_1) \leftarrow \mathtt{pk}$;\quad
+$(\tilde{c}, \vv{z}, \vv{h}) \leftarrow \sigma$\;
+\If{$\|\vv{z}\|_\infty \geq \gamma_1 - \beta$}{\Return 0}
+$\vv{w}' \leftarrow \mathrm{UseHint}(\vv{h},\; \mm{A}\vv{z} - c\vv{t}_1 \cdot 2^d)$\;
+$c' \leftarrow H(\mathrm{tr} \| m \| \vv{w}')$\;
+\Return $c' = \tilde{c}$
+\end{algorithm}
+
+\subsection{Par\'ametros de ML-DSA-65}
+
+\begin{table}[H]
+\centering
+\caption{Par\'ametros de ML-DSA-65 (FIPS 204, nivel 3)}
+\label{tab:params_mldsa65}
+\begin{tabular}{lll}
+\toprule
+\textbf{Par\'ametro} & \textbf{Valor} & \textbf{Descripci\'on} \\
+\midrule
+$n$ & 256 & Grado del polinomio c\'iclico \\
+$q$ & 8\,380\,417 & M\'odulo primo \\
+$(k, \ell)$ & (6, 5) & Dimensi\'on de vectores secreto/respuesta \\
+$\eta$ & 4 & Rango del secreto \\
+$\gamma_1$ & $2^{19}$ & Rango del vector $\vv{y}$ \\
+$\gamma_2$ & $(q-1)/32$ & Radio de redondeo \\
+$\beta$ & 120 & Umbral de aborto \\
+\midrule
+\multicolumn{3}{l}{\textbf{Tama\~nos de estructuras}} \\
+Clave p\'ublica & 1\,952 bytes & \\
+Clave privada & 4\,032 bytes & \\
+Firma & 3\,309 bytes & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Comparaci\'on con ECDSA P-256}
+
+\begin{table}[H]
+\centering
+\caption{ML-DSA-65 vs.\ ECDSA P-256}
+\label{tab:comp_firmas}
+\begin{tabular}{lll}
+\toprule
+\textbf{Propiedad} & \textbf{ML-DSA-65} & \textbf{ECDSA P-256} \\
+\midrule
+Nivel de seguridad & $\sim$192 bits & $\sim$128 bits \\
+Base matem\'atica & Module-LWE & Logaritmo discreto EC \\
+Resistencia cu\'antica & S\'i (MLWE) & No (algoritmo de Shor) \\
+Clave p\'ublica & 1\,952 bytes & $\sim$64 bytes \\
+Firma & 3\,309 bytes & $\sim$64 bytes \\
+Tiempo de firma & $\sim$0.37 ms & $\sim$0.12 ms \\
+Tiempo de verificaci\'on & $\sim$0.21 ms & $\sim$0.18 ms \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Las firmas ML-DSA son m\'as grandes, pero ofrecen seguridad post-cu\'antica
+comprobada con tiempos de operaci\'on comparables.
+
+%###############################################################
+\part{El Protocolo de Votaci\'on Electr\'onica}
+%###############################################################
+
+%==============================================================
+\chapter{Dise\~no Formal del Protocolo}
+%==============================================================
+\label{chap:protocolo}
+
+\section{Motivaci\'on: por qu\'e PQC en votaci\'on}
+
+Los sistemas de votaci\'on electr\'onica almacenan boletas cifradas que
+pueden ser recopiladas hoy y descifradas en el futuro cuando existan
+computadoras cu\'anticas potentes (principio ``harvest now, decrypt later'').
+Por esta raz\'on, la confidencialidad del voto debe garantizarse
+\emph{incluso frente a adversarios cu\'anticos futuros}.
+
+\section{Entidades del protocolo}
+
+\begin{table}[H]
+\centering
+\caption{Roles del protocolo de votaci\'on}
+\label{tab:roles}
+\begin{tabular}{clp{7.5cm}}
+\toprule
+\textbf{ID} & \textbf{Rol} & \textbf{Responsabilidades y claves} \\
+\midrule
+$V$ & Votante &
+  Ciudadano habilitado. Par ML-DSA $(sk_V, pk_V)$ generado en registro.
+  Cifra y firma su boleta. \\
+\addlinespace
+$AR$ & Autoridad de Registro &
+  Verifica identidad, emite credenciales firmadas. Par ML-DSA
+  $(sk_{AR}, pk_{AR})$. \\
+\addlinespace
+$SV$ & Servidor de Votaci\'on &
+  Recibe boletas, verifica firmas, almacena \emph{sin descifrar}.
+  Par ML-KEM $(ek_{SV}, dk_{SV})$ y par ML-DSA $(sk_{SV}, pk_{SV})$. \\
+\addlinespace
+$AC$ & Autoridad de Conteo &
+  Custodia $dk_{SV}$. Desencapsula votos y realiza el escrutinio. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{minota}[Separaci\'on de responsabilidades]
+  El $SV$ almacena pero \emph{nunca} descifra. La $AC$ descifra pero
+  \emph{no} participa en la verificaci\'on de identidad. Esta separaci\'on
+  garantiza la confidencialidad del voto durante la jornada electoral.
+\end{minota}
+
+\section{Par\'ametros criptogr\'aficos del protocolo}
+
+\begin{table}[H]
+\centering
+\caption{Primitivas criptogr\'aficas del protocolo}
+\label{tab:primitivas}
+\begin{tabular}{llll}
+\toprule
+\textbf{Primitiva} & \textbf{Est\'andar} & \textbf{Nivel seg.} & \textbf{Uso} \\
+\midrule
+ML-KEM-768 & FIPS 203 & $\sim$AES-192 & Cifrado del voto \\
+ML-DSA-65  & FIPS 204 & $\sim$AES-192 & Autenticaci\'on, firma \\
+AES-256-GCM & NIST SP 800-38D & 256 bits & Cifrado sim\'etrico \\
+SHA3-256 & FIPS 202 & 128 bits colisi\'on & Recibos, auditor\'ia \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Fases del protocolo}
+
+\subsection{Fase (a) --- Configuraci\'on y generaci\'on de claves}
+
+\begin{enumerate}
+  \item $AR$ genera par ML-DSA:
+    $(sk_{AR}, pk_{AR}) \leftarrow \MLDSA.\KeyGen()$
+  \item $SV$ genera par ML-KEM:
+    $(ek_{SV}, dk_{SV}) \leftarrow \MLKEM.\KeyGen()$
+  \item $SV$ genera par ML-DSA para recibos:
+    $(sk_{SV}, pk_{SV}) \leftarrow \MLDSA.\KeyGen()$
+  \item $SV$ entrega $dk_{SV}$ a $AC$ por \emph{canal seguro fuera de banda}.
+  \item Se publican $pk_{AR}$, $ek_{SV}$, $pk_{SV}$ en directorio de confianza.
+\end{enumerate}
+
+\subsection{Fase (b) --- Registro y autenticaci\'on del Votante}
+
+\begin{enumerate}
+  \item $V$ presenta su identidad $ID_V$ ante $AR$.
+  \item $AR$ verifica $ID_V$ contra el padr\'on electoral oficial.
+  \item Si v\'alido y no registrado:
+    \begin{itemize}
+      \item $(sk_V, pk_V) \leftarrow \MLDSA.\KeyGen()$
+      \item $\mathit{cred}_V = (ID_V \| pk_V \| ts)$
+      \item $\sigma_{AR} = \MLDSA.\Sign(sk_{AR}, \mathit{cred}_V)$
+      \item Credencial $= (\mathit{cred}_V, \sigma_{AR})$
+      \item Registrar $(ID_V, pk_V,\text{``Registrado''})$ en padr\'on.
+      \item Entregar $(sk_V, \text{Credencial})$ a $V$ por canal seguro.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Fase (c) --- Cifrado del voto y firma de la boleta}
+
+El votante $V$ con $(sk_V, \text{Credencial})$ y conociendo $ek_{SV}$:
+
+\begin{enumerate}
+  \item $m = \mathrm{encode}(\text{voto})$
+  \item $(K, ct) \leftarrow \MLKEM.\Encaps(ek_{SV})$
+  \item $\mathit{voto\_cifrado} = \mathrm{AES\text{-}256\text{-}GCM.Enc}(K, m, \mathit{nonce})$
+  \item $\mathit{boleta} = (ct \| \mathit{voto\_cifrado} \| \mathit{nonce}
+    \| \text{Credencial} \| ts)$
+  \item $\sigma_V = \MLDSA.\Sign(sk_V, \mathit{boleta})$
+  \item $\mathit{paquete} = (\mathit{boleta}, \sigma_V)$
+\end{enumerate}
+
+\subsection{Fase (d) --- Env\'io al Servidor y verificaci\'on}
+
+\begin{enumerate}
+  \item $V \to SV$: $\mathit{paquete}$
+  \item $SV$ verifica la credencial: $\MLDSA.\Verify(pk_{AR}, \mathit{cred}_V, \sigma_{AR}) = 1$
+  \item $SV$ verifica la firma del votante: $\MLDSA.\Verify(pk_V, \mathit{boleta}, \sigma_V) = 1$
+  \item $SV$ verifica que $ID_V$ no ha votado (anti-duplicado).
+  \item Si todo es correcto: aceptar. Si falla: rechazar.
+\end{enumerate}
+
+\subsection{Fase (e) --- Registro del voto cifrado}
+
+\begin{enumerate}
+  \item $SV$ registra $(\mathit{ID}_V, \mathit{boleta})$ en la \'anfora digital.
+  \item $SV$ marca $ID_V$ como ``Ya vot\'o''.
+  \item $SV$ emite recibo:
+    $\mathit{hash} = \mathrm{SHA3\text{-}256}(\mathit{boleta} \| ts_r)$,\quad
+    $\sigma_r = \MLDSA.\Sign(sk_{SV}, \mathit{hash})$
+  \item $SV \to V$: $(\mathit{hash}, ts_r, \sigma_r)$
+\end{enumerate}
+
+\subsection{Fase (f) --- Desencapsulamiento y conteo final}
+
+Con la jornada cerrada, $AC$ obtiene la \'anfora:
+\begin{enumerate}
+  \item Para cada boleta$_i$:
+    \begin{itemize}
+      \item $K_i \leftarrow \MLKEM.\Decaps(dk_{SV}, ct_i)$
+      \item $m_i = \mathrm{AES\text{-}256\text{-}GCM.Dec}(K_i, \mathit{voto\_cifrado}_i, \mathit{nonce}_i)$
+      \item Re-verificar $\sigma_{V_i}$ sobre boleta$_i$.
+      \item $\mathit{conteo}[m_i] \mathrel{+}= 1$
+    \end{itemize}
+  \item $AC$ publica resultado $+$ $\{\mathrm{SHA3\text{-}256}(\mathit{boleta}_i)\}$.
+\end{enumerate}
+
+\section{Estructuras de datos}
+
+\subsection{Credencial de votante}
+
+\begin{lstlisting}[language=Python, caption={Credencial de votante}]
+Credencial = {
+    "cred_V": {
+        "ID_V":  str,             # Identidad del votante
+        "pk_V":  bytes[1952],     # Clave publica ML-DSA-65
+        "ts":    datetime
+    },
+    "sigma_AR": bytes[3309]       # Firma ML-DSA-65 de la AR
+}
+\end{lstlisting}
+
+\subsection{Boleta de sufragio}
+
+\begin{lstlisting}[language=Python, caption={Boleta de sufragio}]
+Boleta = {
+    "ct":           bytes[1088], # ML-KEM-768 ciphertext
+    "voto_cifrado": bytes,       # AES-256-GCM(K, m, nonce)
+    "nonce":        bytes[12],   # Nonce AES-256-GCM
+    "Credencial":   Credencial,
+    "ts_boleta":    datetime
+}
+# Tamano total estimado: ~16,200 bytes (16 KB)
+\end{lstlisting}
+
+\subsection{Paquete de voto}
+
+\begin{lstlisting}[language=Python, caption={Paquete de voto final}]
+Paquete = {
+    "boleta":  Boleta,
+    "sigma_V": bytes[3309]  # Firma ML-DSA-65 del votante
+}
+\end{lstlisting}
+
+%==============================================================
+\chapter{Propiedades de Seguridad del Protocolo}
+%==============================================================
+\label{chap:seguridad}
+
+\section{Modelo de seguridad}
+
+El protocolo fue dise\~nado y verificado bajo el \textbf{modelo de atacante
+Dolev-Yao} (1983): el adversario controla completamente la red (intercepta,
+modifica, reenv\'ia e inyecta mensajes), pero \emph{no puede romper las
+primitivas criptogr\'aficas}.
+
+\section{Propiedad 1: Confidencialidad del voto}
+
+\begin{midef}{Confidencialidad del voto}
+  Un adversario polinomial $\mathcal{A}$ que observa todas las boletas no
+  puede determinar el contenido del voto $m$ con probabilidad no despreciable:
+  \[
+    \Pr[\mathcal{A}(\mathit{paquete}) = m] \leq \tfrac{1}{2} + \negl(\lambda).
+  \]
+\end{midef}
+
+\textbf{Mecanismo:} La seguridad IND-CCA2 de ML-KEM garantiza que $K$ es
+computacionalmente indistinguible de aleatorio sin $dk_{SV}$. Como $m$ est\'a
+cifrado con AES-256-GCM bajo $K$, tampoco es recuperable. Adem\'as, $dk_{SV}$
+es custodiado s\'olo por $AC$.
+
+\section{Propiedad 2: Integridad del voto}
+
+\begin{midef}{Integridad del voto}
+  Todo voto contabilizado corresponde exactamente a un voto \emph{emitido}
+  por un votante leg\'itimo. Ning\'un voto puede ser modificado sin detecci\'on.
+\end{midef}
+
+\textbf{Mecanismo:} La propiedad EUF-CMA de ML-DSA garantiza que ning\'un
+adversario puede forjar $\sigma_V$ sin $sk_V$. La $AC$ re-verifica cada firma
+antes de contabilizar; si la boleta fue alterada, la verificaci\'on falla.
+
+\section{Propiedad 3: Autenticidad votante-autoridad}
+
+\begin{midef}{Autenticidad}
+  Cualquier boleta aceptada por el $SV$ proviene de un votante registrado
+  por la $AR$ leg\'itima.
+\end{midef}
+
+\textbf{Mecanismo:} La credencial vincula $pk_V$ a $ID_V$ mediante
+$\sigma_{AR}$ (EUF-CMA de ML-DSA). El $SV$ verifica ambas firmas.
+
+\section{Propiedad 4: Unicidad del voto}
+
+El $SV$ mantiene estado por $ID_V$. Una vez en estado ``Ya vot\'o'', cualquier
+intento posterior de votar con la misma identidad es rechazado.
+
+\section{Propiedad 5: Freshness y anti-replay}
+
+El $ts_{\mathit{boleta}}$ (timestamp) y el $\mathit{nonce}$ (aleatorio) en
+cada boleta previenen ataques de repetici\'on: una boleta capturada y
+retransmitida tiene el mismo par $(ts, \mathit{nonce})$ que el $SV$ detecta.
+
+\section{Supuestos del modelo}
+
+\begin{enumerate}
+  \item \textbf{MLWE hardness:} Module-LWE es dif\'icil para adversarios
+    cu\'anticos.
+  \item \textbf{Canal fuera de banda:} Entrega de $(sk_V, \text{Credencial})$
+    y de $dk_{SV}$ por canales seguros externos.
+  \item \textbf{Directorio de confianza:} Claves p\'ublicas distribuidas por
+    canal aut\'entico.
+  \item \textbf{Dispositivo del votante:} $sk_V$ no est\'a comprometido.
+\end{enumerate}
+
+%###############################################################
+\part{Implementaci\'on y Evaluaci\'on Emp\'irica}
+%###############################################################
+
+%==============================================================
+\chapter{Implementaci\'on del Protocolo}
+%==============================================================
+\label{chap:implementacion}
+
+\section{Arquitectura por capas}
+
+\begin{description}
+  \item[Capa C (PQClean)] Operaciones criptogr\'aficas de bajo nivel
+    implementadas en C usando las fuentes de referencia del proyecto
+    \textbf{PQClean}: portables, auditadas, sin efectos secundarios de
+    temporizaci\'on.
+  \item[Capa Python] Un wrapper \texttt{ctypes} invoca las funciones C.
+    Cada entidad del protocolo tiene su propio m\'odulo con l\'ogica de
+    alto nivel.
+\end{description}
+
+\section{Motor criptogr\'afico C --- PQClean}
+
+PQClean provee implementaciones de referencia auditadas:
+\begin{itemize}
+  \item C portable (sin SIMD ni ensamblador espec\'ifico).
+  \item Compilable en macOS (ARM64/x86-64) y Linux.
+  \item Sin dependencias externas.
+  \item Verificado contra vectores KAT del NIST.
+\end{itemize}
+
+Biblioteca generada: \texttt{src/pqc/libpqc\_core.dylib} (macOS) o
+\texttt{libpqc\_core.so} (Linux).
+
+\begin{lstlisting}[language=C, caption={API de la capa C --- pqc\_core.h}]
+/* ML-KEM-768 (FIPS 203) */
+int pqc_kem_keypair(uint8_t *ek, uint8_t *dk);
+int pqc_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *ek);
+int pqc_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *dk);
+
+/* ML-DSA-65 (FIPS 204) */
+int pqc_sign_keypair(uint8_t *pk, uint8_t *sk);
+int pqc_sign(uint8_t *sig, size_t *siglen,
+             const uint8_t *msg, size_t msglen,
+             const uint8_t *sk);
+int pqc_sign_verify(const uint8_t *sig, size_t siglen,
+                    const uint8_t *msg, size_t msglen,
+                    const uint8_t *pk);
+\end{lstlisting}
+
+\section{Wrapper Python (ctypes)}
+
+\begin{lstlisting}[language=Python, caption={Fragmento de pqc\_wrapper.py}]
+import ctypes, os
+
+lib = ctypes.CDLL(
+    os.path.join(os.path.dirname(__file__), "libpqc_core.dylib")
+)
+
+KEM_PK_BYTES = 1184
+KEM_SK_BYTES = 2400
+KEM_CT_BYTES = 1088
+KEM_SS_BYTES = 32
+
+def kem_keypair():
+    ek = (ctypes.c_uint8 * KEM_PK_BYTES)()
+    dk = (ctypes.c_uint8 * KEM_SK_BYTES)()
+    assert lib.pqc_kem_keypair(ek, dk) == 0
+    return bytes(ek), bytes(dk)
+
+def kem_encaps(ek: bytes):
+    ct = (ctypes.c_uint8 * KEM_CT_BYTES)()
+    ss = (ctypes.c_uint8 * KEM_SS_BYTES)()
+    ek_buf = (ctypes.c_uint8 * KEM_PK_BYTES).from_buffer_copy(ek)
+    assert lib.pqc_kem_enc(ct, ss, ek_buf) == 0
+    return bytes(ct), bytes(ss)
+
+def kem_decaps(dk: bytes, ct: bytes):
+    ss = (ctypes.c_uint8 * KEM_SS_BYTES)()
+    dk_buf = (ctypes.c_uint8 * KEM_SK_BYTES).from_buffer_copy(dk)
+    ct_buf = (ctypes.c_uint8 * KEM_CT_BYTES).from_buffer_copy(ct)
+    assert lib.pqc_kem_dec(ss, ct_buf, dk_buf) == 0
+    return bytes(ss)
+\end{lstlisting}
+
+\section{M\'odulos Python del protocolo}
+
+\begin{table}[H]
+\centering
+\caption{M\'odulos Python del protocolo PQC}
+\label{tab:modulos}
+\begin{tabular}{lp{9cm}}
+\toprule
+\textbf{M\'odulo} & \textbf{Responsabilidad} \\
+\midrule
+\texttt{autoridad\_registro.py} &
+  Par ML-DSA de la AR; emisi\'on y firma de credenciales; gesti\'on del padr\'on. \\
+\texttt{votante.py} &
+  Encapsulamiento ML-KEM, cifrado AES-GCM, construcci\'on y firma de la boleta. \\
+\texttt{servidor\_votacion.py} &
+  Verificaci\'on doble ML-DSA, anti-duplicado, almacenamiento en \'anfora, recibo. \\
+\texttt{autoridad\_conteo.py} &
+  Desencapsulamiento ML-KEM, descifrado AES-GCM, re-verificaci\'on, conteo. \\
+\texttt{protocolo\_pqc.py} &
+  Orquestador de alto nivel: flujo completo de 6 fases. \\
+\texttt{crypto\_utils.py} &
+  Primitivas sim\'etricas: AES-256-GCM, SHA3-256, KDF (HKDF). \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Validaci\'on KAT (Known Answer Tests)}
+
+\begin{table}[H]
+\centering
+\caption{Resultados de validaci\'on KAT --- NIST ACVP}
+\label{tab:kat}
+\begin{tabular}{llll}
+\toprule
+\textbf{Algoritmo} & \textbf{Est\'andar} & \textbf{Vectores PASS} & \textbf{Estado} \\
+\midrule
+ML-KEM-768 & FIPS 203 & 100/100 & \textbf{PASS} \\
+ML-DSA-65  & FIPS 204 & 100/100 & \textbf{PASS} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==============================================================
+\chapter{Benchmarking y An\'alisis Estad\'istico}
+%==============================================================
+\label{chap:benchmarks}
+
+\section{Dise\~no experimental}
+
+\begin{table}[H]
+\centering
+\caption{Dise\~no del experimento}
+\label{tab:diseno}
+\begin{tabular}{ll}
+\toprule
+\textbf{Par\'ametro} & \textbf{Valor} \\
+\midrule
+Escenarios ($N$ votantes) & $\{10,\; 50,\; 100,\; 500,\; 1000\}$ \\
+Repeticiones por escenario & 30 \\
+Total de corridas & 300 \\
+Total de operaciones cripto & $\sim$99\,000 \\
+Hardware & macOS 26.5.2, Apple Silicon ARM64 \\
+Compilador C & Clang 21.0.0 \\
+Python & 3.14.4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Latencia por voto (extremo a extremo)}
+
+\begin{table}[H]
+\centering
+\caption{Latencia media por voto}
+\label{tab:latencia}
+\begin{tabular}{lllll}
+\toprule
+$N$ & Media PQC (ms) & IC 95\% PQC & Media Cl\'asico (ms) & Factor \\
+\midrule
+10   & 1.333 & [1.281, 1.385] & 0.458 & $2.91\times$ \\
+50   & 1.330 & [1.311, 1.348] & 0.457 & $2.91\times$ \\
+100  & 1.347 & [1.329, 1.364] & 0.457 & $2.95\times$ \\
+500  & 1.351 & [1.333, 1.368] & 0.459 & $2.94\times$ \\
+1000 & 1.343 & [1.336, 1.351] & 0.459 & $2.93\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{minota}[Interpretaci\'on]
+  El protocolo PQC es $\sim$2.9$\times$ m\'as lento que el cl\'asico, pero
+  \emph{ambos est\'an muy por debajo del umbral de 200 ms}. El overhead es
+  irrelevante para la experiencia del usuario ($<$2\,ms vs.\ 200\,ms).
+\end{minota}
+
+\section{Apertura de \'anfora --- Escrutinio}
+
+\begin{table}[H]
+\centering
+\caption{Desencapsulamiento/descifrado por boleta en escrutinio}
+\label{tab:anfora}
+\begin{tabular}{lll}
+\toprule
+\textbf{Operaci\'on} & \textbf{Tiempo} & \textbf{Comparaci\'on} \\
+\midrule
+ML-KEM-768 Desencapsulamiento & 0.042 ms & --- \\
+RSA-OAEP-2048 Descifrado & 92.137 ms & PQC es \textbf{2175$\times$ m\'as r\'apido} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Para 10\,000 votos: PQC $\approx$ 420\,ms vs.\ RSA $\approx$ 921\,s (15.4 min).
+
+\section{Micro-benchmarks por operaci\'on at\'omica}
+
+\begin{table}[H]
+\centering
+\caption{Tiempos por operaci\'on individual (100 repeticiones)}
+\label{tab:microbench}
+\begin{tabular}{llr}
+\toprule
+\textbf{Operaci\'on} & \textbf{Algoritmo} & \textbf{Tiempo (ms)} \\
+\midrule
+KeyGen & ML-KEM-768 & $\sim$0.18 \\
+KeyGen & ML-DSA-65 & $\sim$0.21 \\
+Encapsulamiento & ML-KEM-768 & $\sim$0.19 \\
+Firma & ML-DSA-65 & $\sim$0.37 \\
+Verificaci\'on & ML-DSA-65 & $\sim$0.21 \\
+\textbf{Desencapsulamiento} & \textbf{ML-KEM-768} & $\sim$\textbf{0.042} \\
+\midrule
+KeyGen & RSA-2048 & $\sim$28.5 \\
+Cifrado & RSA-OAEP-2048 & $\sim$0.18 \\
+\textbf{Descifrado} & \textbf{RSA-OAEP-2048} & $\sim$\textbf{92.14} \\
+Firma & ECDSA P-256 & $\sim$0.12 \\
+Verificaci\'on & ECDSA P-256 & $\sim$0.18 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Sobrecarga de comunicaci\'on}
+
+\begin{table}[H]
+\centering
+\caption{Comparaci\'on de tama\~nos de estructuras}
+\label{tab:tamanos}
+\begin{tabular}{lll}
+\toprule
+\textbf{Estructura} & \textbf{PQC} & \textbf{Cl\'asico} \\
+\midrule
+Clave p\'ublica de elecci\'on & 1\,184 bytes & 294 bytes \\
+Firma digital & 3\,309 bytes & 72 bytes \\
+Ciphertext por boleta & 1\,088 bytes & 256 bytes \\
+\textbf{Boleta total} & \textbf{$\sim$16\,200 bytes} & \textbf{$\sim$1\,200 bytes} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La boleta PQC es 13.5$\times$ m\'as grande, pero en red 4G (10 Mbps) s\'olo
+a\~nade $\sim$13\,ms de transmisi\'on adicional por boleta --- operativamente
+despreciable.
+
+\section{An\'alisis estad\'istico inferencial}
+
+\subsection{Validaci\'on de la hip\'otesis}
+
+\textbf{Hip\'otesis de la tesis:}
+\begin{quote}
+  \textit{``El protocolo PQC puede operar dentro de los l\'imites de
+  viabilidad operativa (latencia $\leq$ 200\,ms por voto) en condiciones
+  de carga electoral realistas.''}
+\end{quote}
+
+\textbf{Resultado:} $H_0$ rechazada en todos los escenarios con
+$p < 0.0001$ (Mann-Whitney U). La latencia media de 1.34\,ms es
+\textbf{149 veces menor} al umbral de 200\,ms.
+
+\subsection{Tama\~no del efecto --- Cohen's $d$}
+
+\begin{table}[H]
+\centering
+\caption{Tama\~no del efecto (Cohen's $d$) por escenario}
+\label{tab:cohen}
+\begin{tabular}{lll}
+\toprule
+\textbf{Escenario} & \textbf{Cohen's $d$} & \textbf{Interpretaci\'on} \\
+\midrule
+$N=10$   & 7.23  & Efecto enorme ($>$0.8) \\
+$N=50$   & 18.45 & Efecto enorme \\
+$N=100$  & 19.31 & Efecto enorme \\
+$N=500$  & 18.92 & Efecto enorme \\
+$N=1000$ & 26.71 & Efecto enorme \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Valores de Cohen's $d > 7$ confirman que la diferencia es
+\emph{sustancial y no un artefacto estad\'istico}.
+
+%###############################################################
+\part{Verificaci\'on Formal y Conclusiones}
+%###############################################################
+
+%==============================================================
+\chapter{Verificaci\'on Formal con Tamarin Prover}
+%==============================================================
+\label{chap:tamarin}
+
+\begin{minota}[Sobre este cap\'itulo]
+  La gu\'ia completa de Tamarin Prover existe como documento separado
+  (\texttt{tamarin/guia\_tamarin\_libro.tex}). Este cap\'itulo presenta
+  s\'olo el contexto y los resultados de la verificaci\'on formal del
+  protocolo de votaci\'on.
+\end{minota}
+
+\section{\textquestiondown Para qu\'e sirve la verificaci\'on formal?}
+
+La verificaci\'on formal permite demostrar matem\'aticamente (no s\'olo
+testear) que un protocolo cumple sus propiedades de seguridad bajo
+\emph{todas las posibles ejecuciones}, incluyendo las del atacante.
+
+Tamarin Prover es una herramienta de verificaci\'on autom\'atica de protocolos
+de seguridad basada en el c\'alculo de reescritura de multiconjuntos. Trabaja
+bajo el \textbf{modelo Dolev-Yao}: adversario controla la red pero no puede
+romper las primitivas criptogr\'aficas.
+
+\section{Abstracci\'on criptogr\'afica en el modelo}
+
+ML-KEM y ML-DSA se modelan como cajas negras perfectas (funciones
+simb\'olicas), sin modelar la matem\'atica de ret\'iculos:
+
+\begin{itemize}
+  \item \textbf{ML-KEM:}
+    $\mathtt{decaps}(dk,\; \mathtt{encaps}(ek, r)) = r$
+  \item \textbf{ML-DSA:}
+    $\mathtt{verify}(\mathtt{sign}(m, sk),\; m,\; \mathtt{pk}(sk)) = \mathtt{true}$
+  \item \textbf{AEAD:}
+    $\mathtt{sdec}(\mathtt{senc}(m, k),\; k) = m$
+\end{itemize}
+
+\section{Lemas verificados}
+
+\begin{table}[H]
+\centering
+\caption{Resultados de verificaci\'on formal con Tamarin Prover}
+\label{tab:tamarin}
+\begin{tabular}{llll}
+\toprule
+\textbf{Lema} & \textbf{Tipo} & \textbf{Propiedad} & \textbf{Estado} \\
+\midrule
+\texttt{executability} & \texttt{exists-trace} &
+  Sanity check: traza v\'alida completa & \textbf{VERIFIED} \\
+\texttt{secreto\_voto} & \texttt{all-traces} &
+  Adversario no aprende $m$ & \textbf{VERIFIED} \\
+\texttt{integridad\_voto} & \texttt{all-traces} &
+  Correspondencia emitido/contabilizado & \textbf{VERIFIED} \\
+\texttt{autenticidad\_votante} & \texttt{all-traces} &
+  Injective agreement, previene replay & \textbf{VERIFIED} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Los cuatro lemas se verificaron en menos de 5 segundos cada uno.
+
+%==============================================================
+\chapter{Suite de Pruebas y Calidad del C\'odigo}
+%==============================================================
+\label{chap:pruebas}
+
+\section{Suite de pruebas automatizadas (pytest)}
+
+\begin{table}[H]
+\centering
+\caption{Suite de pruebas automatizadas}
+\label{tab:tests}
+\begin{tabular}{lll}
+\toprule
+\textbf{Archivo} & \textbf{Cobertura} & \textbf{Resultado} \\
+\midrule
+\texttt{test\_pqc.py} & Protocolo PQC completo & 8/8 PASS \\
+\texttt{test\_clasico.py} & Protocolo cl\'asico & 7/7 PASS \\
+\texttt{test\_web\_api.py} & Endpoints Flask & 5/5 PASS \\
+\midrule
+\textbf{Total} & & \textbf{20/20 PASS} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{M\'etricas de calidad}
+
+\begin{table}[H]
+\centering
+\caption{M\'etricas de calidad del artefacto}
+\label{tab:calidad}
+\begin{tabular}{ll}
+\toprule
+\textbf{M\'etrica} & \textbf{Valor} \\
+\midrule
+Tests unitarios/integraci\'on & 20/20 (100\% PASS) \\
+Vectores KAT NIST validados & 200/200 (100\% PASS) \\
+Lemas formales verificados & 4/4 (100\% VERIFIED) \\
+L\'ineas de c\'odigo Python & $\sim$2\,500 \\
+L\'ineas de c\'odigo C & $\sim$500 \\
+Commits en el repositorio & 8+ commits \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==============================================================
+\chapter{Conclusiones y Trabajo Futuro}
+%==============================================================
+\label{chap:conclusiones}
+
+\section{S\'intesis de resultados}
+
+Este proyecto dise\~n\'o, implement\'o y evalu\'o emp\'iricamente un protocolo
+de votaci\'on electr\'onica resistente a amenazas cu\'anticas empleando los
+est\'andares ML-KEM-768 (FIPS 203) y ML-DSA-65 (FIPS 204) del NIST.
+
+\subsection{Respecto a la hip\'otesis}
+
+La hip\'otesis de investigaci\'on est\'a \textbf{formalmente confirmada} con
+$\alpha = 0.0001$:
+\begin{itemize}
+  \item Latencia media: \textbf{1.34\,ms por voto} $\ll$ umbral de 200\,ms.
+  \item Diferencia estad\'isticamente significativa ($p < 0.0001$, Mann-Whitney U).
+  \item Efecto enorme (Cohen's $d > 7$ en todos los escenarios).
+\end{itemize}
+
+\subsection{Ventajas del protocolo PQC}
+
+\begin{enumerate}
+  \item \textbf{Resistencia cu\'antica comprobada:} ML-KEM-768 y ML-DSA-65
+    basan su seguridad en Module-LWE, intractable para computadoras cu\'anticas.
+  \item \textbf{Escrutinio ultrarrápido:} Desencapsulamiento ML-KEM-768 es
+    2\,175$\times$ m\'as r\'apido que RSA-OAEP en apertura de \'anfora.
+  \item \textbf{Estandarizaci\'on oficial:} NIST FIPS 203/204 garantizan
+    interoperabilidad y soporte a largo plazo.
+  \item \textbf{Seguridad formal verificada:} 4 lemas demostrados con
+    Tamarin Prover.
+  \item \textbf{Implementaci\'on auditada:} Basada en PQClean; validada con
+    200 vectores KAT oficiales del NIST.
+\end{enumerate}
+
+\section{Limitaciones}
+
+\begin{enumerate}
+  \item \textbf{Sobrecarga de comunicaci\'on:} Boletas PQC son 13.5$\times$
+    m\'as grandes. En redes $<$1\,Mbps podr\'ia ser relevante.
+  \item \textbf{Escalabilidad:} Pruebas hasta $N=1\,000$ votantes. Para
+    elecciones nacionales se requiere arquitectura distribuida.
+  \item \textbf{Privacidad avanzada:} No implementa mix-nets ni pruebas de
+    conocimiento cero para anonimato matem\'aticamente m\'as fuerte.
+\end{enumerate}
+
+\section{Trabajo futuro}
+
+\begin{itemize}
+  \item Evaluar \textbf{FALCON-512} (firmas compactas, $\sim$666 bytes) como
+    alternativa a ML-DSA-65.
+  \item Implementar \textbf{esquemas de umbral} para distribuir la custodia de
+    $dk_{SV}$ entre m\'ultiples autoridades.
+  \item Integrar \textbf{pruebas de conocimiento cero} (ZKP) para verificaci\'on
+    de votos sin revelaci\'on del contenido.
+  \item Escalar a arquitectura distribuida y evaluar con millones de votantes.
+  \item Migrar credenciales a \textbf{FIPS 205 (SLH-DSA)} para larga duraci\'on.
+\end{itemize}
+
+%=============================================================
+\appendix
+%=============================================================
+
+%==============================================================
+\chapter{Notaci\'on Matem\'atica}
+%==============================================================
+\label{app:notacion}
+
+\begin{table}[H]
+\centering
+\caption{Notaci\'on utilizada en el libro}
+\label{tab:notacion}
+\begin{tabular}{lp{9cm}}
+\toprule
+\textbf{S\'imbolo} & \textbf{Significado} \\
+\midrule
+$\Z$ & Conjunto de los enteros \\
+$\Z_q$ & Enteros m\'odulo $q$, $\{0,1,\ldots,q-1\}$ \\
+$\Z_q[x]/(x^n+1)$ & Anillo de polinomios c\'iclicos \\
+$R_q$ & $\Z_q[x]/(x^n+1)$, abreviatura \\
+$R_q^k$ & M\'odulo de rango $k$ sobre $R_q$ \\
+$\vv{v}$ & Vector (negrita min\'uscula) \\
+$\mm{M}$ & Matriz (negrita may\'uscula) \\
+$\|\vv{v}\|$ & Norma euclidiana \\
+$\|\vv{v}\|_\infty$ & Norma infinito: $\max_i |v_i|$ \\
+$\langle\vv{a},\vv{b}\rangle$ & Producto interior \\
+$a \xleftarrow{\$} S$ & $a$ muestreado uniformemente de $S$ \\
+$a \leftarrow \chi$ & $a$ muestreado de la distribuci\'on $\chi$ \\
+$\negl(\lambda)$ & Funci\'on despreciable en $\lambda$ \\
+$\lambda$ & Par\'ametro de seguridad \\
+$\lfloor x \rceil$ & Redondeo al entero m\'as cercano \\
+$H(\cdot)$ & Funci\'on hash (SHA3/SHAKE) \\
+$\|$ & Concatenaci\'on de bytes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==============================================================
+\chapter{Glosario de T\'erminos}
+%==============================================================
+\label{app:glosario}
+
+\begin{description}
+  \item[Algoritmo de Shor] Algoritmo cu\'antico (1994) que resuelve la
+    factorizaci\'on de enteros y el logaritmo discreto en tiempo polinomial.
+    Amenaza a RSA, DH y ECDSA.
+
+  \item[\'Anfora digital] Base de datos de boletas cifradas gestionada por
+    el Servidor de Votaci\'on. No puede ser descifrada sin $dk_{SV}$.
+
+  \item[Boleta] Estructura de datos firmada y cifrada que contiene el voto,
+    la credencial y metadatos de integridad.
+
+  \item[Credencial] Certificado emitido por la AR que vincula $ID_V$ con
+    $pk_V$, firmado con ML-DSA.
+
+  \item[CVP (Closest Vector Problem)] Encontrar el vector m\'as cercano a
+    un punto objetivo en un ret\'iculo. NP-dif\'icil.
+
+  \item[EUF-CMA] Existential Unforgeability under Chosen-Message Attack.
+    Propiedad de seguridad m\'axima para firmas digitales.
+
+  \item[IND-CCA2] Indistinguishability under Adaptive Chosen-Ciphertext Attack.
+    Propiedad de seguridad m\'axima para cifrado p\'ublico. ML-KEM la satisface.
+
+  \item[KEM (Key Encapsulation Mechanism)] Protocolo que permite establecer
+    un secreto compartido sin transmitirlo directamente.
+
+  \item[LWE (Learning With Errors)] Problema: dado un sistema lineal con error
+    peque\~no, recuperar el secreto o distinguirlo de uniforme. NP-dif\'icil.
+
+  \item[MLWE (Module-LWE)] Variante de LWE sobre m\'odulos de anillos de
+    polinomios. Base de ML-KEM y ML-DSA.
+
+  \item[NTT (Number Theoretic Transform)] Transformada an\'aloga a la DFT en
+    aritm\'etica modular. Permite multiplicar polinomios en $O(n\log n)$.
+
+  \item[PQC (Post-Quantum Cryptography)] Algoritmos cuya seguridad se
+    cree intractable incluso para computadoras cu\'anticas.
+
+  \item[PQClean] Proyecto open-source con implementaciones C de referencia
+    de los algoritmos NIST PQC.
+
+  \item[Replay attack] Ataque donde el adversario retransmite un mensaje
+    v\'alido capturado para efectos no deseados.
+
+  \item[RLWE (Ring-LWE)] Variante de LWE sobre anillos c\'iclicos $\Z_q[x]/(x^n+1)$.
+    M\'as eficiente que LWE est\'andar.
+
+  \item[SIS (Short Integer Solution)] Dado $\mm{A}$, encontrar $\vv{z}$
+    corto tal que $\mm{A}\vv{z} = \vv{0} \pmod{q}$. Base de ML-DSA.
+
+  \item[SVP (Shortest Vector Problem)] Encontrar el vector m\'as corto no
+    nulo en un ret\'iculo. NP-dif\'icil.
+
+  \item[Transformaci\'on Fujisaki-Okamoto (FO)] T\'ecnica que convierte un
+    esquema OW-CPA en IND-CCA2. Usada internamente en ML-KEM.
+\end{description}
+
+%==============================================================
+\chapter{Flujo del Protocolo en Notaci\'on Alice-Bob}
+%==============================================================
+\label{app:alice_bob}
+
+\begin{lstlisting}[caption={Protocolo de votaci\'on en notaci\'on Alice-Bob}]
+-- FASE (a): Configuracion --
+AR  : (sk_AR, pk_AR) <- ML-DSA.KeyGen()
+SV  : (ek_SV, dk_SV) <- ML-KEM.KeyGen()
+SV  : (sk_SV, pk_SV) <- ML-DSA.KeyGen()
+SV  --(seguro)--> AC : dk_SV
+AR, SV --> Directorio : {pk_AR, ek_SV, pk_SV}
+
+-- FASE (b): Registro --
+V   --> AR : ID_V
+AR  : (sk_V, pk_V) <- ML-DSA.KeyGen()
+AR  : cred_V = (ID_V || pk_V || ts)
+AR  : sigma_AR = ML-DSA.Sign(sk_AR, cred_V)
+AR  --(seguro)--> V : (sk_V, (cred_V, sigma_AR))
+
+-- FASE (c): Cifrado del voto --
+V   : m = encode(voto)
+V   : (K, ct) <- ML-KEM.Encaps(ek_SV)
+V   : voto_cifrado = AES-GCM.Enc(K, m, nonce)
+V   : boleta = ct || voto_cifrado || nonce
+             || (cred_V, sigma_AR) || ts_boleta
+V   : sigma_V = ML-DSA.Sign(sk_V, boleta)
+V   : paquete = (boleta, sigma_V)
+
+-- FASES (d)-(e): Envio y registro --
+V   --> SV : paquete
+SV  : assert ML-DSA.Verify(pk_AR, cred_V, sigma_AR)
+SV  : assert ML-DSA.Verify(pk_V, boleta, sigma_V)
+SV  : assert padron[ID_V].estado != "Ya voto"
+SV  : anfora[ID_V] = boleta
+SV  : padron[ID_V].estado = "Ya voto"
+SV  --> V  : (SHA3-256(boleta||ts_r), sigma_SV)
+
+-- FASE (f): Escrutinio --
+SV  --(seguro)--> AC : {anfora}
+para cada boleta_i en anfora:
+  AC : K_i <- ML-KEM.Decaps(dk_SV, ct_i)
+  AC : m_i = AES-GCM.Dec(K_i, voto_cifrado_i)
+  AC : assert ML-DSA.Verify(pk_V_i, boleta_i, sigma_V_i)
+  AC : conteo[m_i] += 1
+AC  --> Publico : (conteo, {SHA3-256(boleta_i)})
+\end{lstlisting}
+
+%==============================================================
+\chapter{Comparaci\'on PQC vs.\ Cl\'asico}
+%==============================================================
+\label{app:comparacion}
+
+\begin{table}[H]
+\centering
+\caption{Comparaci\'on completa: protocolo PQC vs.\ Cl\'asico}
+\label{tab:comp_completa}
+\begin{tabular}{lll}
+\toprule
+\textbf{Aspecto} & \textbf{PQC (ML-KEM + ML-DSA)} & \textbf{Cl\'asico (RSA + ECDSA)} \\
+\midrule
+\multicolumn{3}{l}{\textit{Seguridad}} \\
+Resistencia cu\'antica & S\'i (MLWE) & No (algoritmo de Shor) \\
+Base matem\'atica & Module-LWE & Factorizaci\'on / DLP \\
+Nivel de seguridad & $\sim$192 bits (Cat.\ 3) & $\sim$128 bits \\
+Estandarizaci\'on & NIST FIPS 203/204 (2024) & RSA/ECDSA est\'andar \\
+\midrule
+\multicolumn{3}{l}{\textit{Rendimiento}} \\
+Latencia por voto & 1.34\,ms & 0.46\,ms \\
+Apertura de \'anfora & 0.042\,ms & 92.14\,ms \\
+KeyGen KEM/cifrado & $\sim$0.2\,ms & $\sim$28.5\,ms (RSA) \\
+\midrule
+\multicolumn{3}{l}{\textit{Tama\~nos}} \\
+Clave p\'ublica & 1\,184 bytes (KEM) & 294 bytes (RSA) \\
+Firma & 3\,309 bytes & 72 bytes (ECDSA) \\
+Boleta total & $\sim$16\,200 bytes & $\sim$1\,200 bytes \\
+\midrule
+\multicolumn{3}{l}{\textit{Verificaci\'on formal}} \\
+Tamarin (lemas) & 4/4 VERIFIED & N/A \\
+KAT NIST & 200/200 PASS & N/A \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%=============================================================
+\backmatter
+%=============================================================
+
+\chapter*{Referencias}
+\addcontentsline{toc}{chapter}{Referencias}
+
+\begin{enumerate}
+  \item NIST. \textit{FIPS 203: Module-Lattice-Based Key-Encapsulation
+    Mechanism Standard}. 2024.
+    \url{https://doi.org/10.6028/NIST.FIPS.203}
+
+  \item NIST. \textit{FIPS 204: Module-Lattice-Based Digital Signature
+    Standard}. 2024.
+    \url{https://doi.org/10.6028/NIST.FIPS.204}
+
+  \item Regev, O. \textit{On Lattices, Learning with Errors, Random Linear
+    Codes, and Cryptography}. JACM, 56(6), 2009.
+
+  \item Lyubashevsky, V., Peikert, C., Regev, O. \textit{On Ideal Lattices
+    and Learning with Errors over Rings}. JACM, 60(6), 2013.
+
+  \item Langlois, A., Stehl\'e, D. \textit{Worst-Case to Average-Case
+    Reductions for Module Lattices}. DCC, 75(3), 2015.
+
+  \item Ducas, L., Kiltz, E., Lepoint, T., Lyubashevsky, V., Schwabe, P.,
+    Seiler, G., Stehl\'e, D. \textit{CRYSTALS-Dilithium: A Lattice-Based
+    Digital Signature Scheme}. IACR TCHES, 2018(1), 2018.
+
+  \item Avanzi, R. et al. \textit{CRYSTALS-Kyber Algorithm Specifications}.
+    NIST PQC Submission Round 3, 2021.
+
+  \item Fujisaki, E., Okamoto, T. \textit{Secure Integration of Asymmetric
+    and Symmetric Encryption Schemes}. JoC, 26(1), 2013.
+
+  \item Shor, P.W. \textit{Polynomial-Time Algorithms for Prime Factorization
+    and Discrete Logarithms on a Quantum Computer}. SIAM JoC, 26(5), 1997.
+
+  \item Diffie, W., Hellman, M.E. \textit{New Directions in Cryptography}.
+    IEEE TIT, 22(6), 1976.
+
+  \item Lenstra, A.K., Lenstra, H.W., Lov\'asz, L. \textit{Factoring
+    Polynomials with Rational Coefficients}. MA, 261(4), 1982. (Algoritmo LLL)
+
+  \item Schmidt, B., Meier, S., Cremers, C., Basin, D. \textit{Automated
+    Analysis of Diffie-Hellman Protocols and Advanced Security Properties}.
+    IEEE CSF, 2012.
+
+  \item Dolev, D., Yao, A. \textit{On the Security of Public Key Protocols}.
+    IEEE TIT, 29(2), 1983.
+
+  \item PQClean Project. \textit{Clean, portable implementations of PQC}.
+    GitHub, 2024. \url{https://github.com/PQClean/PQClean}
+
+  \item Vaishnavi, V.K., Kuechler, W. \textit{Design Science Research Methods
+    and Patterns}. CRC Press, 2004.
+
+  \item Bernstein, D.J., Lange, T. \textit{Post-Quantum Cryptography}.
+    Nature, 549(7671), 2017.
+\end{enumerate}
+
+\printindex
+
+\end{document}
