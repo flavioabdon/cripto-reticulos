@@ -1,310 +1,409 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Votación Electrónica Post-Cuántica | UMSA</title>
-  
-  <!-- Fonts -->
+  <title>Sistema de Votación Electrónica Post-Cuántica | UMSA – Bolivia</title>
+  <meta name="description" content="Demostración académica de un protocolo de votación electrónica seguro basado en criptografía post-cuántica de retículos (ML-KEM-768 / ML-DSA-65). Universidad Mayor de San Andrés.">
+
+  <!-- Google Fonts: Montserrat -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/static/css/style.css">
-  
-  <style>
-    .toast-box {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid var(--border-glow);
-      color: white;
-      padding: 14px 22px;
-      border-radius: var(--radius-md);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      font-size: 0.88rem;
-      font-weight: 500;
-      z-index: 9999;
-      display: none;
-      backdrop-filter: blur(12px);
-      transition: all 0.3s ease;
-    }
-    .toast-box.show { display: block; animation: slideIn 0.3s ease; }
-    .toast-success { border-color: var(--accent-green); }
-    .toast-danger { border-color: var(--accent-red); }
-    .toast-warning { border-color: var(--classic-primary); }
-    @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-  </style>
 </head>
 <body>
 
-  <!-- App Header -->
-  <header class="app-header">
-    <div class="header-container">
-      <div class="brand-wrapper">
-        <div class="brand-logo">
-          <i class="fa-solid fa-atom"></i>
-        </div>
-        <div>
-          <div class="brand-title">PQC-VOTE UMSA</div>
-          <div class="brand-sub">Protocolo de Votación Post-Cuántica de Retículos</div>
-        </div>
-      </div>
+  <!-- Accesibilidad: Skip to content -->
+  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
 
-      <!-- Center Nav Tabs -->
-      <div class="nav-tabs-wrapper">
-        <button class="tab-btn active" data-tab="tab-cabin">
-          <i class="fa-solid fa-person-booth"></i> Mesa de Votación
+  <!-- ══════════════════════════════════════════════════════
+       HEADER INSTITUCIONAL
+  ══════════════════════════════════════════════════════ -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+
+      <!-- Marca institucional izquierda -->
+      <a href="#" class="brand" aria-label="PQC-VOTE UMSA — Inicio">
+        <div class="brand-logo-placeholder" aria-hidden="true">
+          <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-acronym">PQC-VOTE</span>
+          <span class="brand-name">Protocolo Post-Cuántico · UMSA</span>
+        </div>
+      </a>
+
+      <!-- Navegación principal (tabs) -->
+      <nav class="header-nav" role="navigation" aria-label="Módulos del sistema">
+        <button class="nav-tab active" data-tab="tab-cabin" aria-current="page" aria-controls="tab-cabin" id="btn-tab-cabin">
+          <i class="bi bi-person-booth" aria-hidden="true"></i>
+          Mesa de Votación
         </button>
-        <button class="tab-btn" data-tab="tab-urn">
-          <i class="fa-solid fa-box-archive"></i> Ánfora Digital
+        <button class="nav-tab" data-tab="tab-urn" aria-controls="tab-urn" id="btn-tab-urn">
+          <i class="bi bi-archive" aria-hidden="true"></i>
+          Ánfora Digital
         </button>
-        <button class="tab-btn" data-tab="tab-results">
-          <i class="fa-solid fa-chart-pie"></i> Escrutinio & Resultados
+        <button class="nav-tab" data-tab="tab-results" aria-controls="tab-results" id="btn-tab-results">
+          <i class="bi bi-bar-chart-fill" aria-hidden="true"></i>
+          Escrutinio
         </button>
-        <button class="tab-btn" data-tab="tab-padron">
-          <i class="fa-solid fa-id-card-clip"></i> Padrón Electoral
+        <button class="nav-tab" data-tab="tab-padron" aria-controls="tab-padron" id="btn-tab-padron">
+          <i class="bi bi-people-fill" aria-hidden="true"></i>
+          Padrón Electoral
         </button>
-        <button class="tab-btn" data-tab="tab-admin">
-          <i class="fa-solid fa-gear"></i> Configuración
+        <button class="nav-tab" data-tab="tab-admin" aria-controls="tab-admin" id="btn-tab-admin">
+          <i class="bi bi-gear-fill" aria-hidden="true"></i>
+          Configuración
         </button>
-      </div>
+      </nav>
 
-      <!-- Engine Mode Selector -->
-      <div class="engine-toggle-box">
-        <button id="btn-engine-pqc" class="engine-btn active-pqc" title="ML-KEM-768 + ML-DSA-65">
-          <i class="fa-solid fa-atom"></i> Post-Cuántica
-        </button>
-        <button id="btn-engine-classic" class="engine-btn" title="RSA-2048 + ECDSA P-256">
-          <i class="fa-solid fa-lock"></i> Clásica
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Container -->
-  <main class="main-container">
-    
-    <!-- Top Metrics Banner -->
-    <div class="metrics-banner">
-      <div class="metric-card">
-        <div class="metric-header">
-          <span class="metric-label">Padrón Electoral Habilitado</span>
-          <i class="fa-solid fa-users metric-icon"></i>
-        </div>
-        <div class="metric-value" id="metric-padron-count">0</div>
-        <div class="metric-subtext">Ciudadanos registrados en la AR</div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-header">
-          <span class="metric-label">Votos en Ánfora</span>
-          <i class="fa-solid fa-box-archive metric-icon" style="color: var(--pqc-primary);"></i>
-        </div>
-        <div class="metric-value" id="metric-urn-count">0</div>
-        <div class="metric-subtext">Boletas cifradas y firmadas recibidas</div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-header">
-          <span class="metric-label">Participación Electoral</span>
-          <i class="fa-solid fa-chart-line metric-icon" style="color: var(--accent-green);"></i>
-        </div>
-        <div class="metric-value" id="metric-participacion">0.0%</div>
-        <div class="metric-subtext">Porcentaje de sufragios emitidos</div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-header">
-          <span class="metric-label">Motor Criptográfico Activo</span>
-          <i class="fa-solid fa-shield-halved metric-icon" style="color: var(--accent-purple);"></i>
-        </div>
-        <div class="metric-value" style="font-size: 1.15rem;" id="metric-cripto-info">ML-KEM-768 + ML-DSA-65</div>
-        <div class="metric-subtext" id="metric-cripto-sub">Nivel 3 NIST (~AES-192) - Post-Cuántica</div>
-      </div>
-    </div>
-
-    <!-- TAB 1: MESA DE VOTACIÓN -->
-    <section id="tab-cabin" class="tab-panel active">
-      <div class="cabin-grid">
-        
-        <!-- Left: Voter Selector and Ballot -->
-        <div>
-          <div class="glass-card">
-            <div class="card-title-row">
-              <div class="card-title">
-                <i class="fa-solid fa-person-booth text-cyan"></i> 1. Identificación del Votante
-              </div>
-              <span id="badge-current-engine" class="badge badge-info">
-                <i class="fa-solid fa-atom"></i> Motor Post-Cuántica
-              </span>
-            </div>
-
-            <div style="margin-bottom: 1.5rem;">
-              <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.5rem;">
-                SELECCIONAR CIUDADANO DESDE EL PADRÓN ELECTORAL:
-              </label>
-              <select id="select-voter-cabin" style="width: 100%; padding: 0.85rem; background: #0c1020; color: white; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 0.9rem;">
-                <option value="">Cargando padrón...</option>
-              </select>
-            </div>
-
-            <div class="card-title-row">
-              <div class="card-title">
-                <i class="fa-solid fa-check-to-slot text-cyan"></i> 2. Boleta Única de Sufragio
-              </div>
-              <span class="text-sub text-xs">Seleccione su preferencia</span>
-            </div>
-
-            <!-- Candidate Cards List -->
-            <div class="candidate-selection-list" id="ballot-candidates-list">
-              <!-- Renderizado dinámico -->
-            </div>
-
-            <div style="margin-top: 1.5rem;">
-              <button id="btn-emitir-voto" class="btn btn-primary" style="width: 100%; font-size: 1rem;" onclick="handleEmitirVoto()" disabled>
-                <i class="fa-solid fa-fingerprint"></i> Cifrar Voto y Emitir Sufragio
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Cryptographic Breakdown & Live Inspector -->
-        <div>
-          <div id="crypto-inspection-container">
-            <div class="glass-card text-center" style="padding: 3rem 2rem;">
-              <div style="font-size: 3rem; color: var(--border-glow); margin-bottom: 1rem;">
-                <i class="fa-solid fa-laptop-code"></i>
-              </div>
-              <div class="card-title" style="justify-content: center; margin-bottom: 0.5rem;">
-                Inspector Criptográfico en Tiempo Real
-              </div>
-              <p class="text-sub" style="max-width: 480px; margin: 0 auto;">
-                Seleccione un votante habilitado y emita su voto para visualizar paso a paso el proceso de encapsulamiento ML-KEM-768, cifrado simétrico AES-256-GCM, firma digital ML-DSA-65 y comprobante inmutable.
-              </p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- TAB 2: ÁNFORA DIGITAL -->
-    <section id="tab-urn" class="tab-panel">
-      <div class="glass-card">
-        <div class="card-title-row">
-          <div>
-            <div class="card-title">
-              <i class="fa-solid fa-box-archive text-cyan"></i> Ánfora Digital de Votos Cifrados
-            </div>
-            <div class="card-subtitle">
-              Registro inmutable de boletas protegidas por ML-KEM-768 (o RSA-2048) en custodia del Servidor de Votación
-            </div>
-          </div>
-          <button class="btn btn-secondary" onclick="loadUrn()">
-            <i class="fa-solid fa-arrows-rotate"></i> Actualizar Ánfora
+      <!-- Acciones del header -->
+      <div class="header-actions">
+        <!-- Motor criptográfico -->
+        <div class="engine-toggle" role="group" aria-label="Seleccionar motor criptográfico">
+          <button id="btn-engine-pqc" class="engine-btn active-pqc"
+            title="Motor Post-Cuántico: ML-KEM-768 + ML-DSA-65"
+            aria-pressed="true">
+            <i class="bi bi-cpu" aria-hidden="true"></i>
+            Post-Cuántica
+          </button>
+          <button id="btn-engine-classic" class="engine-btn"
+            title="Motor Clásico: RSA-2048 + ECDSA P-256"
+            aria-pressed="false">
+            <i class="bi bi-lock" aria-hidden="true"></i>
+            Clásica
           </button>
         </div>
 
-        <div class="data-table-wrapper">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Posición</th>
-                <th>ID Votante</th>
-                <th>Ciphertext KEM / Asimétrico</th>
-                <th>Voto Cifrado (AEAD)</th>
-                <th>Firma Digital Votante</th>
-                <th>Estado de Custodia</th>
-              </tr>
-            </thead>
-            <tbody id="urn-table-body">
-              <!-- Renderizado dinámico -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB 3: ESCRUTINIO & RESULTADOS EN VIVO -->
-    <section id="tab-results" class="tab-panel">
-      <div class="glass-card text-center" style="margin-bottom: 1.5rem;">
-        <div class="card-title" style="justify-content: center; margin-bottom: 0.75rem;">
-          <i class="fa-solid fa-scale-balanced text-cyan"></i> Autoridad de Conteo (AC) — Escrutinio Oficial
-        </div>
-        <p class="text-sub" style="max-width: 620px; margin: 0 auto 1.5rem auto;">
-          La Autoridad de Conteo utiliza su clave privada <code style="color: var(--accent-cyan);">dk_sv</code> para desencapsular los secretos compartidos, descifrar los votos simétricos y verificar la integridad de las firmas de todos los votantes.
-        </p>
-        <button id="btn-ejecutar-escrutinio" class="btn btn-primary" style="font-size: 1.05rem; padding: 0.85rem 2.5rem;" onclick="handleRealizarEscrutinio()">
-          <i class="fa-solid fa-unlock-keyhole"></i> Aperturar Ánfora y Ejecutar Escrutinio
+        <!-- Toggle modo oscuro -->
+        <button class="btn-theme-toggle" id="btn-theme-toggle"
+          aria-label="Alternar modo oscuro"
+          title="Cambiar a modo oscuro">
+          <i class="bi bi-moon-fill" aria-hidden="true"></i>
         </button>
       </div>
 
-      <!-- Area de Resultados (Oculta hasta escrutinio) -->
-      <div id="results-content-area" style="display: none;">
-        
-        <!-- Summary Badges -->
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-          <div class="metric-card" style="flex: 1;">
-            <div class="metric-label">Votos en Ánfora</div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════
+       CONTENIDO PRINCIPAL
+  ══════════════════════════════════════════════════════ -->
+  <main id="main-content" role="main">
+
+    <!-- ── BARRA DE INDICADORES ── -->
+    <section aria-label="Indicadores del sistema" class="metrics-bar">
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Padrón Electoral</span>
+          <i class="bi bi-people metric-icon" aria-hidden="true"></i>
+        </div>
+        <div class="metric-value" id="metric-padron-count">0</div>
+        <p class="metric-subtext">Ciudadanos registrados en la AR</p>
+      </div>
+
+      <div class="metric-card accent-secondary">
+        <div class="metric-header">
+          <span class="metric-label">Votos en Ánfora</span>
+          <i class="bi bi-archive metric-icon secondary" aria-hidden="true"></i>
+        </div>
+        <div class="metric-value" id="metric-urn-count">0</div>
+        <p class="metric-subtext">Boletas cifradas recibidas</p>
+      </div>
+
+      <div class="metric-card accent-success">
+        <div class="metric-header">
+          <span class="metric-label">Participación</span>
+          <i class="bi bi-graph-up metric-icon success" aria-hidden="true"></i>
+        </div>
+        <div class="metric-value" id="metric-participacion">0.0%</div>
+        <p class="metric-subtext">Porcentaje de sufragios emitidos</p>
+      </div>
+
+      <div class="metric-card accent-info">
+        <div class="metric-header">
+          <span class="metric-label">Motor Criptográfico</span>
+          <i class="bi bi-shield-check metric-icon info" aria-hidden="true"></i>
+        </div>
+        <div class="metric-value" id="metric-cripto-info" style="font-size:16px;line-height:1.3">ML-KEM-768 + ML-DSA-65</div>
+        <p class="metric-subtext" id="metric-cripto-sub">Nivel 3 NIST (~AES-192) · Post-Cuántica</p>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB 1: MESA DE VOTACIÓN
+    ══════════════════════════════════════════════════════ -->
+    <section id="tab-cabin" class="tab-panel active" role="tabpanel" aria-labelledby="btn-tab-cabin">
+
+      <div class="section-divider" aria-hidden="true">
+        <span class="section-divider-title">Mesa de Votación</span>
+      </div>
+
+      <div class="cabin-grid">
+
+        <!-- Identificación + Boleta -->
+        <div>
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">
+                  <i class="bi bi-person-vcard-fill" aria-hidden="true"></i>
+                  1. Identificación del Votante
+                </h2>
+              </div>
+              <span id="badge-current-engine" class="badge badge-soft-primary badge-engine badge-engine-pqc">
+                <i class="bi bi-cpu" aria-hidden="true"></i>
+                Motor Post-Cuántica
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="select-voter-cabin">
+                Seleccionar ciudadano desde el Padrón Electoral
+                <span class="required" aria-hidden="true">*</span>
+              </label>
+              <select id="select-voter-cabin" class="form-control form-select" required>
+                <option value="">Cargando padrón...</option>
+              </select>
+              <p class="form-help">Seleccione su cédula de identidad para habilitar la boleta</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">
+                  <i class="bi bi-check2-square" aria-hidden="true"></i>
+                  2. Boleta Única de Sufragio
+                </h2>
+                <p class="card-subtitle">Seleccione su preferencia para emitir el voto</p>
+              </div>
+            </div>
+
+            <fieldset aria-label="Candidatos disponibles">
+              <legend class="d-none">Candidatos</legend>
+              <!-- Candidatos renderizados dinámicamente -->
+              <div class="ballot-list" id="ballot-candidates-list" role="radiogroup" aria-label="Seleccione un candidato">
+                <div class="empty-state">
+                  <i class="bi bi-person-lines-fill"></i>
+                  <h3>Sin candidatos cargados</h3>
+                  <p>Los candidatos se cargarán automáticamente.</p>
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="mt-3">
+              <button id="btn-emitir-voto" class="btn btn-primary btn-lg w-100"
+                onclick="handleEmitirVoto()" disabled
+                aria-label="Cifrar y emitir sufragio">
+                <i class="bi bi-fingerprint" aria-hidden="true"></i>
+                Cifrar Voto y Emitir Sufragio
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <!-- Panel inspector criptográfico -->
+        <div>
+          <article class="card" id="crypto-inspection-container">
+            <div class="card-header">
+              <h2 class="card-title">
+                <i class="bi bi-code-square" aria-hidden="true"></i>
+                Inspector Criptográfico en Tiempo Real
+              </h2>
+            </div>
+
+            <div class="empty-state">
+              <i class="bi bi-laptop-code" aria-hidden="true"></i>
+              <h3>Inspector inactivo</h3>
+              <p>
+                Seleccione un votante habilitado y emita su voto para visualizar paso a paso:<br>
+                encapsulamiento <strong>ML-KEM-768</strong>, cifrado simétrico <strong>AES-256-GCM</strong>,
+                firma digital <strong>ML-DSA-65</strong> y comprobante inmutable.
+              </p>
+            </div>
+          </article>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB 2: ÁNFORA DIGITAL
+    ══════════════════════════════════════════════════════ -->
+    <section id="tab-urn" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-urn">
+
+      <div class="section-divider" aria-hidden="true">
+        <span class="section-divider-title">Ánfora Digital</span>
+      </div>
+
+      <article class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">
+              <i class="bi bi-archive-fill" aria-hidden="true"></i>
+              Ánfora Digital de Votos Cifrados
+            </h2>
+            <p class="card-subtitle">
+              Registro inmutable de boletas protegidas por ML-KEM-768 (o RSA-2048)
+              en custodia del Servidor de Votación
+            </p>
+          </div>
+          <button class="btn btn-outline-primary btn-sm" onclick="loadUrn()" aria-label="Actualizar ánfora">
+            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+            Actualizar
+          </button>
+        </div>
+
+        <div class="table-wrapper" role="region" aria-label="Tabla de votos cifrados">
+          <table class="data-table" aria-label="Votos en el ánfora digital">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">ID Votante</th>
+                <th scope="col">Ciphertext KEM / Asimétrico</th>
+                <th scope="col">Voto Cifrado (AEAD)</th>
+                <th scope="col">Firma Digital Votante</th>
+                <th scope="col">Estado de Custodia</th>
+              </tr>
+            </thead>
+            <tbody id="urn-table-body">
+              <tr>
+                <td colspan="6">
+                  <div class="empty-state" style="padding: 2rem 1rem;">
+                    <i class="bi bi-inbox" aria-hidden="true"></i>
+                    <h3>Ánfora vacía</h3>
+                    <p>No se han recibido votos aún.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB 3: ESCRUTINIO & RESULTADOS
+    ══════════════════════════════════════════════════════ -->
+    <section id="tab-results" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-results">
+
+      <div class="section-divider" aria-hidden="true">
+        <span class="section-divider-title">Escrutinio y Resultados</span>
+      </div>
+
+      <!-- Acción principal de escrutinio -->
+      <article class="card text-center">
+        <h2 class="card-title" style="justify-content:center;margin-bottom:var(--space-1)">
+          <i class="bi bi-balance-scale" aria-hidden="true"></i>
+          Autoridad de Conteo (AC) — Escrutinio Oficial
+        </h2>
+        <p class="text-lead" style="color:var(--color-text-muted);max-width:620px;margin:0 auto var(--space-3)">
+          La Autoridad de Conteo utiliza su clave privada <code>dk_sv</code> para desencapsular
+          los secretos compartidos, descifrar los votos simétricos y verificar la integridad
+          de las firmas de todos los votantes.
+        </p>
+        <button id="btn-ejecutar-escrutinio" class="btn btn-primary btn-lg"
+          onclick="handleRealizarEscrutinio()"
+          aria-label="Aperturar ánfora y ejecutar escrutinio oficial">
+          <i class="bi bi-unlock-fill" aria-hidden="true"></i>
+          Aperturar Ánfora y Ejecutar Escrutinio
+        </button>
+      </article>
+
+      <!-- Área de resultados (oculta hasta escrutinio) -->
+      <div id="results-content-area" style="display:none">
+
+        <div class="section-divider" aria-hidden="true">
+          <span class="section-divider-title">Resumen de Resultados</span>
+        </div>
+
+        <!-- Métricas del escrutinio -->
+        <div class="metrics-bar" style="margin-bottom:var(--space-3)">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">Votos en Ánfora</span>
+              <i class="bi bi-archive metric-icon" aria-hidden="true"></i>
+            </div>
             <div class="metric-value" id="res-total-ánfora">0</div>
           </div>
-          <div class="metric-card" style="flex: 1;">
-            <div class="metric-label">Votos Válidos</div>
+          <div class="metric-card accent-success">
+            <div class="metric-header">
+              <span class="metric-label">Votos Válidos</span>
+              <i class="bi bi-check-circle metric-icon success" aria-hidden="true"></i>
+            </div>
             <div class="metric-value text-success" id="res-validos">0</div>
           </div>
-          <div class="metric-card" style="flex: 1;">
-            <div class="metric-label">Votos Inválidos / Nulos</div>
-            <div class="metric-value text-danger" id="res-invalidos">0</div>
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">Votos Inválidos / Nulos</span>
+              <i class="bi bi-x-circle metric-icon secondary" aria-hidden="true"></i>
+            </div>
+            <div class="metric-value text-error" id="res-invalidos">0</div>
           </div>
-          <div class="metric-card" style="flex: 1;">
-            <div class="metric-label">Tiempo de Escrutinio</div>
-            <div class="metric-value text-cyan" id="res-tiempo-tally">0 ms</div>
+          <div class="metric-card accent-info">
+            <div class="metric-header">
+              <span class="metric-label">Tiempo de Escrutinio</span>
+              <i class="bi bi-stopwatch metric-icon info" aria-hidden="true"></i>
+            </div>
+            <div class="metric-value text-info" id="res-tiempo-tally">0 ms</div>
           </div>
         </div>
 
-        <!-- Charts Grid -->
-        <div class="results-grid">
-          <div class="glass-card">
-            <div class="card-title-row">
-              <div class="card-title"><i class="fa-solid fa-chart-column text-cyan"></i> Distribución de Votos</div>
+        <!-- Gráficos -->
+        <div class="results-grid" style="margin-bottom:var(--space-3)">
+          <article class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="bi bi-bar-chart-fill" aria-hidden="true"></i>
+                Distribución de Votos
+              </h3>
             </div>
-            <div class="chart-container">
+            <div class="chart-container" role="img" aria-label="Gráfico de barras con distribución de votos por candidato">
               <canvas id="chart-bar-results"></canvas>
             </div>
-          </div>
+          </article>
 
-          <div class="glass-card">
-            <div class="card-title-row">
-              <div class="card-title"><i class="fa-solid fa-chart-pie text-cyan"></i> Porcentaje de Sufragio</div>
+          <article class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="bi bi-pie-chart-fill" aria-hidden="true"></i>
+                Porcentaje de Sufragio
+              </h3>
             </div>
-            <div class="chart-container">
+            <div class="chart-container" role="img" aria-label="Gráfico de dona con porcentaje de sufragio por candidato">
               <canvas id="chart-donut-results"></canvas>
             </div>
-          </div>
+          </article>
         </div>
 
-        <!-- Tally Table -->
-        <div class="glass-card">
-          <div class="card-title-row">
-            <div class="card-title"><i class="fa-solid fa-list-ol text-cyan"></i> Tabla Oficial de Escrutinio</div>
+        <!-- Tabla de escrutinio -->
+        <article class="card" style="margin-bottom:var(--space-3)">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="bi bi-list-ol" aria-hidden="true"></i>
+              Tabla Oficial de Escrutinio
+            </h3>
           </div>
-          <div class="data-table-wrapper">
-            <table class="data-table">
+          <div class="table-wrapper" role="region" aria-label="Tabla oficial de resultados">
+            <table class="data-table" aria-label="Escrutinio oficial por candidato">
               <thead>
                 <tr>
-                  <th>Candidato</th>
-                  <th>Partido / Sigla</th>
-                  <th>Votos Obtenidos</th>
-                  <th>Porcentaje</th>
+                  <th scope="col">Candidato</th>
+                  <th scope="col">Partido / Sigla</th>
+                  <th scope="col">Votos Obtenidos</th>
+                  <th scope="col">Porcentaje</th>
                 </tr>
               </thead>
               <tbody id="results-table-body">
@@ -312,22 +411,28 @@
               </tbody>
             </table>
           </div>
-        </div>
+        </article>
 
-        <!-- Audit Trail -->
-        <div class="glass-card">
-          <div class="card-title-row">
-            <div class="card-title"><i class="fa-solid fa-receipt text-cyan"></i> Registro de Auditoría Criptográfica</div>
-            <span class="badge badge-success"><i class="fa-solid fa-shield"></i> Verificabilidad Universal</span>
+        <!-- Registro de auditoría -->
+        <article class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="bi bi-receipt-cutoff" aria-hidden="true"></i>
+              Registro de Auditoría Criptográfica
+            </h3>
+            <span class="badge badge-soft-success">
+              <i class="bi bi-shield-check" aria-hidden="true"></i>
+              Verificabilidad Universal
+            </span>
           </div>
-          <div class="data-table-wrapper">
-            <table class="data-table">
+          <div class="table-wrapper" role="region" aria-label="Registro de auditoría criptográfica">
+            <table class="data-table" aria-label="Auditoría por votante">
               <thead>
                 <tr>
-                  <th>Posición</th>
-                  <th>ID Votante</th>
-                  <th>Hash de Boleta (SHA3-256)</th>
-                  <th>Estado de Auditoría</th>
+                  <th scope="col">#</th>
+                  <th scope="col">ID Votante</th>
+                  <th scope="col">Hash de Boleta (SHA3-256)</th>
+                  <th scope="col">Estado de Auditoría</th>
                 </tr>
               </thead>
               <tbody id="audit-table-body">
@@ -335,94 +440,175 @@
               </tbody>
             </table>
           </div>
-        </div>
+        </article>
 
-      </div>
+      </div><!-- /results-content-area -->
     </section>
 
-    <!-- TAB 4: PADRÓN ELECTORAL & REGISTRO DE CIUDADANOS -->
-    <section id="tab-padron" class="tab-panel">
-      <div style="display: grid; grid-template-columns: 1.2fr 2fr; gap: 1.5rem;">
-        
-        <!-- Register Form -->
-        <div class="glass-card">
-          <div class="card-title-row">
-            <div class="card-title">
-              <i class="fa-solid fa-user-plus text-cyan"></i> Registro de Ciudadano (AR)
+    <!-- ══════════════════════════════════════════════════════
+         TAB 4: PADRÓN ELECTORAL
+    ══════════════════════════════════════════════════════ -->
+    <section id="tab-padron" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-padron">
+
+      <div class="section-divider" aria-hidden="true">
+        <span class="section-divider-title">Padrón Electoral y Registro de Ciudadanos</span>
+      </div>
+
+      <div class="two-col-grid">
+
+        <!-- Formulario de registro -->
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">
+                <i class="bi bi-person-plus-fill" aria-hidden="true"></i>
+                Registro de Ciudadano (AR)
+              </h2>
+              <p class="card-subtitle">Autoridad de Registro — emisión de credenciales criptográficas</p>
             </div>
           </div>
-          <form id="form-register-voter" onsubmit="handleRegisterVoterForm(event)">
-            <div style="margin-bottom: 1rem;">
-              <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem;">Cédula de Identidad (ID):</label>
-              <input id="input-reg-ci" type="text" placeholder="Ej. CI-7829104" required style="width: 100%; padding: 0.75rem; background: #0c1020; color: white; border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+
+          <form id="form-register-voter" onsubmit="handleRegisterVoterForm(event)" novalidate>
+
+            <div class="form-group">
+              <label class="form-label" for="input-reg-ci">
+                Cédula de Identidad (ID)
+                <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="input-reg-ci"
+                type="text"
+                class="form-control"
+                placeholder="Ej. CI-7829104"
+                required
+                autocomplete="off"
+                aria-required="true"
+                aria-describedby="help-reg-ci">
+              <p class="form-help" id="help-reg-ci">Identificador único del ciudadano en el padrón</p>
             </div>
-            <div style="margin-bottom: 1rem;">
-              <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem;">Nombre Completo:</label>
-              <input id="input-reg-nombre" type="text" placeholder="Ej. Mariana Quispe Flores" required style="width: 100%; padding: 0.75rem; background: #0c1020; color: white; border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+
+            <div class="form-group">
+              <label class="form-label" for="input-reg-nombre">
+                Nombre Completo
+                <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="input-reg-nombre"
+                type="text"
+                class="form-control"
+                placeholder="Ej. Mariana Quispe Flores"
+                required
+                autocomplete="name"
+                aria-required="true">
             </div>
-            <div style="margin-bottom: 1.5rem;">
-              <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem;">Carrera / Facultad:</label>
-              <input id="input-reg-facultad" type="text" placeholder="Ej. Carrera de Informática" style="width: 100%; padding: 0.75rem; background: #0c1020; color: white; border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+
+            <div class="form-group">
+              <label class="form-label" for="input-reg-facultad">
+                Carrera / Facultad
+              </label>
+              <input id="input-reg-facultad"
+                type="text"
+                class="form-control"
+                placeholder="Ej. Carrera de Informática"
+                autocomplete="organization">
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">
-              <i class="fa-solid fa-key"></i> Generar Claves y Emitir Credencial
+
+            <button type="submit" class="btn btn-primary btn-md w-100 mt-2"
+              id="btn-submit-register"
+              aria-label="Generar par de claves y emitir credencial">
+              <i class="bi bi-key-fill" aria-hidden="true"></i>
+              Generar Claves y Emitir Credencial
             </button>
           </form>
-        </div>
 
-        <!-- Padron Table -->
-        <div class="glass-card">
-          <div class="card-title-row">
-            <div class="card-title">
-              <i class="fa-solid fa-id-card text-cyan"></i> Padrón Electoral Oficial
+          <!-- Contenedor Didáctico de Generación de Claves -->
+          <div id="reg-crypto-panel" class="mt-3">
+            <div class="didactic-box pqc" id="reg-didactic-intro">
+              <div class="didactic-title">
+                <i class="bi bi-mortarboard-fill text-primary" aria-hidden="true"></i>
+                Didáctica: Flujo de Generación de Claves (AR)
+              </div>
+              <p style="margin:4px 0 0;font-size:12px;color:var(--color-text-body);line-height:1.45">
+                Al registrar un elector, la <strong>Autoridad de Registro (AR)</strong> ejecuta 3 fases criptográficas:
+                <strong>1)</strong> Muestreo del par de claves en retículos <code>(sk, pk)</code> con <strong>ML-DSA-65 (FIPS 204)</strong>.
+                <strong>2)</strong> Estructura canónica de la credencial cívica.
+                <strong>3)</strong> Firma institucional de certificación con la clave maestra de la AR.
+              </p>
             </div>
-            <button class="btn btn-secondary text-xs" onclick="loadVoters()">
-              <i class="fa-solid fa-arrows-rotate"></i> Refrescar
+            <div id="reg-stepper-live"></div>
+          </div>
+        </article>
+
+        <!-- Tabla del padrón -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <i class="bi bi-card-list" aria-hidden="true"></i>
+              Padrón Electoral Oficial
+            </h2>
+            <button class="btn btn-outline-primary btn-sm" onclick="loadVoters()" aria-label="Refrescar padrón electoral">
+              <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+              Refrescar
             </button>
           </div>
-          <div class="data-table-wrapper">
-            <table class="data-table">
+
+          <div class="table-wrapper" role="region" aria-label="Padrón electoral de ciudadanos">
+            <table class="data-table" aria-label="Registro de ciudadanos habilitados">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>ID Votante</th>
-                  <th>Nombre Completo</th>
-                  <th>Facultad</th>
-                  <th>Estado</th>
-                  <th>Clave Pública</th>
-                  <th>Acción</th>
+                  <th scope="col">#</th>
+                  <th scope="col">ID Votante</th>
+                  <th scope="col">Nombre Completo</th>
+                  <th scope="col">Facultad</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Clave Pública</th>
+                  <th scope="col">Acción</th>
                 </tr>
               </thead>
               <tbody id="padron-table-body">
-                <!-- Renderizado dinámico -->
+                <tr>
+                  <td colspan="7">
+                    <div class="empty-state" style="padding:2rem 1rem">
+                      <i class="bi bi-people" aria-hidden="true"></i>
+                      <h3>Padrón vacío</h3>
+                      <p>Registre ciudadanos con el formulario de la izquierda.</p>
+                    </div>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
-        </div>
+        </article>
 
       </div>
     </section>
 
-    <!-- TAB 5: ADMINISTRACIÓN & AJUSTES -->
-    <section id="tab-admin" class="tab-panel">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-        
-        <!-- Candidatos Admin Table -->
-        <div class="glass-card">
-          <div class="card-title-row">
-            <div class="card-title">
-              <i class="fa-solid fa-users-gear text-cyan"></i> Candidatos Inscritos
-            </div>
+    <!-- ══════════════════════════════════════════════════════
+         TAB 5: CONFIGURACIÓN & ADMINISTRACIÓN
+    ══════════════════════════════════════════════════════ -->
+    <section id="tab-admin" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-admin">
+
+      <div class="section-divider" aria-hidden="true">
+        <span class="section-divider-title">Configuración y Administración</span>
+      </div>
+
+      <div class="admin-grid">
+
+        <!-- Candidatos -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <i class="bi bi-person-gear" aria-hidden="true"></i>
+              Candidatos Inscritos
+            </h2>
           </div>
-          <div class="data-table-wrapper">
-            <table class="data-table">
+          <div class="table-wrapper" role="region" aria-label="Lista de candidatos inscritos">
+            <table class="data-table" aria-label="Candidatos para la elección">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Candidato</th>
-                  <th>Partido</th>
-                  <th>Sigla</th>
-                  <th>Color</th>
+                  <th scope="col">ID</th>
+                  <th scope="col">Candidato</th>
+                  <th scope="col">Partido</th>
+                  <th scope="col">Sigla</th>
+                  <th scope="col">Color</th>
                 </tr>
               </thead>
               <tbody id="admin-candidates-body">
@@ -430,66 +616,267 @@
               </tbody>
             </table>
           </div>
-        </div>
+        </article>
 
-        <!-- Control de Elección -->
-        <div class="glass-card">
-          <div class="card-title-row">
-            <div class="card-title">
-              <i class="fa-solid fa-sliders text-cyan"></i> Control de Jornada Electoral
-            </div>
+        <!-- Control de Jornada -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <i class="bi bi-toggles" aria-hidden="true"></i>
+              Control de Jornada Electoral
+            </h2>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 1rem;">
-            <div style="background: rgba(255,255,255,0.03); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-              <strong style="display: block; margin-bottom: 0.3rem;">Fase de la Elección:</strong>
-              <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                <button class="btn btn-secondary text-xs" onclick="setPhase('CONFIGURACION')">Configuración</button>
-                <button class="btn btn-primary text-xs" onclick="setPhase('VOTACION_ABIERTA')">Votación Abierta</button>
-                <button class="btn btn-success text-xs" onclick="setPhase('ESCRUTINIO_FINALIZADO')">Escrutinio</button>
-              </div>
-            </div>
-
-            <div style="background: rgba(239, 68, 68, 0.08); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid rgba(239, 68, 68, 0.3);">
-              <strong style="color: var(--accent-red); display: block; margin-bottom: 0.3rem;">Zona de Peligro:</strong>
-              <p class="text-sub text-xs" style="margin-bottom: 0.85rem;">
-                Reinicia la ánfora digital, padrón y contadores a su estado predeterminado de demostración.
-              </p>
-              <button class="btn btn-danger text-xs" onclick="handleResetElection()">
-                <i class="fa-solid fa-rotate-left"></i> Reiniciar Elección Completa
+          <!-- Fase -->
+          <div class="phase-control">
+            <span class="phase-label">
+              <i class="bi bi-flag-fill text-primary" aria-hidden="true"></i>
+              Fase actual de la Elección
+            </span>
+            <div class="phase-buttons" role="group" aria-label="Cambiar fase de la elección">
+              <button class="btn btn-outline-primary btn-sm"
+                onclick="setPhase('CONFIGURACION')"
+                aria-label="Establecer fase Configuración">
+                <i class="bi bi-wrench" aria-hidden="true"></i>
+                Configuración
+              </button>
+              <button class="btn btn-primary btn-sm"
+                onclick="setPhase('VOTACION_ABIERTA')"
+                aria-label="Establecer fase Votación Abierta">
+                <i class="bi bi-check2-circle" aria-hidden="true"></i>
+                Votación Abierta
+              </button>
+              <button class="btn btn-success btn-sm"
+                onclick="setPhase('ESCRUTINIO_FINALIZADO')"
+                aria-label="Establecer fase Escrutinio">
+                <i class="bi bi-award" aria-hidden="true"></i>
+                Escrutinio
               </button>
             </div>
           </div>
-        </div>
+
+          <!-- Zona de peligro -->
+          <div class="danger-zone" role="alert" aria-label="Zona de peligro: acciones irreversibles">
+            <p class="danger-zone-title">
+              <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+              Zona de Peligro
+            </p>
+            <p>
+              Reinicia la ánfora digital, padrón y contadores a su estado predeterminado de demostración.
+              <strong>Esta acción no se puede deshacer.</strong>
+            </p>
+            <button class="btn btn-danger btn-sm" onclick="handleResetElection()"
+              aria-label="Reiniciar elección completa — acción irreversible">
+              <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+              Reiniciar Elección Completa
+            </button>
+          </div>
+        </article>
 
       </div>
     </section>
 
   </main>
 
-  <!-- Toast Notification -->
-  <div id="toast-notification" class="toast-box"></div>
+  <!-- ══════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-section">
+        <h3>Sistema PQC-VOTE</h3>
+        <p>
+          Demostración académica de un protocolo de votación electrónica basado en criptografía
+          post-cuántica de retículos. Universidad Mayor de San Andrés — Carrera de Informática.
+        </p>
+      </div>
+      <div class="footer-section">
+        <h3>Algoritmos</h3>
+        <a href="#" aria-label="ML-KEM-768 estándar NIST">ML-KEM-768 (FIPS 203)</a>
+        <a href="#" aria-label="ML-DSA-65 estándar NIST">ML-DSA-65 (FIPS 204)</a>
+        <a href="#" aria-label="AES-256-GCM">AES-256-GCM (Cifrado simétrico)</a>
+        <a href="#" aria-label="SHA3-256">SHA3-256 (Hash de integridad)</a>
+      </div>
+      <div class="footer-section">
+        <h3>Proyecto de Grado</h3>
+        <a href="#" aria-label="Documentación del proyecto">Documentación técnica</a>
+        <a href="#" aria-label="Código fuente">Código fuente</a>
+        <a href="#" aria-label="UMSA Bolivia">Universidad Mayor de San Andrés</a>
+        <p style="margin-top:8px">Bolivia, 2025</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>
+        © 2025 PQC-VOTE · UMSA · Sistema académico de demostración ·
+        Criptografía Post-Cuántica de Retículos
+      </p>
+      <p>Estado Plurinacional de Bolivia</p>
+    </div>
+  </footer>
 
-  <!-- Custom Scripts -->
+  <!-- ══════════════════════════════════════════════════════
+       MODAL DIDÁCTICO: INSPECCIÓN DE CLAVES Y CREDENCIAL
+  ══════════════════════════════════════════════════════ -->
+  <div id="modal-voter-credential" class="modal-backdrop d-none" role="dialog" aria-modal="true" aria-labelledby="modal-cred-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="modal-cred-title" class="modal-title">
+          <i class="bi bi-person-badge-fill text-primary" aria-hidden="true"></i>
+          Credencial Criptográfica y Par de Claves
+        </h2>
+        <button class="modal-close-btn" onclick="closeVoterCredentialModal()" aria-label="Cerrar ventana">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-cred-content">
+        <!-- Renderizado dinámico desde main.js -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-primary btn-sm" onclick="closeVoterCredentialModal()">
+          <i class="bi bi-x-circle" aria-hidden="true"></i> Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       TOASTS (Notificaciones)
+  ══════════════════════════════════════════════════════ -->
+  <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════════════════ -->
   <script src="/static/js/main.js"></script>
-  
+
   <script>
+    /* ── THEME TOGGLE ── */
+    const html = document.documentElement;
+    const btnTheme = document.getElementById('btn-theme-toggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    html.dataset.theme = savedTheme;
+    updateThemeIcon(savedTheme);
+
+    btnTheme.addEventListener('click', () => {
+      const current = html.dataset.theme;
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.dataset.theme = next;
+      localStorage.setItem('theme', next);
+      updateThemeIcon(next);
+      btnTheme.setAttribute('aria-label', next === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+    });
+
+    function updateThemeIcon(theme) {
+      const icon = btnTheme.querySelector('i');
+      if (theme === 'dark') {
+        icon.className = 'bi bi-sun-fill';
+      } else {
+        icon.className = 'bi bi-moon-fill';
+      }
+    }
+
+    /* ── TAB NAVIGATION ── */
+    const tabBtns = document.querySelectorAll('.nav-tab[data-tab]');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.tab;
+
+        tabBtns.forEach(b => {
+          b.classList.remove('active');
+          b.removeAttribute('aria-current');
+        });
+        tabPanels.forEach(p => p.classList.remove('active'));
+
+        btn.classList.add('active');
+        btn.setAttribute('aria-current', 'page');
+        const panel = document.getElementById(targetId);
+        if (panel) panel.classList.add('active');
+      });
+    });
+
+    /* ── ENGINE TOGGLE ── */
+    const btnPQC     = document.getElementById('btn-engine-pqc');
+    const btnClassic = document.getElementById('btn-engine-classic');
+
+    btnPQC.addEventListener('click', () => setEngine('pqc'));
+    btnClassic.addEventListener('click', () => setEngine('classic'));
+
+    function setEngine(mode) {
+      if (mode === 'pqc') {
+        btnPQC.classList.add('active-pqc');
+        btnPQC.setAttribute('aria-pressed', 'true');
+        btnClassic.classList.remove('active-classic');
+        btnClassic.setAttribute('aria-pressed', 'false');
+      } else {
+        btnClassic.classList.add('active-classic');
+        btnClassic.setAttribute('aria-pressed', 'true');
+        btnPQC.classList.remove('active-pqc');
+        btnPQC.setAttribute('aria-pressed', 'false');
+      }
+      // Delegar al motor JS principal
+      if (typeof switchEngine === 'function') switchEngine(mode);
+    }
+
+    /* ── FASE ── */
     async function setPhase(phase) {
       try {
-        const res = await fetch("/api/election/phase", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const res = await fetch('/api/election/phase', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phase })
         });
         const data = await res.json();
         if (data.success) {
-          showNotification(`Fase cambiada a: ${phase}`, "info");
-          loadSystemStatus();
+          showNotification(`Fase cambiada a: ${phase}`, 'info');
+          if (typeof loadSystemStatus === 'function') loadSystemStatus();
         }
       } catch (err) {
         console.error(err);
+        showNotification('Error al cambiar la fase', 'error');
       }
     }
+
+    /* ── TOAST SYSTEM ── */
+    function showNotification(message, type = 'info', title = '') {
+      const container = document.getElementById('toast-container');
+      const iconMap = {
+        success: 'bi-check-circle-fill',
+        error:   'bi-x-circle-fill',
+        warning: 'bi-exclamation-triangle-fill',
+        info:    'bi-info-circle-fill'
+      };
+      const titleMap = {
+        success: 'Éxito',
+        error:   'Error',
+        warning: 'Advertencia',
+        info:    'Información'
+      };
+
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'assertive');
+      toast.innerHTML = `
+        <i class="bi ${iconMap[type] || 'bi-info-circle-fill'}" aria-hidden="true"></i>
+        <div class="toast-body">
+          <div class="toast-title">${title || titleMap[type] || 'Aviso'}</div>
+          <div class="toast-text">${message}</div>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Compatibilidad con main.js (que puede usar showToast)
+    window.showToast = showNotification;
   </script>
+
 </body>
 </html>
