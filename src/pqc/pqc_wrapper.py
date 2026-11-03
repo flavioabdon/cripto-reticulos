@@ -1,27 +1,30 @@
 """
-Wrapper Python (ctypes) para las primitivas post-cuánticas de PQClean:
-  - ML-KEM-768 (FIPS 203 - Key Encapsulation Mechanism)
-  - ML-DSA-65  (FIPS 204 - Module-Lattice Digital Signature Algorithm)
+Wrapper Python (ctypes) para nuestras implementaciones propias de:
+  - FIPS 202 (Keccak-f[1600]: SHA3-256, SHA3-512, SHAKE128, SHAKE256)
+  - FIPS 203 (ML-KEM-768 - Key Encapsulation Mechanism)
+  - FIPS 204 (ML-DSA-65  - Module-Lattice Digital Signature Algorithm)
+
+No utiliza librerías externas de NIST ni PQClean.
 """
 
 import ctypes
 import os
 import platform
-import sys
 
-# Constantes de longitud de bytes
+# Constantes de longitud de bytes para ML-KEM-768 (FIPS 203)
 MLKEM768_PUBLIC_KEY_BYTES = 1184
 MLKEM768_SECRET_KEY_BYTES = 2400
 MLKEM768_CIPHERTEXT_BYTES = 1088
 MLKEM768_SHARED_SECRET_BYTES = 32
 
+# Constantes de longitud de bytes para ML-DSA-65 (FIPS 204)
 MLDSA65_PUBLIC_KEY_BYTES = 1952
 MLDSA65_SECRET_KEY_BYTES = 4032
 MLDSA65_SIGNATURE_BYTES = 3309
 
 
 def _load_pqc_library():
-    """Carga la biblioteca compartida libpqc_core."""
+    """Carga la biblioteca compartida propia libpqc_core."""
     base_dir = os.path.dirname(os.path.abspath(__file__))
     ext = "dylib" if platform.system() == "Darwin" else "so"
     lib_path = os.path.join(base_dir, f"libpqc_core.{ext}")
@@ -34,7 +37,38 @@ def _load_pqc_library():
 
     lib = ctypes.CDLL(lib_path)
 
-    # Definir firmas de tipos ctypes para ML-KEM-768
+    # Firmas ctypes para FIPS 202 (SHA-3 y SHAKE)
+    lib.pqc_sha3_256.argtypes = [
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.c_size_t,
+    ]
+    lib.pqc_sha3_256.restype = None
+
+    lib.pqc_sha3_512.argtypes = [
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.c_size_t,
+    ]
+    lib.pqc_sha3_512.restype = None
+
+    lib.pqc_shake128.argtypes = [
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.c_size_t,
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.c_size_t,
+    ]
+    lib.pqc_shake128.restype = None
+
+    lib.pqc_shake256.argtypes = [
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.c_size_t,
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.c_size_t,
+    ]
+    lib.pqc_shake256.restype = None
+
+    # Firmas ctypes para ML-KEM-768 (FIPS 203)
     lib.ml_kem_768_keypair.argtypes = [
         ctypes.POINTER(ctypes.c_uint8),
         ctypes.POINTER(ctypes.c_uint8),
@@ -55,7 +89,23 @@ def _load_pqc_library():
     ]
     lib.ml_kem_768_decaps.restype = ctypes.c_int
 
-    # Definir firmas de tipos ctypes para ML-DSA-65
+    lib.fips203_mlkem768_keygen_internal.argtypes = [
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.POINTER(ctypes.c_uint8),
+    ]
+    lib.fips203_mlkem768_keygen_internal.restype = ctypes.c_int
+
+    lib.fips203_mlkem768_encaps_internal.argtypes = [
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.POINTER(ctypes.c_uint8),
+    ]
+    lib.fips203_mlkem768_encaps_internal.restype = ctypes.c_int
+
+    # Firmas ctypes para ML-DSA-65 (FIPS 204)
     lib.ml_dsa_65_keypair.argtypes = [
         ctypes.POINTER(ctypes.c_uint8),
         ctypes.POINTER(ctypes.c_uint8),
@@ -80,14 +130,65 @@ def _load_pqc_library():
     ]
     lib.ml_dsa_65_verify.restype = ctypes.c_int
 
+    lib.fips204_mldsa65_keygen_internal.argtypes = [
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.POINTER(ctypes.c_uint8),
+    ]
+    lib.fips204_mldsa65_keygen_internal.restype = ctypes.c_int
+
+    lib.fips204_mldsa65_sign_ctx.argtypes = [
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.POINTER(ctypes.c_size_t),
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.c_size_t,
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.c_size_t,
+        ctypes.POINTER(ctypes.c_uint8),
+        ctypes.POINTER(ctypes.c_uint8),
+    ]
+    lib.fips204_mldsa65_sign_ctx.restype = ctypes.c_int
+
     return lib
 
 
 _LIB = _load_pqc_library()
 
 
+class FIPS202:
+    """Implementación propia de FIPS 202 (SHA3-256, SHA3-512, SHAKE128, SHAKE256)."""
+
+    @staticmethod
+    def sha3_256(data: bytes) -> bytes:
+        out_buf = (ctypes.c_uint8 * 32)()
+        in_buf = (ctypes.c_uint8 * len(data)).from_buffer_copy(data) if data else None
+        _LIB.pqc_sha3_256(out_buf, in_buf, len(data))
+        return bytes(out_buf)
+
+    @staticmethod
+    def sha3_512(data: bytes) -> bytes:
+        out_buf = (ctypes.c_uint8 * 64)()
+        in_buf = (ctypes.c_uint8 * len(data)).from_buffer_copy(data) if data else None
+        _LIB.pqc_sha3_512(out_buf, in_buf, len(data))
+        return bytes(out_buf)
+
+    @staticmethod
+    def shake128(data: bytes, outlen: int) -> bytes:
+        out_buf = (ctypes.c_uint8 * outlen)()
+        in_buf = (ctypes.c_uint8 * len(data)).from_buffer_copy(data) if data else None
+        _LIB.pqc_shake128(out_buf, outlen, in_buf, len(data))
+        return bytes(out_buf)
+
+    @staticmethod
+    def shake256(data: bytes, outlen: int) -> bytes:
+        out_buf = (ctypes.c_uint8 * outlen)()
+        in_buf = (ctypes.c_uint8 * len(data)).from_buffer_copy(data) if data else None
+        _LIB.pqc_shake256(out_buf, outlen, in_buf, len(data))
+        return bytes(out_buf)
+
+
 class MLKEM768:
-    """Implementación de ML-KEM-768 (FIPS 203)."""
+    """Implementación propia de ML-KEM-768 (FIPS 203)."""
 
     PUBLIC_KEY_SIZE = MLKEM768_PUBLIC_KEY_BYTES
     SECRET_KEY_SIZE = MLKEM768_SECRET_KEY_BYTES
@@ -104,6 +205,21 @@ class MLKEM768:
         if res != 0:
             raise RuntimeError(f"Error en ML-KEM-768 keypair (código {res})")
 
+        return bytes(pk_buf), bytes(sk_buf)
+
+    @staticmethod
+    def keypair_derand(d: bytes, z: bytes) -> tuple[bytes, bytes]:
+        """Genera un par de claves determinista a partir de las semillas d (32 B) y z (32 B)."""
+        if len(d) != 32 or len(z) != 32:
+            raise ValueError("Las semillas d y z deben medir exactamente 32 bytes")
+        pk_buf = (ctypes.c_uint8 * MLKEM768_PUBLIC_KEY_BYTES)()
+        sk_buf = (ctypes.c_uint8 * MLKEM768_SECRET_KEY_BYTES)()
+        d_buf = (ctypes.c_uint8 * 32).from_buffer_copy(d)
+        z_buf = (ctypes.c_uint8 * 32).from_buffer_copy(z)
+
+        res = _LIB.fips203_mlkem768_keygen_internal(pk_buf, sk_buf, d_buf, z_buf)
+        if res != 0:
+            raise RuntimeError(f"Error en ML-KEM-768 keygen_internal (código {res})")
         return bytes(pk_buf), bytes(sk_buf)
 
     @staticmethod
@@ -125,6 +241,21 @@ class MLKEM768:
         if res != 0:
             raise RuntimeError(f"Error en ML-KEM-768 encaps (código {res})")
 
+        return bytes(ct_buf), bytes(ss_buf)
+
+    @staticmethod
+    def enc_derand(pk: bytes, m: bytes) -> tuple[bytes, bytes]:
+        """Encapsula de forma determinista con la semilla m (32 bytes)."""
+        if len(pk) != MLKEM768_PUBLIC_KEY_BYTES or len(m) != 32:
+            raise ValueError("Parámetros inválidos para enc_derand")
+        ct_buf = (ctypes.c_uint8 * MLKEM768_CIPHERTEXT_BYTES)()
+        ss_buf = (ctypes.c_uint8 * MLKEM768_SHARED_SECRET_BYTES)()
+        pk_buf = (ctypes.c_uint8 * len(pk)).from_buffer_copy(pk)
+        m_buf = (ctypes.c_uint8 * 32).from_buffer_copy(m)
+
+        res = _LIB.fips203_mlkem768_encaps_internal(ct_buf, ss_buf, pk_buf, m_buf)
+        if res != 0:
+            raise RuntimeError(f"Error en ML-KEM-768 encaps_internal (código {res})")
         return bytes(ct_buf), bytes(ss_buf)
 
     @staticmethod
@@ -154,7 +285,7 @@ class MLKEM768:
 
 
 class MLDSA65:
-    """Implementación de ML-DSA-65 (FIPS 204)."""
+    """Implementación propia de ML-DSA-65 (FIPS 204)."""
 
     PUBLIC_KEY_SIZE = MLDSA65_PUBLIC_KEY_BYTES
     SECRET_KEY_SIZE = MLDSA65_SECRET_KEY_BYTES
@@ -170,6 +301,20 @@ class MLDSA65:
         if res != 0:
             raise RuntimeError(f"Error en ML-DSA-65 keypair (código {res})")
 
+        return bytes(pk_buf), bytes(sk_buf)
+
+    @staticmethod
+    def keypair_derand(xi: bytes) -> tuple[bytes, bytes]:
+        """Genera un par de claves determinista a partir de la semilla xi (32 B)."""
+        if len(xi) != 32:
+            raise ValueError("La semilla xi debe medir 32 bytes")
+        pk_buf = (ctypes.c_uint8 * MLDSA65_PUBLIC_KEY_BYTES)()
+        sk_buf = (ctypes.c_uint8 * MLDSA65_SECRET_KEY_BYTES)()
+        xi_buf = (ctypes.c_uint8 * 32).from_buffer_copy(xi)
+
+        res = _LIB.fips204_mldsa65_keygen_internal(pk_buf, sk_buf, xi_buf)
+        if res != 0:
+            raise RuntimeError(f"Error en ML-DSA-65 keygen_internal (código {res})")
         return bytes(pk_buf), bytes(sk_buf)
 
     @staticmethod

@@ -1,39 +1,14 @@
 CC ?= gcc
 CFLAGS ?= -O3 -Wall -Wextra -pedantic -Wmissing-prototypes -Wredundant-decls -Wshadow -Wpointer-arith -fPIC
-INCLUDES = -Isrc/pqc -Isrc/pqc/pqclean/common -Isrc/pqc/pqclean/crypto_kem/ml-kem-768/clean -Isrc/pqc/pqclean/crypto_sign/ml-dsa-65/clean
+INCLUDES = -Isrc/pqc
 
-COMMON_SRCS = \
-	src/pqc/pqclean/common/fips202.c \
-	src/pqc/pqclean/common/randombytes.c \
-	src/pqc/pqclean/common/aes.c \
-	src/pqc/pqclean/common/sha2.c \
-	src/pqc/pqclean/common/sp800-185.c \
-	src/pqc/pqclean/common/nistseedexpander.c
+PQC_SRCS = \
+	src/pqc/fips202.c \
+	src/pqc/fips203.c \
+	src/pqc/fips204.c \
+	src/pqc/pqc_core.c
 
-MLKEM_SRCS = \
-	src/pqc/pqclean/crypto_kem/ml-kem-768/clean/cbd.c \
-	src/pqc/pqclean/crypto_kem/ml-kem-768/clean/indcpa.c \
-	src/pqc/pqclean/crypto_kem/ml-kem-768/clean/kem.c \
-	src/pqc/pqclean/crypto_kem/ml-kem-768/clean/ntt.c \
-	src/pqc/pqclean/crypto_kem/ml-kem-768/clean/poly.c \
-	src/pqc/pqclean/crypto_kem/ml-kem-768/clean/polyvec.c \
-	src/pqc/pqclean/crypto_kem/ml-kem-768/clean/reduce.c \
-	src/pqc/pqclean/crypto_kem/ml-kem-768/clean/symmetric-shake.c \
-	src/pqc/pqclean/crypto_kem/ml-kem-768/clean/verify.c
-
-MLDSA_SRCS = \
-	src/pqc/pqclean/crypto_sign/ml-dsa-65/clean/ntt.c \
-	src/pqc/pqclean/crypto_sign/ml-dsa-65/clean/packing.c \
-	src/pqc/pqclean/crypto_sign/ml-dsa-65/clean/poly.c \
-	src/pqc/pqclean/crypto_sign/ml-dsa-65/clean/polyvec.c \
-	src/pqc/pqclean/crypto_sign/ml-dsa-65/clean/reduce.c \
-	src/pqc/pqclean/crypto_sign/ml-dsa-65/clean/rounding.c \
-	src/pqc/pqclean/crypto_sign/ml-dsa-65/clean/sign.c \
-	src/pqc/pqclean/crypto_sign/ml-dsa-65/clean/symmetric-shake.c
-
-WRAPPER_SRCS = src/pqc/pqc_core.c
-
-ALL_SRCS = $(COMMON_SRCS) $(MLKEM_SRCS) $(MLDSA_SRCS) $(WRAPPER_SRCS)
+ALL_SRCS = $(PQC_SRCS)
 ALL_OBJS = $(ALL_SRCS:.c=.o)
 
 UNAME_S := $(shell uname -s)

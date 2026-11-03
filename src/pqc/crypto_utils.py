@@ -1,14 +1,16 @@
 """
 Utilidades criptográficas simétricas y de serialización para el protocolo PQC:
-  - Cifrado simétrico autenticado (AES-256-GCM) con clave derivada de ML-KEM
-  - Hashes criptográficos canónicos (SHA3-256 / SHA-256)
-  - Serialización estructurada de boletas, credenciales y recibos
+  - Hash criptográfico post-cuántico SHA3-256 mediante nuestra implementación propia de FIPS 202
+  - Cifrado simétrico autenticado (AES-256-GCM) con clave derivada de ML-KEM (FIPS 203)
+  - Serialización estructurada canónica de boletas, credenciales y recibos
 """
 
 import hashlib
 import json
 import os
 from typing import Any, Tuple
+
+from src.pqc.fips202 import sha3_256 as fips202_sha3_256
 
 try:
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -18,12 +20,12 @@ except ImportError:
 
 
 def sha3_256(data: bytes) -> bytes:
-    """Calcula el hash SHA3-256 de los datos."""
-    return hashlib.sha3_256(data).digest()
+    """Calcula el hash SHA3-256 usando nuestra implementación propia de FIPS 202."""
+    return fips202_sha3_256(data)
 
 
 def sha256(data: bytes) -> bytes:
-    """Calcula el hash SHA-256 de los datos."""
+    """Calcula el hash clásico SHA-256 de los datos."""
     return hashlib.sha256(data).digest()
 
 
@@ -43,9 +45,8 @@ def aes_gcm_encrypt(key: bytes, plaintext: bytes, nonce: bytes = None) -> Tuple[
         ciphertext = aesgcm.encrypt(nonce, plaintext, None)
         return ciphertext, nonce
     else:
-        # Fallback simple XOR + HMAC si cryptography no estuviera disponible (solo para tests aislados)
         import hmac
-        keystream = hashlib.sha3_256(key + nonce).digest()
+        keystream = fips202_sha3_256(key + nonce)
         ct = bytes(p ^ keystream[i % len(keystream)] for i, p in enumerate(plaintext))
         tag = hmac.new(key, nonce + ct, hashlib.sha256).digest()[:16]
         return ct + tag, nonce
@@ -69,7 +70,7 @@ def aes_gcm_decrypt(key: bytes, ciphertext: bytes, nonce: bytes) -> bytes:
         expected_tag = hmac.new(key, nonce + ct, hashlib.sha256).digest()[:16]
         if not hmac.compare_digest(tag, expected_tag):
             raise ValueError("Fallo de autenticación en descifrado")
-        keystream = hashlib.sha3_256(key + nonce).digest()
+        keystream = fips202_sha3_256(key + nonce)
         return bytes(c ^ keystream[i % len(keystream)] for i, c in enumerate(ct))
 
 

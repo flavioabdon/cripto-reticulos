@@ -1,7 +1,7 @@
 # Reporte de Validación KAT — Núcleo Criptográfico PQC (PQClean)
 
-**Fecha:** 2026-08-29 10:09:19  
-**Plataforma:** `macOS-26.5.2-arm64-arm-64bit-Mach-O` (`arm`)  
+**Fecha:** 2026-11-02 10:31:13  
+**Plataforma:** `macOS-27.0-arm64-arm-64bit-Mach-O` (`arm`)  
 **Commit PQClean:** `0586a824fc0d49df0b6b6e9179d8d15d06d0974f`  
 **Resultado Global:** `✅ PASS`
 

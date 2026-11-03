@@ -12,7 +12,7 @@ from typing import Dict, List, Any
 # Agregar raíz al sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 
 # Importar motores criptográficos
 from src.pqc.pqc_wrapper import MLKEM768, MLDSA65
@@ -29,6 +29,17 @@ from src.clasico.autoridad_conteo_clasico import AutoridadConteoClasico, Resulta
 from src.pqc.crypto_utils import sha3_256, sha256
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "pqc_electoral_umsa_secret_key_2026")
+
+# Credenciales preconfiguradas para jurados y administradores
+CREDENTIALS_JURADO = {
+    "jurado": "jurado",
+    "mesa1": "1234",
+}
+CREDENTIALS_ADMIN = {
+    "admin": "admin",
+    "tribunal": "admin2026",
+}
 
 # ============================================================
 # ESTADO GLOBAL DE LA ELECCIÓN
@@ -172,11 +183,183 @@ eleccion = EstadoEleccion()
 
 
 # ============================================================
-# RUTAS HTML
+# RUTAS HTML Y CONTROL DE VISTAS POR ROL
 # ============================================================
 @app.route("/")
 def index():
+    """Redirige según el rol en sesión; si no hay sesión, va al login."""
+    u = session.get("user")
+    if not u:
+        return redirect(url_for("login"))
+    rol = u.get("role")
+    if rol == "ciudadano":
+        return redirect(url_for("vista_ciudadano"))
+    elif rol == "jurado":
+        return redirect(url_for("vista_jurado"))
+    elif rol == "admin":
+        return redirect(url_for("vista_admin"))
+    return redirect(url_for("login"))
+
+
+@app.route("/login")
+def login():
+    """Pantalla unificada de autenticación para Ciudadano, Jurado y Tribunal."""
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    """Cierra la sesión y redirige al login."""
+    session.clear()
+    return redirect(url_for("login"))
+
+
+@app.route("/ciudadano")
+def vista_ciudadano():
+    """Vista de cabina de votación exclusiva para el elector autenticado."""
+    u = session.get("user")
+    if not u or u.get("role") != "ciudadano":
+        return redirect(url_for("login"))
+    return render_template("ciudadano.html", user=u)
+
+
+@app.route("/jurado")
+def vista_jurado():
+    """Vista de control de mesa y padrón electoral para el Jurado de Mesa."""
+    u = session.get("user")
+    if not u or u.get("role") not in ["jurado", "admin"]:
+        return redirect(url_for("login"))
+    return render_template("jurado.html", user=u)
+
+
+@app.route("/admin")
+def vista_admin():
+    """Vista del Tribunal Electoral / Autoridad de Conteo (AC) para escrutinio y ánfora."""
+    u = session.get("user")
+    if not u or u.get("role") != "admin":
+        return redirect(url_for("login"))
+    return render_template("admin.html", user=u)
+
+
+@app.route("/demo")
+def vista_demo():
+    """Vista de demostración global consolidada (todas las pestañas)."""
     return render_template("index.html")
+
+
+# ============================================================
+# API DE AUTENTICACIÓN
+# ============================================================
+@app.route("/api/auth/login", methods=["POST"])
+def auth_login():
+    """
+    Autentica al usuario según su rol:
+      - 'ciudadano': mediante su CI (id_votante)
+      - 'jurado': usuario y contraseña de mesa
+      - 'admin': usuario y contraseña de autoridad electoral
+    """
+    data = request.get_json() or {}
+    role = data.get("role", "").lower().strip()
+
+    if role == "ciudadano":
+        id_v = data.get("id_votante", "").strip()
+        if not id_v:
+            return jsonify({"success": False, "error": "Debe ingresar su Cédula de Identidad (CI)."}), 400
+        
+        votante_info = next((v for v in eleccion.padron_info if v["id_votante"] == id_v), None)
+        if not votante_info:
+            return jsonify({"success": False, "error": f"El CI '{id_v}' no se encuentra habilitado en el padrón electoral."}), 404
+
+        # Buscar si ya emitió voto para recuperar su recibo
+        recibo_existente = next((h["recibo"] for h in eleccion.historial_votos if h["id_votante"] == id_v), None)
+
+        user_data = {
+            "role": "ciudadano",
+            "id_votante": id_v,
+            "nombre": votante_info["nombre"],
+            "facultad": votante_info["facultad"],
+            "estado": votante_info["estado"],
+            "recibo": recibo_existente,
+            "pqc_pk_preview": votante_info["pqc"]["pk_votante_hex"],
+        }
+        session["user"] = user_data
+        return jsonify({"success": True, "user": user_data, "redirect": url_for("vista_ciudadano")})
+
+    elif role == "jurado":
+        username = data.get("username", "").strip()
+        password = data.get("password", "").strip()
+        if CREDENTIALS_JURADO.get(username) == password:
+            user_data = {
+                "role": "jurado",
+                "username": username,
+                "nombre": "Jurado Electoral de Mesa",
+                "mesa": "Mesa N° 01 — Facultad de Ciencias Puras y Naturales",
+                "recinto": "Campus Universitario Cota Cota — Edificio Carrera de Informática",
+            }
+            session["user"] = user_data
+            return jsonify({"success": True, "user": user_data, "redirect": url_for("vista_jurado")})
+        return jsonify({"success": False, "error": "Credenciales de Jurado de Mesa incorrectas."}), 401
+
+    elif role == "admin":
+        username = data.get("username", "").strip()
+        password = data.get("password", "").strip()
+        if CREDENTIALS_ADMIN.get(username) == password:
+            user_data = {
+                "role": "admin",
+                "username": username,
+                "nombre": "Tribunal Electoral / Autoridad de Conteo",
+                "cargo": "Custodio Criptográfico del Ánfora Digital",
+            }
+            session["user"] = user_data
+            return jsonify({"success": True, "user": user_data, "redirect": url_for("vista_admin")})
+        return jsonify({"success": False, "error": "Credenciales de Administrador / Tribunal incorrectas."}), 401
+
+    return jsonify({"success": False, "error": "Rol no reconocido."}), 400
+
+
+@app.route("/api/auth/logout", methods=["POST", "GET"])
+def auth_logout():
+    """Limpia la sesión activa."""
+    session.clear()
+    return jsonify({"success": True, "message": "Sesión cerrada correctamente."})
+
+
+@app.route("/api/auth/me", methods=["GET"])
+def auth_me():
+    """Retorna información del usuario en sesión activa."""
+    user = session.get("user")
+    if not user:
+        return jsonify({"authenticated": False})
+    
+    # Si es ciudadano, actualizar estado desde padrón
+    if user.get("role") == "ciudadano":
+        id_v = user.get("id_votante")
+        v = next((item for item in eleccion.padron_info if item["id_votante"] == id_v), None)
+        if v:
+            user["estado"] = v["estado"]
+            user["recibo"] = next((h["recibo"] for h in eleccion.historial_votos if h["id_votante"] == id_v), None)
+            session["user"] = user
+
+    return jsonify({"authenticated": True, "user": user})
+
+
+@app.route("/api/jury/authorize", methods=["POST"])
+def jury_authorize_voter():
+    """Acción del jurado: verifica la credencial física y habilita al elector en cabina."""
+    data = request.get_json() or {}
+    id_v = data.get("id_votante", "").strip()
+    v = next((item for item in eleccion.padron_info if item["id_votante"] == id_v), None)
+    if not v:
+        return jsonify({"success": False, "error": "Votante no encontrado."}), 404
+    if v["estado"] == "YA_VOTO":
+        return jsonify({"success": False, "error": "El votante ya emitió su sufragio."}), 400
+    
+    v["estado"] = "HABILITADO_EN_MESA"
+    return jsonify({
+        "success": True,
+        "message": f"Votante '{v['nombre']}' ({id_v}) habilitado para ingresar a cabina.",
+        "votante": v
+    })
 
 
 # ============================================================
@@ -425,6 +608,18 @@ def cast_vote():
             "firma_votante_preview": firma_v.hex()[:48] + "...",
             "recibo": recibo.to_dict() if recibo else None,
         }
+
+    if exito and crypto_breakdown.get("recibo"):
+        eleccion.historial_votos.append({
+            "id_votante": id_v,
+            "recibo": crypto_breakdown["recibo"],
+            "motor": eleccion.motor,
+            "candidato": candidato_obj,
+            "timestamp": time.time(),
+        })
+        if session.get("user") and session["user"].get("id_votante") == id_v:
+            session["user"]["estado"] = "YA_VOTO"
+            session["user"]["recibo"] = crypto_breakdown["recibo"]
 
     return jsonify({
         "success": exito,

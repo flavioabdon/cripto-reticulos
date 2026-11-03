@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tribunal Electoral y Autoridad de Conteo | PQC-VOTE UMSA</title>
+
+  <!-- Google Fonts: Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- HEADER DEL TRIBUNAL Y AUTORIDAD DE CONTEO -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <a href="/admin" class="brand" aria-label="PQC-VOTE — Tribunal">
+        <div class="brand-logo-placeholder">
+          <i class="bi bi-bank2"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-acronym">PQC-VOTE</span>
+          <span class="brand-name">Tribunal Electoral & Conteo · UMSA</span>
+        </div>
+      </a>
+
+      <!-- Navegación de pestañas administrativas -->
+      <nav class="header-nav" role="navigation" aria-label="Módulos administrativos">
+        <button class="nav-tab active" data-admin-tab="admin-tab-urn" id="btn-admin-urn">
+          <i class="bi bi-archive-fill"></i> Ánfora Digital
+        </button>
+        <button class="nav-tab" data-admin-tab="admin-tab-tally" id="btn-admin-tally">
+          <i class="bi bi-bar-chart-fill"></i> Escrutinio Criptográfico
+        </button>
+        <button class="nav-tab" data-admin-tab="admin-tab-settings" id="btn-admin-settings">
+          <i class="bi bi-gear-fill"></i> Configuración
+        </button>
+      </nav>
+
+      <!-- Insignia y acciones -->
+      <div class="header-actions">
+        <!-- Selector de motor criptográfico -->
+        <div class="engine-toggle" role="group" aria-label="Motor criptográfico">
+          <button id="btn-engine-pqc" class="engine-btn active-pqc" title="ML-KEM-768 + ML-DSA-65 (FIPS 203 / 204)">
+            <i class="bi bi-cpu"></i> Post-Cuántica
+          </button>
+          <button id="btn-engine-classic" class="engine-btn" title="RSA-2048 + ECDSA P-256">
+            <i class="bi bi-lock"></i> Clásica
+          </button>
+        </div>
+
+        <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar modo oscuro">
+          <i class="bi bi-moon-fill"></i>
+        </button>
+        <a href="/logout" class="btn btn-sm btn-outline-secondary" title="Cerrar sesión">
+          <i class="bi bi-box-arrow-right"></i> Salir
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main id="main-content" role="main" style="max-width: 1300px; margin: 0 auto; padding: var(--space-4) var(--space-3);">
+    
+    <!-- BARRA GLOBAL DE INDICADORES -->
+    <div class="metrics-bar" style="margin-bottom: var(--space-4);">
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Padrón Oficial (AR)</span>
+          <i class="bi bi-people metric-icon"></i>
+        </div>
+        <div class="metric-value" id="admin-metric-padron">0</div>
+        <p class="metric-subtext">Ciudadanos inscritos por la AR</p>
+      </div>
+
+      <div class="metric-card accent-secondary">
+        <div class="metric-header">
+          <span class="metric-label">Votos Custodiados</span>
+          <i class="bi bi-archive metric-icon secondary"></i>
+        </div>
+        <div class="metric-value" id="admin-metric-votos">0</div>
+        <p class="metric-subtext">Boletas cifradas en ánfora</p>
+      </div>
+
+      <div class="metric-card accent-success">
+        <div class="metric-header">
+          <span class="metric-label">Participación Electoral</span>
+          <i class="bi bi-percent metric-icon" style="color: var(--color-success);"></i>
+        </div>
+        <div class="metric-value" id="admin-metric-pct">0%</div>
+        <p class="metric-subtext">Participación sobre el padrón</p>
+      </div>
+
+      <div class="metric-card accent-info">
+        <div class="metric-header">
+          <span class="metric-label">Fase Electoral</span>
+          <i class="bi bi-clock-history metric-icon" style="color: var(--color-info);"></i>
+        </div>
+        <div class="metric-value" id="admin-metric-fase" style="font-size: var(--font-size-h3); color: var(--color-info);">VOTACIÓN</div>
+        <p class="metric-subtext">Jornada electoral en curso</p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         PESTAÑA 1: ÁNFORA DIGITAL Y CUSTODIA
+    ══════════════════════════════════════════════════════ -->
+    <section class="admin-tab-content active" id="admin-tab-urn">
+      <div class="card" style="padding: var(--space-4);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); border-bottom: 1px solid var(--gray-200); padding-bottom: var(--space-3); flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h2 style="font-size: var(--font-size-h3); margin: 0 0 4px 0;">Ánfora Digital en Tiempo Real</h2>
+            <p style="font-size: var(--font-size-caption); color: var(--color-text-muted); margin: 0;">
+              Custodia segura de paquetes de voto cifrados con <b>ML-KEM-768</b> y protegidos contra manipulación con firmas <b>ML-DSA-65</b>.
+            </p>
+          </div>
+          <button class="btn btn-sm btn-outline-primary" onclick="loadUrnData()">
+            <i class="bi bi-arrow-clockwise"></i> Actualizar Ánfora
+          </button>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="table" style="width: 100%; border-collapse: collapse; font-size: var(--font-size-caption);">
+            <thead>
+              <tr style="background: var(--gray-100); text-align: left; border-bottom: 2px solid var(--gray-300);">
+                <th style="padding: 10px 12px;">#</th>
+                <th style="padding: 10px 12px;">Hash SHA3-256 (Recibo Inmutable)</th>
+                <th style="padding: 10px 12px;">Elector (CI)</th>
+                <th style="padding: 10px 12px;">Ciphertext ML-KEM-768</th>
+                <th style="padding: 10px 12px;">Firma Digital ML-DSA-65</th>
+                <th style="padding: 10px 12px;">Marca de Tiempo</th>
+              </tr>
+            </thead>
+            <tbody id="admin-urn-tbody">
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 20px;">Cargando votos en ánfora...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         PESTAÑA 2: ESCRUTINIO CRIPTOGRÁFICO Y RESULTADOS
+    ══════════════════════════════════════════════════════ -->
+    <section class="admin-tab-content" id="admin-tab-tally" style="display: none;">
+      <div class="card" style="padding: var(--space-4); margin-bottom: var(--space-4);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); border-bottom: 1px solid var(--gray-200); padding-bottom: var(--space-3); flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h2 style="font-size: var(--font-size-h3); margin: 0 0 4px 0;">Apertura de Ánfora y Escrutinio Criptográfico</h2>
+            <p style="font-size: var(--font-size-caption); color: var(--color-text-muted); margin: 0;">
+              La Autoridad de Conteo (AC) utiliza la clave privada de desencapsulamiento <code>dk_sv</code> para abrir los votos y computar los resultados auditables.
+            </p>
+          </div>
+          <div>
+            <button id="btn-execute-tally" class="btn btn-secondary btn-lg" onclick="executeOfficialTally()">
+              <i class="bi bi-unlock-fill"></i> Cerrar Jornada y Desencapsular Ánfora
+            </button>
+          </div>
+        </div>
+
+        <!-- Panel de Resultados del Escrutinio -->
+        <div id="tally-results-container" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4);">
+            <!-- Gráfico de Resultados Chart.js -->
+            <div class="card" style="padding: var(--space-3);">
+              <h3 style="font-size: var(--font-size-body); font-weight: 700; margin-bottom: 12px;">Distribución de Votos por Candidatura</h3>
+              <div style="position: relative; height: 260px;">
+                <canvas id="tally-chart-canvas"></canvas>
+              </div>
+            </div>
+
+            <!-- Resumen Estadístico y de Rendimiento -->
+            <div class="card" style="padding: var(--space-3);">
+              <h3 style="font-size: var(--font-size-body); font-weight: 700; margin-bottom: 12px;">Resumen del Escrutinio Oficial</h3>
+              <div id="tally-metrics-summary" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Se llena dinámicamente -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Tablón de Auditoría Pública (Hashes SHA3-256) -->
+          <div class="card" style="padding: var(--space-3);">
+            <h3 style="font-size: var(--font-size-body); font-weight: 700; margin-bottom: 8px;">
+              <i class="bi bi-shield-check" style="color: var(--color-success);"></i> Tablón de Auditoría Pública Universal
+            </h3>
+            <p style="font-size: var(--font-size-caption); color: var(--color-text-muted); margin-bottom: 12px;">
+              Cada ciudadano puede verificar de forma determinista que el hash de su recibo figura como contabilizado sin vulnerar el secreto de su elección.
+            </p>
+            <div style="max-height: 240px; overflow-y: auto;">
+              <table class="table" style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                <thead>
+                  <tr style="background: var(--gray-100); text-align: left;">
+                    <th style="padding: 6px 10px;">Posición</th>
+                    <th style="padding: 6px 10px;">Hash de Boleta (SHA3-256)</th>
+                    <th style="padding: 6px 10px;">Estado de Contabilización</th>
+                  </tr>
+                </thead>
+                <tbody id="tally-audit-tbody">
+                  <!-- Se llena dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         PESTAÑA 3: CONFIGURACIÓN ELECTORAL
+    ══════════════════════════════════════════════════════ -->
+    <section class="admin-tab-content" id="admin-tab-settings" style="display: none;">
+      <div class="card" style="padding: var(--space-4); margin-bottom: var(--space-4);">
+        <h2 style="font-size: var(--font-size-h3); margin-bottom: var(--space-3);">Configuración y Mantenimiento del Sistema</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4);">
+          <!-- Control de Ciclo de Vida -->
+          <div class="card" style="padding: var(--space-3);">
+            <h3 style="font-size: var(--font-size-body); font-weight: 700; margin-bottom: 8px;">Ciclo Electoral</h3>
+            <p style="font-size: var(--font-size-caption); color: var(--color-text-muted);">Gestionar el estado de apertura y cierre de las mesas.</p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-sm btn-success" onclick="setPhase('VOTACION_ABIERTA')">Reabrir Votación</button>
+              <button class="btn btn-sm btn-warning" onclick="setPhase('ESCRUTINIO_FINALIZADO')">Cerrar Votación</button>
+            </div>
+          </div>
+
+          <!-- Reinicio de Elección -->
+          <div class="card" style="padding: var(--space-3); border-left: 4px solid var(--color-error);">
+            <h3 style="font-size: var(--font-size-body); font-weight: 700; margin-bottom: 8px;">Reinicio de Elección</h3>
+            <p style="font-size: var(--font-size-caption); color: var(--color-text-muted);">Vacía el ánfora, restablece el padrón a habilitados y regenera pares de claves.</p>
+            <button class="btn btn-sm btn-danger" onclick="resetElection()">
+              <i class="bi bi-arrow-counterclockwise"></i> Reiniciar Elección Completa
+            </button>
+          </div>
+
+          <!-- Acceso a Demostración Global -->
+          <div class="card" style="padding: var(--space-3);">
+            <h3 style="font-size: var(--font-size-body); font-weight: 700; margin-bottom: 8px;">Demostración Unificada</h3>
+            <p style="font-size: var(--font-size-caption); color: var(--color-text-muted);">Acceder a la interfaz clásica unificada con todas las pestañas juntas.</p>
+            <a href="/demo" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-grid-fill"></i> Ir a /demo
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let tallyChart = null;
+
+    // Inicializar tema
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    const themeBtn = document.getElementById("btn-theme-toggle");
+    if (themeBtn) {
+      themeBtn.innerHTML = savedTheme === "dark" ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-fill"></i>';
+      themeBtn.addEventListener("click", () => {
+        const cur = document.documentElement.getAttribute("data-theme");
+        const next = cur === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        localStorage.setItem("theme", next);
+        themeBtn.innerHTML = next === "dark" ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-fill"></i>';
+      });
+    }
+
+    // Navegación de pestañas en Admin
+    const adminTabs = document.querySelectorAll(".nav-tab[data-admin-tab]");
+    adminTabs.forEach(btn => {
+      btn.addEventListener("click", () => {
+        adminTabs.forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".admin-tab-content").forEach(c => {
+          c.classList.remove("active");
+          c.style.display = "none";
+        });
+
+        btn.classList.add("active");
+        const targetId = btn.getAttribute("data-admin-tab");
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+          targetSection.classList.add("active");
+          targetSection.style.display = "block";
+        }
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initEngineToggle();
+      loadAdminStatus();
+      loadUrnData();
+    });
+
+    async function loadAdminStatus() {
+      try {
+        const res = await fetch("/api/status");
+        const data = await res.json();
+        document.getElementById("admin-metric-padron").innerText = data.total_padron || 0;
+        document.getElementById("admin-metric-votos").innerText = data.votos_anfora || 0;
+        document.getElementById("admin-metric-pct").innerText = (data.participacion_pct || 0) + "%";
+        document.getElementById("admin-metric-fase").innerText = data.fase_electoral === "VOTACION_ABIERTA" ? "ABIERTA" : "CERRADA";
+        updateEngineButtons(data.motor);
+      } catch (err) {
+        console.error("Error al cargar status admin", err);
+      }
+    }
+
+    function initEngineToggle() {
+      const btnPqc = document.getElementById("btn-engine-pqc");
+      const btnClasico = document.getElementById("btn-engine-classic");
+
+      btnPqc.addEventListener("click", () => switchEngine("pqc"));
+      btnClasico.addEventListener("click", () => switchEngine("clasico"));
+    }
+
+    async function switchEngine(mode) {
+      try {
+        const res = await fetch("/api/engine/mode", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode: mode })
+        });
+        const data = await res.json();
+        if (data.success) {
+          updateEngineButtons(data.motor);
+          await loadAdminStatus();
+          await loadUrnData();
+        }
+      } catch (err) {
+        alert("Error al conmutar motor.");
+      }
+    }
+
+    function updateEngineButtons(mode) {
+      const btnPqc = document.getElementById("btn-engine-pqc");
+      const btnClasico = document.getElementById("btn-engine-classic");
+      if (mode === "pqc") {
+        btnPqc.className = "engine-btn active-pqc";
+        btnClasico.className = "engine-btn";
+      } else {
+        btnPqc.className = "engine-btn";
+        btnClasico.className = "engine-btn active-classic";
+      }
+    }
+
+    async function loadUrnData() {
+      const tbody = document.getElementById("admin-urn-tbody");
+      try {
+        const res = await fetch("/api/urn");
+        const data = await res.json();
+        const list = data.anfora || [];
+
+        if (!list.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">El ánfora digital se encuentra vacía.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = list.map(item => `
+          <tr style="border-bottom: 1px solid var(--gray-200);">
+            <td style="padding: 10px 12px; font-weight: 700;">#${item.posicion}</td>
+            <td style="padding: 10px 12px; font-family: monospace; font-size: 11px; color: var(--color-primary-dark);">
+              <b>${item.hash_boleta ? item.hash_boleta.substring(0, 24) + '...' : '0x...'}</b>
+            </td>
+            <td style="padding: 10px 12px; font-weight: 600;">${item.id_votante}</td>
+            <td style="padding: 10px 12px; font-family: monospace; font-size: 11px; color: var(--gray-600);">${item.ciphertext_preview}</td>
+            <td style="padding: 10px 12px; font-family: monospace; font-size: 11px; color: var(--gray-600);">${item.firma_preview}</td>
+            <td style="padding: 10px 12px; color: var(--color-text-muted);">${new Date(item.timestamp * 1000).toLocaleTimeString()}</td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: red;">Error al consultar ánfora digital.</td></tr>';
+      }
+    }
+
+    async function executeOfficialTally() {
+      if (!confirm("¿Está seguro de cerrar la jornada electoral e iniciar el escrutinio oficial mediante desencapsulamiento post-cuántico?")) {
+        return;
+      }
+
+      const btn = document.getElementById("btn-execute-tally");
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Desencapsulando con ML-KEM-768...';
+
+      try {
+        const res = await fetch("/api/tally", { method: "POST" });
+        const data = await res.json();
+
+        if (data.success) {
+          document.getElementById("tally-results-container").style.display = "block";
+          renderTallyResults(data);
+          await loadAdminStatus();
+        } else {
+          alert("Error en el escrutinio: " + (data.error || ""));
+        }
+      } catch (err) {
+        alert("Error de conexión durante el escrutinio.");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-unlock-fill"></i> Escrutinio Finalizado (Re-ejecutar)';
+      }
+    }
+
+    function renderTallyResults(data) {
+      // 1. Resumen
+      const summaryContainer = document.getElementById("tally-metrics-summary");
+      summaryContainer.innerHTML = `
+        <div style="background: var(--gray-100); padding: 8px 12px; border-radius: var(--radius-sm);">
+          • Tiempo de Desencapsulamiento y Conteo: <b>${data.tiempo_escrutinio_ms} ms</b>
+        </div>
+        <div style="background: var(--gray-100); padding: 8px 12px; border-radius: var(--radius-sm);">
+          • Total Boletas en Ánfora: <b>${data.total_anfora}</b>
+        </div>
+        <div style="background: var(--gray-100); padding: 8px 12px; border-radius: var(--radius-sm);">
+          • Votos Válidos Desencriptados: <b style="color: var(--color-success);">${data.votos_validos}</b>
+        </div>
+        <div style="background: var(--gray-100); padding: 8px 12px; border-radius: var(--radius-sm);">
+          • Votos Anulados / Falsificados: <b>${data.votos_invalidos}</b>
+        </div>
+      `;
+
+      // 2. Gráfico Chart.js
+      const labels = data.resultados.map(r => r.candidato.sigla);
+      const values = data.resultados.map(r => r.votos);
+      const colors = data.resultados.map(r => r.candidato.color || "#424740");
+
+      const ctx = document.getElementById("tally-chart-canvas").getContext("2d");
+      if (tallyChart) {
+        tallyChart.destroy();
+      }
+      tallyChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Votos",
+            data: values,
+            backgroundColor: colors,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+
+      // 3. Tablón de auditoría
+      const auditTbody = document.getElementById("tally-audit-tbody");
+      const hashes = data.hashes_auditoria || [];
+      auditTbody.innerHTML = hashes.map(h => `
+        <tr style="border-bottom: 1px solid var(--gray-200);">
+          <td style="padding: 6px 10px;">Boleta #${h.posicion + 1} (${h.id_votante})</td>
+          <td style="padding: 6px 10px; font-family: monospace; color: var(--color-primary-dark);"><b>${h.hash_boleta}</b></td>
+          <td style="padding: 6px 10px;"><span class="badge-status badge-success">${h.estado}</span></td>
+        </tr>
+      `).join("");
+    }
+
+    async function setPhase(phase) {
+      try {
+        const res = await fetch("/api/election/phase", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phase: phase })
+        });
+        const data = await res.json();
+        if (data.success) {
+          await loadAdminStatus();
+        }
+      } catch (err) {
+        alert("Error al actualizar fase.");
+      }
+    }
+
+    async function resetElection() {
+      if (!confirm("ADVERTENCIA: Se restablecerá todo el proceso electoral y se vaciará el ánfora digital. ¿Desea continuar?")) {
+        return;
+      }
+      try {
+        const res = await fetch("/api/election/reset", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          alert("Elección reiniciada.");
+          window.location.reload();
+        }
+      } catch (err) {
+        alert("Error al reiniciar elección.");
+      }
+    }
+  </script>
+</body>
+</html>

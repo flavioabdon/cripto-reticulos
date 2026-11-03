@@ -16,6 +16,7 @@ import unittest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.pqc.pqc_wrapper import (
+    FIPS202,
     MLKEM768,
     MLDSA65,
     MLKEM768_PUBLIC_KEY_BYTES,
@@ -26,6 +27,7 @@ from src.pqc.pqc_wrapper import (
     MLDSA65_SECRET_KEY_BYTES,
     MLDSA65_SIGNATURE_BYTES,
 )
+from src.pqc import fips202, fips203, fips204
 from src.pqc.autoridad_registro import AutoridadRegistro, CredencialVotante
 from src.pqc.servidor_votacion import ServidorVotacion
 from src.pqc.votante import Votante, BoletaSufragio, PaqueteVoto
@@ -34,31 +36,68 @@ from src.pqc.protocolo_pqc import ProtocoloVotacionPQC
 
 
 class TestPQCPrimitives(unittest.TestCase):
-    """Pruebas de las primitivas criptográficas básicas (PQClean)."""
+    """Pruebas de nuestras implementaciones propias de FIPS 202, FIPS 203 y FIPS 204."""
+
+    def test_fips202_vectors(self):
+        # Vector oficial NIST FIPS 202 para SHA3-256("")
+        expected_empty = "a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a"
+        self.assertEqual(fips202.sha3_256(b"").hex(), expected_empty)
+
+        # Verificar equivalencia entre motor C propio (fips202.c) y esponja Python pura (KeccakSponge)
+        msg = b"Protocolo de votacion electronica UMSA - FIPS 202"
+        sponge_py = fips202.KeccakSponge(rate=136, domain_sep=0x06).absorb(msg).squeeze(32)
+        self.assertEqual(fips202.sha3_256(msg), sponge_py)
+
+        # SHAKE128 y SHAKE256
+        s128_c = fips202.shake128(msg, 64)
+        s128_py = fips202.KeccakSponge(rate=168, domain_sep=0x1F).absorb(msg).squeeze(64)
+        self.assertEqual(s128_c, s128_py)
+
+        s256_c = fips202.shake256(msg, 64)
+        s256_py = fips202.KeccakSponge(rate=136, domain_sep=0x1F).absorb(msg).squeeze(64)
+        self.assertEqual(s256_c, s256_py)
 
     def test_ml_kem_768_roundtrip(self):
-        pk, sk = MLKEM768.keypair()
+        pk, sk = fips203.keygen()
         self.assertEqual(len(pk), MLKEM768_PUBLIC_KEY_BYTES)
         self.assertEqual(len(sk), MLKEM768_SECRET_KEY_BYTES)
 
-        ct, ss1 = MLKEM768.enc(pk)
+        ct, ss1 = fips203.encaps(pk)
         self.assertEqual(len(ct), MLKEM768_CIPHERTEXT_BYTES)
         self.assertEqual(len(ss1), MLKEM768_SHARED_SECRET_BYTES)
 
-        ss2 = MLKEM768.dec(ct, sk)
+        ss2 = fips203.decaps(ct, sk)
         self.assertEqual(ss1, ss2)
 
+        # Prueba determinista (Algoritmos 16 y 17 de FIPS 203)
+        d = bytes(range(32))
+        z = bytes(range(32, 64))
+        m = bytes(range(64, 96))
+        ek1, dk1 = fips203.keygen_internal(d, z)
+        ek2, dk2 = fips203.keygen_internal(d, z)
+        self.assertEqual(ek1, ek2)
+        self.assertEqual(dk1, dk2)
+        ct_det, k_det = fips203.encaps_internal(ek1, m)
+        self.assertEqual(fips203.decaps(ct_det, dk1), k_det)
+
     def test_ml_dsa_65_roundtrip(self):
-        pk, sk = MLDSA65.keypair()
+        pk, sk = fips204.keygen()
         self.assertEqual(len(pk), MLDSA65_PUBLIC_KEY_BYTES)
         self.assertEqual(len(sk), MLDSA65_SECRET_KEY_BYTES)
 
         msg = b"Mensaje de prueba para firma digital post-cuantica"
-        sig = MLDSA65.sign(msg, sk)
+        sig = fips204.sign(msg, sk)
         self.assertEqual(len(sig), MLDSA65_SIGNATURE_BYTES)
 
-        self.assertTrue(MLDSA65.verify(msg, sig, pk))
-        self.assertFalse(MLDSA65.verify(b"Mensaje alterado", sig, pk))
+        self.assertTrue(fips204.verify(msg, sig, pk))
+        self.assertFalse(fips204.verify(b"Mensaje alterado", sig, pk))
+
+        # Prueba determinista de generacion de claves (Algoritmo 6 de FIPS 204)
+        xi = bytes(range(32))
+        pk1, sk1 = fips204.keygen_internal(xi)
+        pk2, sk2 = fips204.keygen_internal(xi)
+        self.assertEqual(pk1, pk2)
+        self.assertEqual(sk1, sk2)
 
 
 class TestAutoridadRegistro(unittest.TestCase):

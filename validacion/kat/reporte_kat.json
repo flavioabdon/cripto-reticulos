@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-08-29 10:09:19",
-  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "timestamp": "2026-11-02 10:31:13",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
   "processor": "arm",
   "overall_result": "PASS",
   "pqclean_commit": "0586a824fc0d49df0b6b6e9179d8d15d06d0974f",
@@ -13,7 +13,7 @@
       "passed": 100,
       "failed": 0,
       "corruption_tests_passed": 100,
-      "elapsed_seconds": 0.0265,
+      "elapsed_seconds": 0.0307,
       "params": {
         "pk_bytes": 1184,
         "sk_bytes": 2400,
@@ -23,26 +23,26 @@
       "sample_vectors": [
         {
           "trial": 1,
-          "pk_hash": "975f9a448abad9e78d142a65736cbc29c2c1471b0cf6e063baa003f0da3f765e",
-          "sk_hash": "6faeaf01dd7507d082d0c07d4489ebfb67c6fca9e9ff5bc5cf0f8c7bea7601d5",
-          "ct_hash": "5762249c04e1e6c564eac04aeac9293e55cd276087bf1a0cb955815005d1516a",
-          "ss_hex": "e1f5cb4eee10d7bf09b10aec4081ab8b90fc47efd991432678461c90568542d0",
+          "pk_hash": "c4e1277db40219ea4da47ee43c8ac36b9fa73b4f51060023eaccbfe57fd751b5",
+          "sk_hash": "01dfeeb97db34a9f5c1a0cd1372907c159725bd34962b93d8e785d4863dd22d9",
+          "ct_hash": "2bd8ce01e44f4c8f39156eef41992098e419437ed478047438ad8c8ad2f57a86",
+          "ss_hex": "fdb4d5eb79e154959f7eefb839eca91281dda0247d9cc213672085aa91050415",
           "status": "PASS"
         },
         {
           "trial": 2,
-          "pk_hash": "042cf7ce3b4ad768d7fc18f759a2f5bafa7e62b3e98dc6ad47456590413a4390",
-          "sk_hash": "0752bca0b503dc74534d81bb5e30ee96d4ef4a27ca5d3a846f0cdbb6dd734125",
-          "ct_hash": "9fa4f6eba1d6a275b65a685d60c9297437fe3085faa2674a436b37a21b7dd8b2",
-          "ss_hex": "296dbf6797ed5d60fc8770d44c3647894545be086af305a6ccd1a1cd64650b84",
+          "pk_hash": "fdf99e85d5a87361615aa663390448006bd73ac1b96e3678cdb9aaa0224cbd09",
+          "sk_hash": "e1636b0e8c98d6b94ca6e7daa00f2eabd4f5259401945d79acfb4798330c6cb0",
+          "ct_hash": "a6e6d76357fb6ec4babd34dd2687aa4b60b008efc14d7dce9d4532e977370928",
+          "ss_hex": "4eefd802364ed435de74232f06c48ca4220377f111e2d1c7826c6da555e50e8a",
           "status": "PASS"
         },
         {
           "trial": 3,
-          "pk_hash": "805d764d2d4800053948a89a344b70a1a337a72ebb5ca5666a866c5b2d6bc5e9",
-          "sk_hash": "d325d5bf9f07fcbb5f6b02e9be4ca67f2b579a4563fffb59e513bf6a7c3cc0b7",
-          "ct_hash": "c279d90955ecb6a4cf02869d3def28b7a6c83c0aa46cd043cc7ec10fa8d1e97d",
-          "ss_hex": "b7ef74250174f11cfdfa6c694f1f0f03d220f71c6cf38c08b332a38b9adc7d5f",
+          "pk_hash": "97c53f07e86af79b97921859e2978b12e12e0e880b2f0f21237cbf3325432221",
+          "sk_hash": "2b3fa3ed99754d7c5844424a5458212908619890a4d931e5041ebb12a96b4035",
+          "ct_hash": "dc7f6f57991e1804ae0b5db43f3ea4954a1edf045ac11d013f14d102b8dc4a61",
+          "ss_hex": "dee36ff648c8ba016d593353ec69dba3922ddf6049f228d38dc49e3a97c585b7",
           "status": "PASS"
         }
       ],
@@ -56,7 +56,7 @@
       "passed": 100,
       "failed": 0,
       "tamper_tests_passed": 100,
-      "elapsed_seconds": 0.0966,
+      "elapsed_seconds": 0.1291,
       "params": {
         "pk_bytes": 1952,
         "sk_bytes": 4032,
@@ -66,25 +66,25 @@
         {
           "trial": 1,
           "msg_len": 0,
-          "pk_hash": "3a81cd4155a3e03622f048cb8b8fae3e6cae9c5086ebf38e903cad6601d40b8d",
-          "sk_hash": "bb7ffc4c2c9af3935ebd20f5d35136490c6c699baea686e2c59656ebfd04fb32",
-          "sig_hash": "6866f61c1d21f617b321f0001b4a77207112577897c90a7e1922154e07e76572",
+          "pk_hash": "3b603ec1526eac24388355710e9703f73248d0b7c6a7e0d8b1cc5490b4167282",
+          "sk_hash": "80549a4c92f18ba17ec0c27fae0fc8d4c239dd189cabb9b3ce54d3ade37bb950",
+          "sig_hash": "2edfd2b995617e020a91d0cc88fa096106e653b842ed02a5dc7a6c910caa27cc",
           "status": "PASS"
         },
         {
           "trial": 2,
           "msg_len": 1,
-          "pk_hash": "bdefa69ff9eebbd7721ca02ada3461f031cd08cc484b58e6954f2f1a55340020",
-          "sk_hash": "580ee7d441a74a64f919a1fa4ba1fd95820b298516a4d626776626957b265065",
-          "sig_hash": "790cda563ac1cdd9e06787993af915b0fce31159fae18e813a8a28a896154d49",
+          "pk_hash": "96795b27383c446e55845d09b4d426e8281d6bcd1e422281f94f303fd8349e9d",
+          "sk_hash": "1c7688ec74bf6909fff83d45d60d79a124ff5bc7f043a15187b8e7816517046f",
+          "sig_hash": "a7b73a6eaf0df802f0a474fdb9233fdf1f8667de70295fdcf1c435f35843f65e",
           "status": "PASS"
         },
         {
           "trial": 3,
           "msg_len": 40,
-          "pk_hash": "565bceec2e1ac5f9e94d6752165f72dc5d2e6c1079f54fcf7c1b60a62bdc627f",
-          "sk_hash": "1e19dd1b2b45b03493923ce2872636a9609986f59fb5cf71b0262bd7098f4246",
-          "sig_hash": "53bf71ca70c65c90d0610f3ba89c86afe3441505142fd952a8668d88f8780941",
+          "pk_hash": "7e76b2f124f0d96552e7e528b5532064dfd754ab48d6fdde974ac49c1b13f4bd",
+          "sk_hash": "c6f7f4a92323c0b3e0935e261f86ba57c521a34c8bc460326859aedea4d14cf2",
+          "sig_hash": "bcc944e87668ab11a0d183c564d878cc4de3ac1b6c647b981b9cac204ac5c3d3",
           "status": "PASS"
         }
       ],

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso al Sistema | Protocolo de Votación Post-Cuántica UMSA</title>
+  
+  <!-- Google Fonts: Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <div class="login-wrapper">
+    <div class="login-card">
+      
+      <!-- Encabezado institucional -->
+      <div class="login-header">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+          <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar modo oscuro" aria-label="Modo oscuro">
+            <i class="bi bi-moon-fill"></i>
+          </button>
+        </div>
+        <div class="login-brand-icon">
+          <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <h1 style="font-size: var(--font-size-h3); margin-bottom: 4px; color: var(--color-text-body);">PQC-VOTE UMSA</h1>
+        <p style="font-size: var(--font-size-caption); color: var(--color-text-muted); margin: 0;">
+          Protocolo de Votación Electrónica Post-Cuántica de Retículos (FIPS 202 / 203 / 204)
+        </p>
+      </div>
+
+      <!-- Selector de roles -->
+      <div class="login-role-tabs" role="tablist">
+        <button class="login-role-btn active" data-target="panel-ciudadano" role="tab" aria-selected="true" id="tab-btn-ciudadano">
+          <i class="bi bi-person-badge-fill"></i>
+          <span>Ciudadano</span>
+        </button>
+        <button class="login-role-btn" data-target="panel-jurado" role="tab" aria-selected="false" id="tab-btn-jurado">
+          <i class="bi bi-clipboard-check-fill"></i>
+          <span>Jurado Mesa</span>
+        </button>
+        <button class="login-role-btn" data-target="panel-admin" role="tab" aria-selected="false" id="tab-btn-admin">
+          <i class="bi bi-bank2"></i>
+          <span>Tribunal / AC</span>
+        </button>
+      </div>
+
+      <div class="login-body">
+        
+        <!-- Mensaje de alerta / error -->
+        <div id="login-alert" class="alert-box alert-error" style="display: none; margin-bottom: var(--space-3);" role="alert">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span id="login-alert-msg"></span>
+        </div>
+
+        <!-- 1. PANEL CIUDADANO -->
+        <div class="role-panel active" id="panel-ciudadano">
+          <div style="margin-bottom: var(--space-3);">
+            <h2 style="font-size: var(--font-size-body); font-weight: 700; margin-bottom: 4px;">Ingreso a la Cabina de Votación</h2>
+            <p style="font-size: var(--font-size-caption); color: var(--color-text-muted);">
+              Ingrese su Cédula de Identidad (CI) registrada en el padrón electoral oficial.
+            </p>
+          </div>
+
+          <form id="form-login-ciudadano" onsubmit="handleLoginCiudadano(event)">
+            <div class="form-group" style="margin-bottom: var(--space-3);">
+              <label for="ci-input" class="form-label">Cédula de Identidad (CI):</label>
+              <div style="position: relative;">
+                <input type="text" id="ci-input" class="form-control" placeholder="Ej. CI-8432190" required autofocus style="padding-left: 36px; text-transform: uppercase;">
+                <i class="bi bi-person-fill" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--gray-500);"></i>
+              </div>
+            </div>
+
+            <!-- Electores de muestra con 1 clic -->
+            <div style="margin-bottom: var(--space-4);">
+              <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--color-text-muted); display: block; margin-bottom: 6px;">
+                <i class="bi bi-lightning-charge-fill" style="color: var(--color-warning);"></i> Electores de prueba (1 clic):
+              </span>
+              <div id="quick-voters-list">
+                <span class="quick-chip" onclick="fillCI('CI-8432190')"><b>CI-8432190</b> Alejandro Q.</span>
+                <span class="quick-chip" onclick="fillCI('CI-7392014')"><b>CI-7392014</b> Beatriz M.</span>
+                <span class="quick-chip" onclick="fillCI('CI-9182304')"><b>CI-9182304</b> Carlos T.</span>
+                <span class="quick-chip" onclick="fillCI('CI-6523901')"><b>CI-6523901</b> Daniela V.</span>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+              <i class="bi bi-box-arrow-in-right"></i> Ingresar a Cabina Secreta
+            </button>
+          </form>
+        </div>
+
+        <!-- 2. PANEL JURADO DE MESA -->
+        <div class="role-panel" id="panel-jurado">
+          <div style="margin-bottom: var(--space-3);">
+            <h2 style="font-size: var(--font-size-body); font-weight: 700; margin-bottom: 4px;">Acceso de Jurados Electorales</h2>
+            <p style="font-size: var(--font-size-caption); color: var(--color-text-muted);">
+              Autenticación para control de mesa, verificación física del elector y firma de actas.
+            </p>
+          </div>
+
+          <form id="form-login-jurado" onsubmit="handleLoginJurado(event)">
+            <div class="form-group" style="margin-bottom: var(--space-2);">
+              <label for="jurado-user" class="form-label">Usuario de Mesa:</label>
+              <input type="text" id="jurado-user" class="form-control" value="jurado" required>
+            </div>
+            <div class="form-group" style="margin-bottom: var(--space-3);">
+              <label for="jurado-pass" class="form-label">Contraseña / PIN:</label>
+              <input type="password" id="jurado-pass" class="form-control" value="jurado" required>
+            </div>
+
+            <div style="margin-bottom: var(--space-3);">
+              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="fillJuradoDemo()" style="width: 100%;">
+                <i class="bi bi-key-fill"></i> Cargar credenciales: jurado / jurado
+              </button>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+              <i class="bi bi-clipboard-check"></i> Abrir Panel de Jurado de Mesa
+            </button>
+          </form>
+        </div>
+
+        <!-- 3. PANEL TRIBUNAL ELECTORAL & AUTORIDAD DE CONTEO -->
+        <div class="role-panel" id="panel-admin">
+          <div style="margin-bottom: var(--space-3);">
+            <h2 style="font-size: var(--font-size-body); font-weight: 700; margin-bottom: 4px;">Tribunal Electoral / Autoridad de Conteo</h2>
+            <p style="font-size: var(--font-size-caption); color: var(--color-text-muted);">
+              Custodio del Ánfora Digital, gestión de comicios y desencapsulamiento oficial (AC).
+            </p>
+          </div>
+
+          <form id="form-login-admin" onsubmit="handleLoginAdmin(event)">
+            <div class="form-group" style="margin-bottom: var(--space-2);">
+              <label for="admin-user" class="form-label">Usuario Administrador:</label>
+              <input type="text" id="admin-user" class="form-control" value="admin" required>
+            </div>
+            <div class="form-group" style="margin-bottom: var(--space-3);">
+              <label for="admin-pass" class="form-label">Contraseña:</label>
+              <input type="password" id="admin-pass" class="form-control" value="admin" required>
+            </div>
+
+            <div style="margin-bottom: var(--space-3);">
+              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="fillAdminDemo()" style="width: 100%;">
+                <i class="bi bi-shield-check"></i> Cargar credenciales: admin / admin
+              </button>
+            </div>
+
+            <button type="submit" class="btn btn-secondary btn-lg" style="width: 100%;">
+              <i class="bi bi-bank2"></i> Ingresar al Panel de Escrutinio y Ánfora
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Pie de página con enlaces y metadatos -->
+      <div style="background: var(--gray-100); padding: var(--space-3) var(--space-4); border-top: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--color-text-muted);">
+        <span><i class="bi bi-cpu-fill" style="color: var(--color-success);"></i> ML-KEM-768 + ML-DSA-65 Activo</span>
+        <a href="/demo" style="color: var(--color-primary-main); font-weight: 600; text-decoration: none;">
+          <i class="bi bi-grid-fill"></i> Vista Demostración Completa
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Inicializar tema guardado
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    const themeBtn = document.getElementById("btn-theme-toggle");
+    if (themeBtn) {
+      themeBtn.innerHTML = savedTheme === "dark" ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-fill"></i>';
+      themeBtn.addEventListener("click", () => {
+        const cur = document.documentElement.getAttribute("data-theme");
+        const next = cur === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        localStorage.setItem("theme", next);
+        themeBtn.innerHTML = next === "dark" ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-fill"></i>';
+      });
+    }
+
+    // Navegación de tabs de rol
+    const roleBtns = document.querySelectorAll(".login-role-btn");
+    roleBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        roleBtns.forEach(b => {
+          b.classList.remove("active");
+          b.setAttribute("aria-selected", "false");
+        });
+        document.querySelectorAll(".role-panel").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        btn.setAttribute("aria-selected", "true");
+        const targetId = btn.getAttribute("data-target");
+        document.getElementById(targetId).classList.add("active");
+        hideAlert();
+      });
+    });
+
+    function showAlert(msg) {
+      const el = document.getElementById("login-alert");
+      const text = document.getElementById("login-alert-msg");
+      text.innerText = msg;
+      el.style.display = "flex";
+    }
+
+    function hideAlert() {
+      document.getElementById("login-alert").style.display = "none";
+    }
+
+    function fillCI(ci) {
+      document.getElementById("ci-input").value = ci;
+    }
+
+    function fillJuradoDemo() {
+      document.getElementById("jurado-user").value = "jurado";
+      document.getElementById("jurado-pass").value = "jurado";
+    }
+
+    function fillAdminDemo() {
+      document.getElementById("admin-user").value = "admin";
+      document.getElementById("admin-pass").value = "admin";
+    }
+
+    async function handleLoginCiudadano(e) {
+      e.preventDefault();
+      hideAlert();
+      const ci = document.getElementById("ci-input").value.trim().toUpperCase();
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: "ciudadano", id_votante: ci })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = data.redirect || "/ciudadano";
+        } else {
+          showAlert(data.error || "No se pudo iniciar sesión como ciudadano.");
+        }
+      } catch (err) {
+        showAlert("Error de conexión con el servidor.");
+      }
+    }
+
+    async function handleLoginJurado(e) {
+      e.preventDefault();
+      hideAlert();
+      const u = document.getElementById("jurado-user").value.trim();
+      const p = document.getElementById("jurado-pass").value.trim();
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: "jurado", username: u, password: p })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = data.redirect || "/jurado";
+        } else {
+          showAlert(data.error || "Credenciales de jurado inválidas.");
+        }
+      } catch (err) {
+        showAlert("Error de conexión con el servidor.");
+      }
+    }
+
+    async function handleLoginAdmin(e) {
+      e.preventDefault();
+      hideAlert();
+      const u = document.getElementById("admin-user").value.trim();
+      const p = document.getElementById("admin-pass").value.trim();
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: "admin", username: u, password: p })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = data.redirect || "/admin";
+        } else {
+          showAlert(data.error || "Credenciales administrativas inválidas.");
+        }
+      } catch (err) {
+        showAlert("Error de conexión con el servidor.");
+      }
+    }
+  </script>
+</body>
+</html>
