@@ -12,10 +12,10 @@
 |------|-------------|--------|
 | F1 | Diseño formal del protocolo | ✅ Completado |
 | F2 | Modelo formal en Tamarin Prover | ✅ Completado |
-| F3a | Adaptación de PQClean + validación KAT | ✅ Completado |
+| F3a | Implementación propia C/Python (FIPS 202, 203, 204) + KAT | ✅ Completado |
 | F3b | Capa de protocolo post-cuántico (Python) | ✅ Completado |
 | F4 | Protocolo clásico RSA/ECDSA | ✅ Completado |
-| F5 | Dashboard Web y Sistema de Demostración Visual | ✅ Completado |
+| F5 | Dashboard Web, Login y Vistas por Rol (Ciudadano, Jurado, Admin) | ✅ Completado |
 | F6 | Arnés de benchmarking | ✅ Completado |
 | F7 | Análisis estadístico | ✅ Completado |
 | F8 | Documentación final | ✅ Completado |
@@ -75,28 +75,21 @@
 
 ---
 
-## Fase 3a — Adaptación de PQClean + Validación KAT
+## Fase 3a — Implementación Propia PQC (FIPS 202, 203, 204) + Validación KAT
 
-> **Objetivo:** Adaptar el núcleo criptográfico en C de PQClean y validarlo contra vectores oficiales NIST antes de integrar.
+> **Objetivo:** Implementación propia desde cero en C y Python de las primitivas criptográficas sin dependencias de bibliotecas externas de NIST/PQClean, validando contra vectores oficiales KAT.
 
-- [x] **3a.1** Clonar el repositorio PQClean y registrar el commit exacto
-- [x] **3a.2** Seleccionar e identificar los módulos de interés:
-  - `ml-kem-768` (FIPS 203 / ML-KEM, nivel ~AES-192)
-  - `ml-dsa-65` (FIPS 204 / ML-DSA, nivel ~AES-192)
-- [x] **3a.3** Adaptar el código C sin modificar los algoritmos:
-  - Ajustar la API de encapsulamiento/desencapsulamiento para el protocolo
-  - Ajustar la API de firma/verificación para el protocolo
-- [x] **3a.4** Compilar el núcleo C adaptado (Makefile)
-- [x] **3a.5** Descargar los vectores de prueba KAT oficiales del NIST (ACVP):
-  - ML-KEM-768 KAT vectors
-  - ML-DSA-65 KAT vectors
-- [x] **3a.6** Ejecutar los KAT tests sobre la adaptación y documentar:
-  - Número de vectores probados (100 KEM + 100 DSA)
-  - Resultado (pass/fail)
-  - Evidencia de corrección antes de usar en benchmarks
-- [x] **3a.7** Guardar resultados en `validacion/kat/`
+- [x] **3a.1** Implementación propia del estándar NIST FIPS 202 (Keccak-f[1600], SHA3-256, SHA3-512, SHAKE128, SHAKE256) en C y Python
+- [x] **3a.2** Implementación propia del estándar NIST FIPS 203 (ML-KEM-768 sobre $R_q = \mathbb{Z}_{3329}[X]/(X^{256}+1)$, transformadas NTT/INTT, muestreo CBD, esquema K-PKE y transformada Fujisaki-Okamoto con rechazo implícito)
+- [x] **3a.3** Implementación propia del estándar NIST FIPS 204 (ML-DSA-65 sobre $R_q = \mathbb{Z}_{8380417}[X]/(X^{256}+1)$, transformadas NTT/INTT, descomposición Power2Round/Decompose, generación y uso de pistas, y muestreo Fiat-Shamir con rechazo)
+- [x] **3a.4** Compilar biblioteca dinámica compartida nativa `src/pqc/libpqc_core.dylib` mediante `Makefile`
+- [x] **3a.5** Descargar y verificar vectores de prueba KAT oficiales del NIST (ACVP):
+  - ML-KEM-768 KAT vectors (100 vectores)
+  - ML-DSA-65 KAT vectors (100 vectores)
+- [x] **3a.6** Ejecutar arnés de validación KAT (`python3 validacion/kat/runner_kat.py`) con 200/200 vectores PASS
+- [x] **3a.7** Guardar resultados formales en `validacion/kat/`
 
-**Entregable:** `src/pqc/pqclean/` + `validacion/kat/` + registro de commit PQClean
+**Entregable:** `src/pqc/fips202.*`, `src/pqc/fips203.*`, `src/pqc/fips204.*`, `src/pqc/libpqc_core.dylib` + `validacion/kat/`
 
 ---
 
@@ -176,8 +169,14 @@
   - Gráficos interactivos de votación por candidato (barras, torta, porcentajes, participación)
   - Auditoría de integridad: verificación de que los votos contabilizados corresponden a votos legítimos firmados
 - [x] **5.6** Diseño UI moderno y responsivo con estética premium (dark mode, métricas en vivo, glassmorphism, tipografía moderna, animaciones suaves).
+- [x] **5.7** Sistema de Autenticación (Login) y Separación de Vistas por Roles:
+  - **Portal de Acceso / Login (`/login`):** Selector de perfiles (Ciudadano, Jurado Electoral, Tribunal / AC) con botones de prueba de un solo clic.
+  - **Vista del Ciudadano (`/ciudadano`):** Cabina de sufragio con selección de candidato, cifrado ML-KEM-768 + AES-256-GCM, firma digital ML-DSA-65, prevención de doble voto y emisión de Recibo Oficial con hash SHA3-256.
+  - **Vista del Jurado de Mesa (`/jurado`):** Panel de control de mesa con búsqueda en padrón en tiempo real, habilitación de electores en cabina, registro de nuevos electores e indicadores de mesa.
+  - **Vista del Tribunal Electoral / Autoridad de Conteo (`/admin`):** Monitoreo del ánfora con boletas cifradas, control de fases, apertura y escrutinio oficial mediante desencapsulamiento ML-KEM con la clave privada `dk_sv`, gráficos Chart.js y tablón de auditoría pública.
+  - **Vista de Demostración Global (`/demo`):** Acceso consolidado unificado para pruebas de laboratorio.
 
-**Entregable:** `src/web/` con backend Flask/FastAPI, templates HTML5, assets estáticos (CSS/JS) y servidor ejecutable localmente.
+**Entregable:** `src/web/` con backend Flask (`app.py`), templates por rol (`login.html`, `ciudadano.html`, `jurado.html`, `admin.html`, `index.html`), assets estáticos (`style.css`, `main.js`) y suite de pruebas (`tests/test_web_api.py`).
 
 ---
 
@@ -262,42 +261,108 @@
 
 ---
 
-## Estructura de carpetas actualizada
+## Estructura de Archivos del Proyecto Actual (Rama `Implementacion`)
+
+A continuación se detalla la organización completa del repositorio, reflejando el reemplazo de bibliotecas externas por implementaciones propias en C/Python de **FIPS 202**, **FIPS 203** y **FIPS 204**, así como el sistema de **Login y Vistas Separadas por Rol** en el Dashboard Web:
 
 ```
-/protocolo-votacion-pqc
-├── tamarin/
-│   └── protocolo.spthy
-├── src/
-│   ├── pqc/                  # Núcleo C adaptado + wrapper Python
-│   │   ├── pqclean/
-│   │   ├── votante.py
-│   │   ├── autoridad_registro.py
-│   │   ├── servidor_votacion.py
-│   │   ├── autoridad_conteo.py
-│   │   └── protocolo_pqc.py
-│   ├── clasico/              # Implementación clásica RSA/ECDSA
-│   │   ├── votante_clasico.py
-│   │   ├── autoridad_registro_clasico.py
-│   │   ├── servidor_votacion_clasico.py
-│   │   ├── autoridad_conteo_clasico.py
-│   │   └── protocolo_clasico.py
-│   └── web/                  # 🌟 Dashboard Web y API de Demostración
-│       ├── app.py            # API Backend (FastAPI / Flask)
-│       ├── static/           # CSS, JS interactivo, librerías de gráficos
-│       └── templates/        # Vistas: Admin, Registro, Mesa de Votación, Dashboard
+CRIPTOGRAFIA RETICULOS/
+│
+├── Makefile                              ← Reglas de compilación de la biblioteca C (fips202, fips203, fips204)
+├── README.md                             ← Documentación principal de inicio rápido y arquitectura
+├── plan.md                               ← Plan de actividades y manual de estructura del proyecto actual
+├── protocolos.md                         ← Justificación técnica de primitivas (KEM, DEM, DSA, Hash SHA3-256)
+├── prompt_desarrollo_protocolo_votacion_pqc.md  ← Prompt base de diseño y metodología DSR
+├── documentacion_consolidada.md          ← Consolidado de especificaciones y fundamentos teóricos
+├── exportar_md.py                        ← Script utilitario de exportación de documentación
+│
+├── src/                                  ← Código fuente del sistema
+│   ├── pqc/                              ← ⭐ Motor Criptográfico Post-Cuántico (Implementación Propia)
+│   │   ├── fips202.h                     ← Header C: Esponja Keccak-f[1600], SHA3-256, SHA3-512, SHAKE128/256
+│   │   ├── fips202.c                     ← Implementación C propia de FIPS 202 (permutación de 24 rondas)
+│   │   ├── fips202.py                    ← Módulo Python de FIPS 202 (wrapper ctypes + clase KeccakSponge pura)
+│   │   ├── fips203.h                     ← Header C: ML-KEM-768 (parámetros n=256, q=3329, k=3, eta=2)
+│   │   ├── fips203.c                     ← Implementación C propia de FIPS 203 (NTT, CBD, K-PKE, Fujisaki-Okamoto)
+│   │   ├── fips203.py                    ← Módulo Python de FIPS 203 (keygen, encaps, decaps)
+│   │   ├── fips204.h                     ← Header C: ML-DSA-65 (parámetros n=256, q=8380417, k=6, l=5)
+│   │   ├── fips204.c                     ← Implementación C propia de FIPS 204 (NTT, descomposición, Fiat-Shamir)
+│   │   ├── fips204.py                    ← Módulo Python de FIPS 204 (keygen, sign, verify)
+│   │   ├── pqc_core.h                    ← API C unificada que expone las primitivas PQC al sistema
+│   │   ├── pqc_core.c                    ← Capa de enlace C de las tres bibliotecas propias
+│   │   ├── libpqc_core.dylib             ← Biblioteca compartida compilada nativa (macOS ARM64)
+│   │   ├── pqc_wrapper.py                ← Wrapper ctypes Python ↔ libpqc_core
+│   │   ├── crypto_utils.py               ← Utilidades: AES-256-GCM, SHA3-256 propio, JSON canónico
+│   │   ├── autoridad_registro.py         ← Entidad AR: emisión de credenciales ML-DSA-65 y padrón
+│   │   ├── votante.py                    ← Entidad Votante: encapsulamiento ML-KEM + cifrado + firma
+│   │   ├── servidor_votacion.py          ← Entidad SV: verificación de firmas y custodia de ánfora digital
+│   │   ├── autoridad_conteo.py           ← Entidad AC: custodia de dk_sv, desencapsulamiento y escrutinio
+│   │   ├── protocolo_pqc.py              ← Orquestador E2E: flujo completo de 6 fases secuenciales
+│   │   └── Makefile                      ← Makefile local del directorio src/pqc
+│   │
+│   ├── clasico/                          ← Motor Criptográfico Clásico (Línea Base Comparativa)
+│   │   ├── crypto_clasico.py             ← Primitivas clásicas: RSA-OAEP-2048 y ECDSA (NIST P-256)
+│   │   ├── autoridad_registro_clasico.py ← Entidad AR en variante clásica
+│   │   ├── votante_clasico.py            ← Entidad Votante en variante clásica
+│   │   ├── servidor_votacion_clasico.py  ← Entidad Servidor en variante clásica
+│   │   ├── autoridad_conteo_clasico.py   ← Entidad Autoridad de Conteo en variante clásica
+│   │   └── protocolo_clasico.py          ← Orquestador E2E del protocolo clásico
+│   │
+│   └── web/                              ← Dashboard Web Flask con Autenticación y Vistas por Rol
+│       ├── app.py                        ← Backend REST Flask: sesiones, RBAC, endpoints de votación/escrutinio
+│       ├── templates/                    ← Plantillas HTML5 organizadas por función:
+│       │   ├── login.html                ← ⭐ Portal de acceso: selector de roles y credenciales rápidas
+│       │   ├── ciudadano.html            ← ⭐ Cabina del elector: selección de candidato, cifrado y recibo
+│       │   ├── jurado.html               ← ⭐ Mesa electoral: buscador de padrón, habilitación en cabina y registro
+│       │   ├── admin.html                ← ⭐ Tribunal Electoral: ánfora en vivo, apertura y escrutinio con dk_sv
+│       │   └── index.html                ← Vista de demostración general consolidada (/demo)
+│       └── static/
+│           ├── css/
+│           │   └── style.css             ← Diseño Glassmorphism, temas claro/oscuro, tarjetas y componentes
+│           └── js/
+│               └── main.js               ← Controlador JavaScript (Chart.js + API fetch)
+│
+├── tests/                                ← Suite de Pruebas Unitarias y de Integración (23/23 PASSED)
+│   ├── test_pqc.py                       ← Pruebas de FIPS 202, FIPS 203, FIPS 204 y protocolo PQC
+│   ├── test_clasico.py                   ← Pruebas del protocolo clásico RSA + ECDSA
+│   └── test_web_api.py                   ← Pruebas de la API REST, autenticación por sesión y vistas
+│
 ├── validacion/
-│   └── kat/                  # Vectores NIST + resultados
-├── benchmarks/
-│   ├── runner.py
-│   └── resultados/
-├── analisis/
-│   └── estadistica.py
-├── docs/
-│   ├── arquitectura.md
-│   └── diagrama_flujo.*
-├── Makefile
-└── README.md
+│   └── kat/                              ← Known Answer Tests oficiales del NIST (200/200 PASS)
+│       ├── runner_kat.py                 ← Ejecutor de vectores KAT contra el motor criptográfico propio
+│       ├── reporte_kat.md                ← Reporte narrativo de validación KAT
+│       └── reporte_kat.json              ← Datos estructurados de la validación
+│
+├── benchmark/                            ← Arnés Experimental y Mediciones
+│   ├── runner.py                         ← Arnés de benchmarking automatizado (300 experimentos)
+│   ├── hardware_info.json                ← Registro de especificaciones de hardware de prueba
+│   └── resultados/                       ← Datasets empíricos generados:
+│       ├── benchmark_crudo.csv           ← Dataset principal (300 corridas × métricas)
+│       ├── benchmark_completo.json       ← Metadatos completos consolidados
+│       ├── microbenchmarks.json          ← Benchmarks de operaciones atómicas
+│       └── tamanos_estructuras.json      ← Medición de tamaños en bytes al byte exacto
+│
+├── analisis_estadistico/                 ← Análisis Estadístico Inferencial y Gráficos
+│   ├── analisis.py                       ← Script: normalidad, Mann-Whitney U, Cohen's d y gráficos 300 DPI
+│   ├── reporte_estadistico.md            ← Informe narrativo de validación formal de hipótesis
+│   ├── reporte_estadistico.json          ← Estadísticas descriptivas e inferenciales en formato JSON
+│   └── graficos/                         ← Figuras de publicación listas para tesis:
+│       ├── latencia_voto_boxplot.png     ← Boxplot comparativo PQC vs Clásico
+│       ├── tally_desencapsulamiento_comparacion.png ← Apertura de ánfora (escala logarítmica)
+│       └── tamanos_estructuras_barplot.png ← Comparación de anchos de banda y tamaños de boleta
+│
+├── docs/                                 ← Documentación Técnica del Sistema
+│   ├── arquitectura.md                   ← Especificación formal de entidades, roles y teoremas
+│   ├── diagrama_flujo.md                 ← Diagramas de secuencia Mermaid y notación Alice-Bob
+│   ├── estructura_proyecto.md            ← Manual histórico de la estructura de proyecto
+│   └── reporte_tesis.md                  ← Síntesis de resultados cuantitativos para la tesis
+│
+├── tamarin/                              ← Verificación Formal de Seguridad Simbólica
+│   ├── protocolo.spthy                   ← Modelo Tamarin con 4 lemas de seguridad verificados
+│   ├── reporte_tamarin.txt               ← Registro de ejecución del verificador
+│   └── README.md                         ← Guía de uso de Tamarin Prover
+│
+├── libro/                                ← Manuscrito de tesis / libro académico
+└── libro_pqc_matematica_basica/          ← Fundamentos matemáticos detallados de retículos
 ```
 
 ---
@@ -305,13 +370,13 @@
 ## Dependencias entre fases
 
 ```
-F1 (Diseño) ──► F2 (Tamarin)
-            ──► F3a (PQClean KAT) ──► F3b (Protocolo PQC) ──┐
-            ──► F4 (Protocolo clásico) ─────────────────────┼──► F5 (Dashboard Web)
-                                                            ├──► F6 (Benchmarks) ──► F7 (Estadística)
-                                                            └──► F8 (Documentación)
+F1 (Diseño Formal) ──► F2 (Tamarin Prover)
+                   ──► F3a (FIPS 202/203/204 Propio + KAT) ──► F3b (Protocolo PQC) ──┐
+                   ──► F4 (Protocolo Clásico RSA/ECDSA) ─────────────────────────────┼──► F5 (Web + Login + Vistas)
+                                                                                     ├──► F6 (Benchmarks) ──► F7 (Estadística)
+                                                                                     └──► F8 (Documentación)
 ```
 
 ---
 
-*Última actualización: 2026-08-26*
+*Última actualización: Noviembre 2026 — Rama `Implementacion`*
